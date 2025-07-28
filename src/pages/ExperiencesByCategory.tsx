@@ -18,9 +18,7 @@ interface Experience {
   likes_count: number;
   comments_count: number;
   created_at: string;
-  profiles: {
-    nickname: string;
-  };
+  user_id: string;
 }
 
 const ExperiencesByCategory = () => {
@@ -66,7 +64,7 @@ const ExperiencesByCategory = () => {
         likes_count,
         comments_count,
         created_at,
-        profiles!experiences_user_id_fkey (nickname)
+        user_id
       `)
       .eq('category', category as any)
       .eq('is_published', true);
@@ -178,7 +176,7 @@ const ExperiencesByCategory = () => {
               <ExperienceCard
                 key={experience.id}
                 title={experience.title}
-                author={experience.profiles?.nickname || 'Utente'}
+                author="Utente"
                 content={experience.content}
                 category={categoryLabels[experience.category]}
                 likes={experience.likes_count}

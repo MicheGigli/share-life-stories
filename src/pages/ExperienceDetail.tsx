@@ -21,10 +21,7 @@ interface Experience {
   likes_count: number;
   comments_count: number;
   created_at: string;
-  profiles: {
-    nickname: string;
-    avatar_url: string | null;
-  };
+  user_id: string;
 }
 
 interface Comment {
@@ -32,10 +29,7 @@ interface Comment {
   content: string;
   created_at: string;
   likes_count: number;
-  profiles: {
-    nickname: string;
-    avatar_url: string | null;
-  };
+  user_id: string;
 }
 
 const ExperienceDetail = () => {
@@ -72,7 +66,7 @@ const ExperienceDetail = () => {
         likes_count,
         comments_count,
         created_at,
-        profiles!experiences_user_id_fkey (nickname, avatar_url)
+        user_id
       `)
       .eq('id', id)
       .eq('is_published', true)
@@ -98,7 +92,7 @@ const ExperienceDetail = () => {
         content,
         created_at,
         likes_count,
-        profiles!comments_user_id_fkey (nickname, avatar_url)
+        user_id
       `)
       .eq('experience_id', id)
       .order('created_at', { ascending: false });
@@ -255,13 +249,12 @@ const ExperienceDetail = () => {
             <div className="flex items-start justify-between">
               <div className="flex items-center space-x-3">
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={experience.profiles?.avatar_url || ''} />
                   <AvatarFallback>
                     <User className="h-6 w-6" />
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-semibold">{experience.profiles?.nickname}</p>
+                  <p className="font-semibold">Utente</p>
                   <p className="text-sm text-muted-foreground">
                     {new Date(experience.created_at).toLocaleDateString('it-IT')}
                   </p>
@@ -367,22 +360,21 @@ const ExperienceDetail = () => {
               {comments.map((comment) => (
                 <Card key={comment.id}>
                   <CardContent className="pt-6">
-                    <div className="flex items-start space-x-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={comment.profiles?.avatar_url || ''} />
-                        <AvatarFallback>
-                          <User className="h-4 w-4" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <p className="font-semibold text-sm">
-                            {comment.profiles?.nickname}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(comment.created_at).toLocaleDateString('it-IT')}
-                          </p>
-                        </div>
+                     <div className="flex items-start space-x-3">
+                       <Avatar className="h-8 w-8">
+                         <AvatarFallback>
+                           <User className="h-4 w-4" />
+                         </AvatarFallback>
+                       </Avatar>
+                       <div className="flex-1">
+                         <div className="flex items-center gap-2 mb-2">
+                           <p className="font-semibold text-sm">
+                             Utente
+                           </p>
+                           <p className="text-xs text-muted-foreground">
+                             {new Date(comment.created_at).toLocaleDateString('it-IT')}
+                           </p>
+                         </div>
                         <p className="text-sm leading-relaxed">{comment.content}</p>
                       </div>
                     </div>

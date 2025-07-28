@@ -14,9 +14,7 @@ interface Experience {
   likes_count: number;
   comments_count: number;
   created_at: string;
-  profiles: {
-    nickname: string;
-  };
+  user_id: string;
 }
 
 export const LatestExperiences = () => {
@@ -39,7 +37,7 @@ export const LatestExperiences = () => {
         likes_count,
         comments_count,
         created_at,
-        profiles!experiences_user_id_fkey(nickname)
+        user_id
       `)
       .eq('is_published', true)
       .order('created_at', { ascending: false })
@@ -128,7 +126,7 @@ export const LatestExperiences = () => {
               <ExperienceCard 
                 key={experience.id || index} 
                 title={experience.title}
-                author={experience.profiles?.nickname || experience.author || 'Utente'}
+                author="Utente"
                 content={experience.content}
                 category={categoryLabels[experience.category] || experience.category}
                 likes={experience.likes_count || experience.likes || 0}
