@@ -1,4 +1,5 @@
 import { SectionCard } from "./SectionCard";
+import { Link } from "react-router-dom";
 import mutuiIcon from "@/assets/mutui-icon.png";
 import vacanzeIcon from "@/assets/vacanze-icon.png";
 import autoIcon from "@/assets/auto-icon.png";
@@ -58,7 +59,12 @@ export const Sections = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {sections.map((section, index) => (
-            <SectionCard key={index} {...section} />
+            <Link 
+              key={index} 
+              to={section.title === "Notizie Serie A" ? "/serie-a" : `/categoria/${section.variant}`}
+            >
+              <SectionCard {...section} />
+            </Link>
           ))}
         </div>
       </div>

@@ -29,11 +29,17 @@ export const Hero = () => {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-          <Button variant="hero" size="xl" className="group">
+          <Button variant="hero" size="xl" className="group" onClick={() => {
+            if (user) {
+              navigate('/create');
+            } else {
+              navigate('/auth');
+            }
+          }}>
             Inizia ora
             <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Button>
-          <Button variant="outline" size="xl" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
+          <Button variant="outline" size="xl" className="bg-white/10 border-white/30 text-white hover:bg-white/20" onClick={() => navigate('/categoria/mutui')}>
             Scopri le esperienze
           </Button>
         </div>

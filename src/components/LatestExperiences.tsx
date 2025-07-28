@@ -140,7 +140,7 @@ export const LatestExperiences = () => {
 
         <div className="text-center">
           <Button variant="outline" size="lg" className="group" asChild>
-            <Link to="/categoria/mutui">
+            <Link to="/search">
               Vedi tutte le esperienze
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>

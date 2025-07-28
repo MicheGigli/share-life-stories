@@ -9,6 +9,7 @@ import CreateExperience from '@/pages/CreateExperience';
 import SerieA from '@/pages/SerieA';
 import TeamNews from '@/pages/TeamNews';
 import ExperiencesByCategory from '@/pages/ExperiencesByCategory';
+import Search from '@/pages/Search';
 import NotFound from '@/pages/NotFound';
 
 function App() {
@@ -20,11 +21,13 @@ function App() {
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/experience/:id" element={<ExperienceDetail />} />
+            <Route path="/search" element={<Search />} />
             <Route path="/create" element={<CreateExperience />} />
             <Route path="/categoria/:category" element={<ExperiencesByCategory />} />
             <Route path="/serie-a" element={<SerieA />} />
             <Route path="/serie-a/:teamSlug" element={<TeamNews />} />
+            <Route path="/team/:slug" element={<TeamNews />} />
+            <Route path="/experience/:id" element={<ExperienceDetail />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />
