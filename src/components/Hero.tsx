@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Users, MessageCircle, Heart } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 import heroBackground from "@/assets/hero-background.jpg";
 
 export const Hero = () => {

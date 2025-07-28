@@ -39,7 +39,7 @@ export const LatestExperiences = () => {
         likes_count,
         comments_count,
         created_at,
-        profiles!inner(nickname)
+        profiles!experiences_user_id_fkey(nickname)
       `)
       .eq('is_published', true)
       .order('created_at', { ascending: false })

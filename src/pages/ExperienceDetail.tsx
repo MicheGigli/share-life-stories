@@ -72,7 +72,7 @@ const ExperienceDetail = () => {
         likes_count,
         comments_count,
         created_at,
-        profiles:user_id (nickname, avatar_url)
+        profiles!experiences_user_id_fkey (nickname, avatar_url)
       `)
       .eq('id', id)
       .eq('is_published', true)
@@ -98,7 +98,7 @@ const ExperienceDetail = () => {
         content,
         created_at,
         likes_count,
-        profiles:user_id (nickname, avatar_url)
+        profiles!comments_user_id_fkey (nickname, avatar_url)
       `)
       .eq('experience_id', id)
       .order('created_at', { ascending: false });

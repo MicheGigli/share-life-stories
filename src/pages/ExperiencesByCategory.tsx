@@ -66,9 +66,9 @@ const ExperiencesByCategory = () => {
         likes_count,
         comments_count,
         created_at,
-        profiles:user_id (nickname)
+        profiles!experiences_user_id_fkey (nickname)
       `)
-      .eq('category', category)
+      .eq('category', category as any)
       .eq('is_published', true);
 
     // Ordinamento
