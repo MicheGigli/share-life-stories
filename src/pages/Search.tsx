@@ -18,6 +18,7 @@ interface Experience {
   comments_count: number;
   created_at: string;
   user_id: string;
+  image_url?: string | null;
 }
 
 const Search = () => {
@@ -49,7 +50,8 @@ const Search = () => {
         likes_count,
         comments_count,
         created_at,
-        user_id
+        user_id,
+        image_url
       `)
       .eq('is_published', true);
 
@@ -97,7 +99,7 @@ const Search = () => {
     'mutui': 'Mutui',
     'vacanze': 'Vacanze',
     'auto': 'Auto',
-    'amazon': 'Prodotti Amazon'
+    'amazon': 'Prodotti'
   };
 
   return (
@@ -179,6 +181,7 @@ const Search = () => {
               {experiences.map((experience) => (
                 <ExperienceCard
                   key={experience.id}
+                  id={experience.id}
                   title={experience.title}
                   author="Utente"
                   content={experience.content}
@@ -187,6 +190,7 @@ const Search = () => {
                   comments={experience.comments_count}
                   date={new Date(experience.created_at).toLocaleDateString('it-IT')}
                   tags={experience.tags}
+                  imageUrl={experience.image_url}
                 />
               ))}
             </div>

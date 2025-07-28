@@ -6,8 +6,6 @@ import Auth from '@/pages/Auth';
 import Profile from '@/pages/Profile';
 import ExperienceDetail from '@/pages/ExperienceDetail';
 import CreateExperience from '@/pages/CreateExperience';
-import SerieA from '@/pages/SerieA';
-import TeamNews from '@/pages/TeamNews';
 import ExperiencesByCategory from '@/pages/ExperiencesByCategory';
 import Search from '@/pages/Search';
 import NotFound from '@/pages/NotFound';
@@ -24,9 +22,6 @@ function App() {
             <Route path="/search" element={<Search />} />
             <Route path="/create" element={<CreateExperience />} />
             <Route path="/categoria/:category" element={<ExperiencesByCategory />} />
-            <Route path="/serie-a" element={<SerieA />} />
-            <Route path="/serie-a/:teamSlug" element={<TeamNews />} />
-            <Route path="/team/:slug" element={<TeamNews />} />
             <Route path="/experience/:id" element={<ExperienceDetail />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

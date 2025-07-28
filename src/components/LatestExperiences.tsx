@@ -15,6 +15,7 @@ interface Experience {
   comments_count: number;
   created_at: string;
   user_id: string;
+  image_url?: string | null;
   author?: string;
 }
 
@@ -38,7 +39,8 @@ export const LatestExperiences = () => {
         likes_count,
         comments_count,
         created_at,
-        user_id
+        user_id,
+        image_url
       `)
       .eq('is_published', true)
       .order('created_at', { ascending: false })
@@ -143,7 +145,8 @@ export const LatestExperiences = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-12">
             {experiences.length > 0 ? experiences.map((experience) => (
               <ExperienceCard 
-                key={experience.id} 
+                key={experience.id}
+                id={experience.id}
                 title={experience.title}
                 author={experience.author || 'Utente'}
                 content={experience.content}
@@ -152,10 +155,12 @@ export const LatestExperiences = () => {
                 comments={experience.comments_count || 0}
                 date={new Date(experience.created_at).toLocaleDateString('it-IT')}
                 tags={experience.tags}
+                imageUrl={experience.image_url}
               />
             )) : fallbackExperiences.map((experience, index) => (
               <ExperienceCard 
-                key={index} 
+                key={index}
+                id={`fallback-${index}`}
                 title={experience.title}
                 author={experience.author}
                 content={experience.content}

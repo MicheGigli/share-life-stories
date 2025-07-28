@@ -5,8 +5,8 @@ import lifeshareLogo from "@/assets/lifeshare-logo.png";
 export const Footer = () => {
   return (
     <footer className="bg-primary text-primary-foreground">
-      <div className="max-w-7xl mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Logo e descrizione */}
           <div className="md:col-span-2">
             <div className="flex items-center space-x-3 mb-4">
@@ -40,8 +40,7 @@ export const Footer = () => {
               <li><a href="#" className="hover:text-primary-foreground transition-colors">Mutui</a></li>
               <li><a href="#" className="hover:text-primary-foreground transition-colors">Vacanze</a></li>
               <li><a href="#" className="hover:text-primary-foreground transition-colors">Auto</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Prodotti Amazon</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Notizie Serie A</a></li>
+              <li><a href="#" className="hover:text-primary-foreground transition-colors">Prodotti</a></li>
             </ul>
           </div>
 
@@ -58,33 +57,9 @@ export const Footer = () => {
           </div>
         </div>
 
-        {/* Newsletter */}
-        <div className="border-t border-primary-foreground/20 mt-12 pt-8">
-          <div className="text-center mb-8">
-            <h4 className="text-xl font-semibold mb-2">Resta aggiornato</h4>
-            <p className="text-primary-foreground/80 mb-4">
-              Ricevi il meglio della community ogni settimana (solo se vuoi!)
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="La tua email"
-                className="flex-1 px-4 py-2 rounded-md bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary-foreground/50"
-              />
-              <Button variant="secondary">
-                <Mail className="h-4 w-4 mr-2" />
-                Iscriviti
-              </Button>
-            </div>
-          </div>
-        </div>
-
         {/* Copyright */}
-        <div className="border-t border-primary-foreground/20 pt-8 text-center text-primary-foreground/60">
+        <div className="border-t border-primary-foreground/20 mt-6 pt-4 text-center text-primary-foreground/60">
           <p>© 2024 LifeShare. Realizzato con <Heart className="h-4 w-4 inline text-red-400" /> per la community italiana.</p>
-          <p className="mt-2 text-sm">
-            Tutte le notizie sportive sono di proprietà delle rispettive fonti citate.
-          </p>
         </div>
       </div>
     </footer>

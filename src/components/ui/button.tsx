@@ -23,7 +23,6 @@ const buttonVariants = cva(
         vacanze: "bg-vacanze text-white hover:bg-vacanze/90 shadow-md hover:shadow-lg",
         auto: "bg-auto text-white hover:bg-auto/90 shadow-md hover:shadow-lg",
         amazon: "bg-amazon text-white hover:bg-amazon/90 shadow-md hover:shadow-lg",
-        seria: "bg-seria text-white hover:bg-seria/90 shadow-md hover:shadow-lg",
       },
       size: {
         default: "h-10 px-4 py-2",

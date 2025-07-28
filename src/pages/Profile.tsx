@@ -32,6 +32,7 @@ interface Experience {
   likes_count: number;
   comments_count: number;
   created_at: string;
+  image_url?: string | null;
 }
 
 const Profile = () => {
@@ -295,6 +296,7 @@ const Profile = () => {
                 {experiences.map((experience) => (
                   <ExperienceCard
                     key={experience.id}
+                    id={experience.id}
                     title={experience.title}
                     author={profile?.nickname || 'Utente'}
                     content={experience.content}
@@ -303,6 +305,7 @@ const Profile = () => {
                     comments={experience.comments_count}
                     date={new Date(experience.created_at).toLocaleDateString('it-IT')}
                     tags={experience.tags}
+                    imageUrl={experience.image_url}
                   />
                 ))}
               </div>

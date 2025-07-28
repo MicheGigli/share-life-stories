@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { PenTool, Tag, X } from 'lucide-react';
+import { PenTool, Tag, X, Upload, Image as ImageIcon } from 'lucide-react';
 
 const CreateExperience = () => {
   const { user, loading } = useAuth();
@@ -23,9 +23,11 @@ const CreateExperience = () => {
     title: '',
     content: '',
     category: '',
-    tags: [] as string[]
+    tags: [] as string[],
+    image: null as File | null
   });
   const [currentTag, setCurrentTag] = useState('');
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -37,7 +39,7 @@ const CreateExperience = () => {
     { value: 'mutui', label: 'Mutui', color: 'bg-mutui' },
     { value: 'vacanze', label: 'Vacanze', color: 'bg-vacanze' },
     { value: 'auto', label: 'Auto', color: 'bg-auto' },
-    { value: 'amazon', label: 'Prodotti Amazon', color: 'bg-amazon' }
+    { value: 'amazon', label: 'Prodotti', color: 'bg-amazon' }
   ];
 
   const addTag = () => {
@@ -57,6 +59,45 @@ const CreateExperience = () => {
     });
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Check file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File troppo grande",
+          description: "L'immagine deve essere massimo 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Formato non valido",
+          description: "Carica solo immagini (JPG, PNG, GIF)",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setFormData({ ...formData, image: file });
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setFormData({ ...formData, image: null });
+    setImagePreview(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -74,6 +115,33 @@ const CreateExperience = () => {
     setIsSubmitting(true);
 
     try {
+      let imageUrl = null;
+      
+      // Upload image if present
+      if (formData.image) {
+        const fileExt = formData.image.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('experience-images')
+          .upload(fileName, formData.image);
+
+        if (uploadError) {
+          toast({
+            title: "Errore caricamento immagine",
+            description: "Impossibile caricare l'immagine",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('experience-images')
+          .getPublicUrl(fileName);
+          
+        imageUrl = publicUrl;
+      }
+
       const { error } = await supabase
         .from('experiences')
         .insert({
@@ -82,6 +150,7 @@ const CreateExperience = () => {
           content: formData.content.trim(),
           category: formData.category as 'mutui' | 'vacanze' | 'auto' | 'amazon',
           tags: formData.tags,
+          image_url: imageUrl,
           is_published: true
         });
 
@@ -194,6 +263,58 @@ const CreateExperience = () => {
                 />
                 <p className="text-sm text-muted-foreground mt-1">
                   {formData.content.length}/5000 caratteri
+                </p>
+              </div>
+
+              {/* Upload immagine */}
+              <div>
+                <Label htmlFor="image">Immagine (opzionale)</Label>
+                <div className="mt-2">
+                  {imagePreview ? (
+                    <div className="relative">
+                      <img 
+                        src={imagePreview} 
+                        alt="Anteprima" 
+                        className="w-full max-w-md h-48 object-cover rounded-lg border border-border"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={removeImage}
+                        className="absolute top-2 right-2"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                      <div className="flex flex-col items-center gap-2">
+                        <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground">
+                          Carica un'immagine (max 5MB)
+                        </p>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                          id="image-upload"
+                        />
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={() => document.getElementById('image-upload')?.click()}
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Seleziona immagine
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Formati supportati: JPG, PNG, GIF (massimo 5MB)
                 </p>
               </div>
 

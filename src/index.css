@@ -46,9 +46,8 @@ All colors MUST be HSL.
     /* Section colors */
     --mutui: 122 39% 49%;
     --vacanze: 207 90% 54%;
-    --auto: 0 84% 55%;
+    --auto: 4 90% 58%;
     --amazon: 25 95% 53%;
-    --seria: 120 100% 25%;
 
     /* Gradients */
     --gradient-hero: linear-gradient(135deg, hsl(142 76% 36%), hsl(207 90% 54%));

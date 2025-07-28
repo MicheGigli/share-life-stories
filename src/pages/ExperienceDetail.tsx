@@ -22,6 +22,7 @@ interface Experience {
   comments_count: number;
   created_at: string;
   user_id: string;
+  image_url?: string | null;
 }
 
 interface Comment {
@@ -66,7 +67,8 @@ const ExperienceDetail = () => {
         likes_count,
         comments_count,
         created_at,
-        user_id
+        user_id,
+        image_url
       `)
       .eq('id', id)
       .eq('is_published', true)
@@ -268,6 +270,14 @@ const ExperienceDetail = () => {
           
           <CardContent>
             <h1 className="text-2xl font-bold mb-4">{experience.title}</h1>
+            
+            {experience.image_url && (
+              <img 
+                src={experience.image_url} 
+                alt={experience.title}
+                className="w-full max-w-2xl h-64 object-cover rounded-lg mb-6"
+              />
+            )}
             
             <div className="prose prose-neutral dark:prose-invert max-w-none mb-6">
               {experience.content.split('\n').map((paragraph, index) => (

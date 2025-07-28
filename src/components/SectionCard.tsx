@@ -6,7 +6,7 @@ interface SectionCardProps {
   title: string;
   description: string;
   image: string;
-  variant: "mutui" | "vacanze" | "auto" | "amazon" | "seria";
+  variant: "mutui" | "vacanze" | "auto" | "amazon";
   stats: {
     posts: number;
     comments: number;

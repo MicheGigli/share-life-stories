@@ -6,8 +6,6 @@ import mutuiIcon from "@/assets/mutui-icon.png";
 import vacanzeIcon from "@/assets/vacanze-icon.png";
 import autoIcon from "@/assets/auto-icon.png";
 import amazonIcon from "@/assets/amazon-icon.png";
-import seriaIcon from "@/assets/seria-icon.png";
-
 interface SectionStats {
   mutui: { posts: number; comments: number };
   vacanze: { posts: number; comments: number };
@@ -82,18 +80,11 @@ export const Sections = () => {
       stats: stats.auto
     },
     {
-      title: "Prodotti Amazon",
+      title: "Prodotti",
       description: "Recensioni e consigli sui tuoi acquisti online",
       image: amazonIcon,
       variant: "amazon" as const,
       stats: stats.amazon
-    },
-    {
-      title: "Notizie Serie A",
-      description: "Tutte le ultime notizie del calcio italiano",
-      image: seriaIcon,
-      variant: "seria" as const,
-      stats: { posts: 560, comments: 1200 }
     }
   ];
 
@@ -109,11 +100,11 @@ export const Sections = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {sections.map((section, index) => (
             <Link 
               key={index} 
-              to={section.title === "Notizie Serie A" ? "/serie-a" : `/categoria/${section.variant}`}
+              to={`/categoria/${section.variant}`}
             >
               <SectionCard {...section} />
             </Link>
