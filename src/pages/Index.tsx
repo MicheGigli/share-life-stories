@@ -5,8 +5,13 @@ import { Hero } from "@/components/Hero";
 import { Sections } from "@/components/Sections";
 import { LatestExperiences } from "@/components/LatestExperiences";
 import { Footer } from "@/components/Footer";
+import { useSampleData } from "@/hooks/useSampleData";
+import { useProfileSync } from "@/hooks/useProfileSync";
 
 const Index = () => {
+  // Ensure user has profile and sample data
+  useProfileSync();
+  useSampleData();
   const { user } = useAuth();
 
   return (

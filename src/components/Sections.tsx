@@ -1,40 +1,92 @@
+import { useState, useEffect } from 'react';
 import { SectionCard } from "./SectionCard";
 import { Link } from "react-router-dom";
+import { supabase } from '@/integrations/supabase/client';
 import mutuiIcon from "@/assets/mutui-icon.png";
 import vacanzeIcon from "@/assets/vacanze-icon.png";
 import autoIcon from "@/assets/auto-icon.png";
 import amazonIcon from "@/assets/amazon-icon.png";
 import seriaIcon from "@/assets/seria-icon.png";
 
+interface SectionStats {
+  mutui: { posts: number; comments: number };
+  vacanze: { posts: number; comments: number };
+  auto: { posts: number; comments: number };
+  amazon: { posts: number; comments: number };
+}
+
 export const Sections = () => {
+  const [stats, setStats] = useState<SectionStats>({
+    mutui: { posts: 0, comments: 0 },
+    vacanze: { posts: 0, comments: 0 },
+    auto: { posts: 0, comments: 0 },
+    amazon: { posts: 0, comments: 0 }
+  });
+
+  useEffect(() => {
+    fetchSectionStats();
+  }, []);
+
+  const fetchSectionStats = async () => {
+    try {
+      const { data: experiences, error } = await supabase
+        .from('experiences')
+        .select('category, comments_count')
+        .eq('is_published', true);
+
+      if (error) {
+        console.error('Error fetching section stats:', error);
+        return;
+      }
+
+      const newStats: SectionStats = {
+        mutui: { posts: 0, comments: 0 },
+        vacanze: { posts: 0, comments: 0 },
+        auto: { posts: 0, comments: 0 },
+        amazon: { posts: 0, comments: 0 }
+      };
+
+      experiences?.forEach(exp => {
+        if (exp.category in newStats) {
+          newStats[exp.category as keyof SectionStats].posts += 1;
+          newStats[exp.category as keyof SectionStats].comments += exp.comments_count || 0;
+        }
+      });
+
+      setStats(newStats);
+    } catch (error) {
+      console.error('Error fetching section stats:', error);
+    }
+  };
+
   const sections = [
     {
       title: "Mutui",
       description: "Condividi la tua esperienza con banche e finanziamenti",
       image: mutuiIcon,
       variant: "mutui" as const,
-      stats: { posts: 1250, comments: 3400 }
+      stats: stats.mutui
     },
     {
       title: "Vacanze",
       description: "Raccontaci i tuoi viaggi e le tue avventure",
       image: vacanzeIcon,
       variant: "vacanze" as const,
-      stats: { posts: 2180, comments: 5670 }
+      stats: stats.vacanze
     },
     {
       title: "Auto",
       description: "Esperienze di acquisto, noleggio e manutenzione",
       image: autoIcon,
       variant: "auto" as const,
-      stats: { posts: 980, comments: 2340 }
+      stats: stats.auto
     },
     {
       title: "Prodotti Amazon",
       description: "Recensioni e consigli sui tuoi acquisti online",
       image: amazonIcon,
       variant: "amazon" as const,
-      stats: { posts: 3450, comments: 8900 }
+      stats: stats.amazon
     },
     {
       title: "Notizie Serie A",

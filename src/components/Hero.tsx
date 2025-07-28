@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Users, MessageCircle, Heart } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { CommunityStats } from "./CommunityStats";
 import heroBackground from "@/assets/hero-background.jpg";
 
 export const Hero = () => {
@@ -45,29 +46,7 @@ export const Hero = () => {
         </div>
 
         {/* Statistiche */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-2xl mx-auto">
-          <div className="flex flex-col items-center">
-            <div className="bg-white/20 p-3 rounded-full mb-3">
-              <Users className="h-8 w-8 text-white" />
-            </div>
-            <h3 className="text-2xl font-bold">5.000+</h3>
-            <p className="text-white/80">Membri attivi</p>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="bg-white/20 p-3 rounded-full mb-3">
-              <MessageCircle className="h-8 w-8 text-white" />
-            </div>
-            <h3 className="text-2xl font-bold">15.000+</h3>
-            <p className="text-white/80">Esperienze condivise</p>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="bg-white/20 p-3 rounded-full mb-3">
-              <Heart className="h-8 w-8 text-white" />
-            </div>
-            <h3 className="text-2xl font-bold">50.000+</h3>
-            <p className="text-white/80">Utenti aiutati</p>
-          </div>
-        </div>
+        <CommunityStats />
       </div>
     </section>
   );

@@ -15,6 +15,7 @@ interface Experience {
   comments_count: number;
   created_at: string;
   user_id: string;
+  author?: string;
 }
 
 export const LatestExperiences = () => {
@@ -49,7 +50,25 @@ export const LatestExperiences = () => {
       return;
     }
 
-    setExperiences(data || []);
+    // Get profiles for all experiences
+    if (data && data.length > 0) {
+      const userIds = [...new Set(data.map(exp => exp.user_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, nickname')
+        .in('user_id', userIds);
+
+      // Combine experiences with profile data
+      const experiencesWithProfiles = data.map(exp => ({
+        ...exp,
+        author: profiles?.find(p => p.user_id === exp.user_id)?.nickname || 'Utente'
+      }));
+
+      setExperiences(experiencesWithProfiles as any);
+    } else {
+      setExperiences([]);
+    }
+    
     setLoading(false);
   };
 
@@ -122,16 +141,28 @@ export const LatestExperiences = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-12">
-            {(experiences.length > 0 ? experiences : fallbackExperiences).map((experience, index) => (
+            {experiences.length > 0 ? experiences.map((experience) => (
               <ExperienceCard 
-                key={experience.id || index} 
+                key={experience.id} 
                 title={experience.title}
-                author="Utente"
+                author={experience.author || 'Utente'}
                 content={experience.content}
                 category={categoryLabels[experience.category] || experience.category}
-                likes={experience.likes_count || experience.likes || 0}
-                comments={experience.comments_count || experience.comments || 0}
-                date={experience.created_at ? new Date(experience.created_at).toLocaleDateString('it-IT') : experience.date}
+                likes={experience.likes_count || 0}
+                comments={experience.comments_count || 0}
+                date={new Date(experience.created_at).toLocaleDateString('it-IT')}
+                tags={experience.tags}
+              />
+            )) : fallbackExperiences.map((experience, index) => (
+              <ExperienceCard 
+                key={index} 
+                title={experience.title}
+                author={experience.author}
+                content={experience.content}
+                category={experience.category}
+                likes={experience.likes}
+                comments={experience.comments}
+                date={experience.date}
                 tags={experience.tags}
               />
             ))}
