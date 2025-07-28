@@ -18,6 +18,9 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['Inter', 'system-ui', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -61,7 +64,25 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// LifeShare brand colors
+				lifeshare: {
+					green: 'hsl(var(--lifeshare-green))',
+					blue: 'hsl(var(--lifeshare-blue))',
+					red: 'hsl(var(--lifeshare-red))',
+					orange: 'hsl(var(--lifeshare-orange))',
+					purple: 'hsl(var(--lifeshare-purple))'
+				},
+				// Section colors
+				mutui: 'hsl(var(--mutui))',
+				vacanze: 'hsl(var(--vacanze))',
+				auto: 'hsl(var(--auto))',
+				amazon: 'hsl(var(--amazon))',
+				seria: 'hsl(var(--seria))'
+			},
+			backgroundImage: {
+				'gradient-hero': 'var(--gradient-hero)',
+				'gradient-card': 'var(--gradient-card)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
