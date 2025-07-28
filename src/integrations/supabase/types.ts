@@ -283,7 +283,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_delete_experience: {
+        Args: { experience_id: string; user_id: string }
+        Returns: boolean
+      }
+      get_user_nickname: {
+        Args: { user_id: string }
+        Returns: string
+      }
     }
     Enums: {
       experience_category: "mutui" | "vacanze" | "auto" | "amazon"
