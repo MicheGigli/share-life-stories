@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { ExperienceCard } from '@/components/ExperienceCard';
+import { DeleteExperienceButton } from '@/components/DeleteExperienceButton';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { User, Settings, Heart, MessageCircle } from 'lucide-react';
@@ -294,19 +295,28 @@ const Profile = () => {
             ) : (
               <div className="space-y-6">
                 {experiences.map((experience) => (
-                  <ExperienceCard
-                    key={experience.id}
-                    id={experience.id}
-                    title={experience.title}
-                    author={profile?.nickname || 'Utente'}
-                    content={experience.content}
-                    category={experience.category}
-                    likes={experience.likes_count}
-                    comments={experience.comments_count}
-                    date={new Date(experience.created_at).toLocaleDateString('it-IT')}
-                    tags={experience.tags}
-                    imageUrl={experience.image_url}
-                  />
+                  <div key={experience.id} className="relative">
+                    <ExperienceCard
+                      id={experience.id}
+                      title={experience.title}
+                      author={profile?.nickname || 'Utente'}
+                      content={experience.content}
+                      category={experience.category}
+                      likes={experience.likes_count}
+                      comments={experience.comments_count}
+                      date={new Date(experience.created_at).toLocaleDateString('it-IT')}
+                      tags={experience.tags}
+                      imageUrl={experience.image_url}
+                    />
+                    <div className="absolute top-4 right-4 flex gap-2">
+                      <DeleteExperienceButton 
+                        experienceId={experience.id} 
+                        onDeleted={fetchUserExperiences}
+                        variant="outline"
+                        size="sm"
+                      />
+                    </div>
+                  </div>
                 ))}
               </div>
             )}

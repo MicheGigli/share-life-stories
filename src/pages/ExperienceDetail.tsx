@@ -11,6 +11,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Heart, MessageCircle, Share2, User, ArrowLeft } from 'lucide-react';
+import { ImageGallery } from '@/components/ImageGallery';
+import { DeleteExperienceButton } from '@/components/DeleteExperienceButton';
+import { EditExperienceButton } from '@/components/EditExperienceButton';
 
 interface Experience {
   id: string;
@@ -33,6 +36,10 @@ interface Comment {
   user_id: string;
 }
 
+interface Profile {
+  nickname: string;
+}
+
 const ExperienceDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
@@ -42,6 +49,8 @@ const ExperienceDetail = () => {
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
+  const [authorProfile, setAuthorProfile] = useState<Profile | null>(null);
+  const [commentProfiles, setCommentProfiles] = useState<{ [key: string]: Profile }>({});
 
   useEffect(() => {
     if (id) {
@@ -81,6 +90,20 @@ const ExperienceDetail = () => {
     }
 
     setExperience(data);
+    
+    // Fetch author profile
+    if (data.user_id) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('nickname')
+        .eq('user_id', data.user_id)
+        .single();
+      
+      if (profile) {
+        setAuthorProfile(profile);
+      }
+    }
+    
     setLoading(false);
   };
 
@@ -105,6 +128,24 @@ const ExperienceDetail = () => {
     }
 
     setComments(data || []);
+    
+    // Fetch profiles for comment authors
+    if (data && data.length > 0) {
+      const userIds = [...new Set(data.map(comment => comment.user_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, nickname')
+        .in('user_id', userIds);
+      
+      if (profiles) {
+        const profileMap = profiles.reduce((acc, profile) => {
+          acc[profile.user_id] = { nickname: profile.nickname };
+          return acc;
+        }, {} as { [key: string]: Profile });
+        
+        setCommentProfiles(profileMap);
+      }
+    }
   };
 
   const checkIfLiked = async () => {
@@ -256,28 +297,28 @@ const ExperienceDetail = () => {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-semibold">Utente</p>
+                  <p className="font-semibold">{authorProfile?.nickname || 'Utente'}</p>
                   <p className="text-sm text-muted-foreground">
                     {new Date(experience.created_at).toLocaleDateString('it-IT')}
                   </p>
                 </div>
               </div>
-              <Badge className={getCategoryColor(experience.category)}>
-                {experience.category}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge className={getCategoryColor(experience.category)}>
+                  {experience.category}
+                </Badge>
+                {user && user.id === experience.user_id && (
+                  <div className="flex gap-2">
+                    <EditExperienceButton experienceId={experience.id} />
+                    <DeleteExperienceButton experienceId={experience.id} />
+                  </div>
+                )}
+              </div>
             </div>
           </CardHeader>
           
           <CardContent>
             <h1 className="text-2xl font-bold mb-4">{experience.title}</h1>
-            
-            {experience.image_url && (
-              <img 
-                src={experience.image_url} 
-                alt={experience.title}
-                className="w-full max-w-2xl h-64 object-cover rounded-lg mb-6"
-              />
-            )}
             
             <div className="prose prose-neutral dark:prose-invert max-w-none mb-6">
               {experience.content.split('\n').map((paragraph, index) => (
@@ -296,6 +337,14 @@ const ExperienceDetail = () => {
                   </Badge>
                 ))}
               </div>
+            )}
+
+            {/* Gallery immagini */}
+            {experience.image_url && (
+              <ImageGallery 
+                images={[experience.image_url]} 
+                title="Immagini dell'esperienza" 
+              />
             )}
             
             {/* Azioni */}
@@ -378,9 +427,9 @@ const ExperienceDetail = () => {
                        </Avatar>
                        <div className="flex-1">
                          <div className="flex items-center gap-2 mb-2">
-                           <p className="font-semibold text-sm">
-                             Utente
-                           </p>
+                            <p className="font-semibold text-sm">
+                              {commentProfiles[comment.user_id]?.nickname || 'Utente'}
+                            </p>
                            <p className="text-xs text-muted-foreground">
                              {new Date(comment.created_at).toLocaleDateString('it-IT')}
                            </p>

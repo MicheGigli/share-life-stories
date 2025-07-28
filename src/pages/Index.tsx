@@ -17,9 +17,16 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <Hero />
-      <Sections />
-      <LatestExperiences />
+      {user ? (
+        <>
+          <div className="pt-16">
+            <Sections />
+            <LatestExperiences />
+          </div>
+        </>
+      ) : (
+        <Hero />
+      )}
       <Footer />
     </div>
   );

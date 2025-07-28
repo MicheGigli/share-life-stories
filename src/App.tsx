@@ -6,6 +6,7 @@ import Auth from '@/pages/Auth';
 import Profile from '@/pages/Profile';
 import ExperienceDetail from '@/pages/ExperienceDetail';
 import CreateExperience from '@/pages/CreateExperience';
+import EditExperience from '@/pages/EditExperience';
 import ExperiencesByCategory from '@/pages/ExperiencesByCategory';
 import Search from '@/pages/Search';
 import NotFound from '@/pages/NotFound';
@@ -21,6 +22,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/search" element={<Search />} />
             <Route path="/create" element={<CreateExperience />} />
+            <Route path="/edit/:id" element={<EditExperience />} />
             <Route path="/categoria/:category" element={<ExperiencesByCategory />} />
             <Route path="/experience/:id" element={<ExperienceDetail />} />
             <Route path="*" element={<NotFound />} />

@@ -19,6 +19,7 @@ const CreateExperience = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [moderating, setModerating] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -98,6 +99,36 @@ const CreateExperience = () => {
     setImagePreview(null);
   };
 
+  const moderateContent = async (content: string): Promise<boolean> => {
+    try {
+      setModerating(true);
+      const { data, error } = await supabase.functions.invoke('moderate-content', {
+        body: { content }
+      });
+
+      if (error) {
+        console.error('Error moderating content:', error);
+        return true; // Allow content if moderation fails
+      }
+
+      if (!data.isAppropriate) {
+        toast({
+          title: "Contenuto non appropriato",
+          description: data.reason || "Il contenuto contiene elementi non permessi",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error in content moderation:', error);
+      return true; // Allow content if moderation fails
+    } finally {
+      setModerating(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -113,6 +144,15 @@ const CreateExperience = () => {
     }
 
     setIsSubmitting(true);
+
+    // Moderate content before publishing
+    const fullContent = `${formData.title} ${formData.content}`;
+    const isContentAppropriate = await moderateContent(fullContent);
+    
+    if (!isContentAppropriate) {
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       let imageUrl = null;
@@ -362,8 +402,8 @@ const CreateExperience = () => {
 
               {/* Pulsanti */}
               <div className="flex gap-4 pt-4">
-                <Button type="submit" disabled={isSubmitting} className="flex-1">
-                  {isSubmitting ? 'Pubblicazione in corso...' : 'Pubblica esperienza'}
+                <Button type="submit" disabled={isSubmitting || moderating} className="flex-1">
+                  {moderating ? 'Verifica contenuto...' : isSubmitting ? 'Pubblicazione in corso...' : 'Pubblica esperienza'}
                 </Button>
                 <Button 
                   type="button" 
