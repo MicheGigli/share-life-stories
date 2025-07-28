@@ -3,6 +3,8 @@ import { ArrowRight, Users, MessageCircle, Heart } from "lucide-react";
 import heroBackground from "@/assets/hero-background.jpg";
 
 export const Hero = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   return (
     <section 
       className="relative min-h-screen flex items-center justify-center text-center px-4 py-20"

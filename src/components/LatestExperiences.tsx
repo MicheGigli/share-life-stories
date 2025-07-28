@@ -1,9 +1,69 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { ExperienceCard } from "./ExperienceCard";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+
+interface Experience {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  tags: string[];
+  likes_count: number;
+  comments_count: number;
+  created_at: string;
+  profiles: {
+    nickname: string;
+  };
+}
 
 export const LatestExperiences = () => {
-  const experiences = [
+  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchLatestExperiences();
+  }, []);
+
+  const fetchLatestExperiences = async () => {
+    const { data, error } = await supabase
+      .from('experiences')
+      .select(`
+        id,
+        title,
+        content,
+        category,
+        tags,
+        likes_count,
+        comments_count,
+        created_at,
+        profiles!inner(nickname)
+      `)
+      .eq('is_published', true)
+      .order('created_at', { ascending: false })
+      .limit(4);
+
+    if (error) {
+      console.error('Error fetching experiences:', error);
+      setLoading(false);
+      return;
+    }
+
+    setExperiences(data || []);
+    setLoading(false);
+  };
+
+  const categoryLabels: Record<string, string> = {
+    'mutui': 'Mutui',
+    'vacanze': 'Vacanze',
+    'auto': 'Auto',
+    'amazon': 'Amazon'
+  };
+
+  // Fallback experiences if none exist
+  const fallbackExperiences = [
     {
       title: "La mia esperienza con il mutuo prima casa",
       author: "Marco Rossi",
@@ -58,16 +118,34 @@ export const LatestExperiences = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-12">
-          {experiences.map((experience, index) => (
-            <ExperienceCard key={index} {...experience} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="text-muted-foreground">Caricamento esperienze...</div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-12">
+            {(experiences.length > 0 ? experiences : fallbackExperiences).map((experience, index) => (
+              <ExperienceCard 
+                key={experience.id || index} 
+                title={experience.title}
+                author={experience.profiles?.nickname || experience.author || 'Utente'}
+                content={experience.content}
+                category={categoryLabels[experience.category] || experience.category}
+                likes={experience.likes_count || experience.likes || 0}
+                comments={experience.comments_count || experience.comments || 0}
+                date={experience.created_at ? new Date(experience.created_at).toLocaleDateString('it-IT') : experience.date}
+                tags={experience.tags}
+              />
+            ))}
+          </div>
+        )}
 
         <div className="text-center">
-          <Button variant="outline" size="lg" className="group">
-            Vedi tutte le esperienze
-            <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+          <Button variant="outline" size="lg" className="group" asChild>
+            <Link to="/categoria/mutui">
+              Vedi tutte le esperienze
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </Button>
         </div>
       </div>
