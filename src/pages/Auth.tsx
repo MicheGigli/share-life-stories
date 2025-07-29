@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Mail, Lock, User, Chrome } from 'lucide-react';
 import lifeshareLogo from '@/assets/lifeshare-logo.png';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -126,6 +126,12 @@ const Auth = () => {
                   >
                     {isLoading ? 'Accesso in corso...' : 'Accedi'}
                   </Button>
+
+                  <div className="text-center">
+                    <Link to="/password-reset" className="text-sm text-muted-foreground hover:text-primary">
+                      Password dimenticata?
+                    </Link>
+                  </div>
                 </form>
               </TabsContent>
               

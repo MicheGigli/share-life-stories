@@ -20,6 +20,7 @@ interface Experience {
   created_at: string;
   user_id: string;
   image_url?: string | null;
+  author_nickname?: string;
 }
 
 const ExperiencesByCategory = () => {
@@ -92,8 +93,29 @@ const ExperiencesByCategory = () => {
       return;
     }
 
-    setExperiences(data || []);
+    // Get author nicknames for each experience
+    const experiencesWithAuthors = await Promise.all(
+      (data || []).map(async (exp) => {
+        const nickname = await getUserNickname(exp.user_id);
+        return {
+          ...exp,
+          author_nickname: nickname
+        };
+      })
+    );
+    
+    setExperiences(experiencesWithAuthors);
     setLoading(false);
+  };
+
+  const getUserNickname = async (userId: string): Promise<string> => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('nickname')
+      .eq('user_id', userId)
+      .single();
+    
+    return data?.nickname || 'Utente';
   };
 
   const filteredExperiences = experiences.filter(experience =>
@@ -168,8 +190,8 @@ const ExperiencesByCategory = () => {
                 : `Nessuna esperienza trovata nella categoria ${categoryLabels[category]}`
               }
             </div>
-            <Button onClick={() => window.location.href = '/create'}>
-              Condividi la tua esperienza
+            <Button onClick={() => window.location.href = `/create/${category}`}>
+              Condividi la tua esperienza in {categoryLabels[category]}
             </Button>
           </div>
         ) : (
@@ -179,7 +201,7 @@ const ExperiencesByCategory = () => {
                 key={experience.id}
                 id={experience.id}
                 title={experience.title}
-                author="Utente"
+                author={experience.author_nickname || 'Utente'}
                 content={experience.content}
                 category={categoryLabels[experience.category]}
                 likes={experience.likes_count}

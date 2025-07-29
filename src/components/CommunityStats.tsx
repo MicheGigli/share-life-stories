@@ -44,7 +44,7 @@ export const CommunityStats = () => {
       const totalComments = experiences?.reduce((sum, exp) => sum + (exp.comments_count || 0), 0) || 0;
 
       setStats({
-        totalUsers: (profiles as any)?.length || 0,
+        totalUsers: profiles?.length || 0,
         totalExperiences,
         totalLikes,
         totalComments: totalComments
@@ -96,7 +96,7 @@ export const CommunityStats = () => {
             <stat.icon className="h-8 w-8 text-white" />
           </div>
           <h3 className="text-2xl font-bold">
-            {stats.totalUsers === 0 && stats.totalExperiences === 0 ? stat.fallback : stat.value}
+            {stat.value}
           </h3>
           <p className="text-white/80 text-sm">{stat.label}</p>
         </div>

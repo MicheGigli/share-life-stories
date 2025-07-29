@@ -10,8 +10,8 @@ export const Header = () => {
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-4">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+      <div className="container flex h-16 items-center justify-between px-4 max-w-7xl mx-auto">
         {/* Logo e titolo */}
         <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
           <img src={lifeshareLogo} alt="LifeShare" className="h-10 w-10" />
@@ -36,9 +36,6 @@ export const Header = () => {
           </Link>
           <Link to="/categoria/amazon" className="text-muted-foreground hover:text-foreground transition-colors">
             Amazon
-          </Link>
-          <Link to="/serie-a" className="text-muted-foreground hover:text-foreground transition-colors">
-            Serie A
           </Link>
           <Link to="/search" className="text-muted-foreground hover:text-foreground transition-colors">
             Cerca
