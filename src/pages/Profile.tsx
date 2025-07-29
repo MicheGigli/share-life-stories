@@ -5,16 +5,17 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { ExperienceCard } from '@/components/ExperienceCard';
 import { DeleteExperienceButton } from '@/components/DeleteExperienceButton';
+import { EditExperienceButton } from '@/components/EditExperienceButton';
+import { ProfileImageUpload } from '@/components/ProfileImageUpload';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { User, Settings, Heart, MessageCircle } from 'lucide-react';
+import { User, Mail, Bell, Save, Heart, MessageCircle } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -42,7 +43,7 @@ const Profile = () => {
   const { toast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [experiences, setExperiences] = useState<Experience[]>([]);
-  const [isEditing, setIsEditing] = useState(false);
+  const [updating, setUpdating] = useState(false);
   const [formData, setFormData] = useState({
     nickname: '',
     bio: '',
@@ -105,6 +106,8 @@ const Profile = () => {
   const updateProfile = async () => {
     if (!user || !profile) return;
 
+    setUpdating(true);
+
     const { error } = await supabase
       .from('profiles')
       .update({
@@ -120,6 +123,7 @@ const Profile = () => {
         description: "Impossibile aggiornare il profilo",
         variant: "destructive",
       });
+      setUpdating(false);
       return;
     }
 
@@ -128,15 +132,25 @@ const Profile = () => {
       description: "Le modifiche sono state salvate con successo",
     });
 
-    setIsEditing(false);
+    setUpdating(false);
     fetchProfile();
+  };
+
+  const getCategoryLabel = (category: string) => {
+    const labels: { [key: string]: string } = {
+      'mutui': 'Mutui',
+      'vacanze': 'Vacanze',
+      'auto': 'Auto', 
+      'amazon': 'Amazon'
+    };
+    return labels[category] || category;
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 pt-24">
           <div className="text-center">Caricamento...</div>
         </div>
         <Footer />
@@ -152,175 +166,169 @@ const Profile = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Profilo */}
-          <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Il mio profilo
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="text-center">
-                  <Avatar className="h-24 w-24 mx-auto mb-4">
-                    <AvatarImage src={profile?.avatar_url || ''} />
-                    <AvatarFallback>
-                      {profile?.nickname?.charAt(0).toUpperCase() || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <h2 className="text-xl font-semibold">{profile?.nickname}</h2>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
+      <div className="container mx-auto px-4 py-8 pt-24">
+        <div className="max-w-4xl mx-auto">
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Profilo
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Avatar Upload Section */}
+                <div className="flex flex-col items-center">
+                  <ProfileImageUpload 
+                    currentAvatarUrl={profile?.avatar_url}
+                    onImageUpdate={(newUrl) => setProfile(prev => prev ? {...prev, avatar_url: newUrl} : null)}
+                  />
                 </div>
-
-                {isEditing ? (
-                  <div className="space-y-4">
-                    <div>
+                
+                {/* Profile Form */}
+                <div className="md:col-span-2 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
                       <Label htmlFor="nickname">Nickname</Label>
                       <Input
                         id="nickname"
                         value={formData.nickname}
-                        onChange={(e) => setFormData({ ...formData, nickname: e.target.value })}
+                        onChange={(e) => setFormData(prev => ({ ...prev, nickname: e.target.value }))}
+                        placeholder="Il tuo nickname"
                       />
                     </div>
-                    
-                    <div>
-                      <Label htmlFor="bio">Bio</Label>
-                      <Textarea
-                        id="bio"
-                        placeholder="Racconta qualcosa di te..."
-                        value={formData.bio}
-                        onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={user?.email || ''}
+                        disabled
+                        className="bg-muted"
                       />
                     </div>
-
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="notifications"
-                        checked={formData.email_notifications}
-                        onCheckedChange={(checked) => setFormData({ ...formData, email_notifications: checked })}
-                      />
-                      <Label htmlFor="notifications">Notifiche email</Label>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Button onClick={updateProfile} size="sm">
-                        Salva
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setIsEditing(false)} 
-                        size="sm"
-                      >
-                        Annulla
-                      </Button>
-                    </div>
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-2">Bio</p>
-                      <p className="text-sm">{profile?.bio || 'Nessuna bio disponibile'}</p>
-                    </div>
 
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setIsEditing(true)}
-                      className="w-full"
-                    >
-                      <Settings className="h-4 w-4 mr-2" />
-                      Modifica profilo
-                    </Button>
+                  <div className="space-y-2">
+                    <Label htmlFor="bio">Bio</Label>
+                    <Textarea
+                      id="bio"
+                      value={formData.bio}
+                      onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
+                      placeholder="Raccontaci qualcosa di te..."
+                      className="min-h-24"
+                    />
                   </div>
-                )}
-              </CardContent>
-            </Card>
 
-            {/* Statistiche */}
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle>Statistiche</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Esperienze pubblicate</span>
-                    <span className="font-semibold">{experiences.length}</span>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="email-notifications"
+                      checked={formData.email_notifications}
+                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, email_notifications: checked }))}
+                    />
+                    <Label htmlFor="email-notifications" className="flex items-center gap-2">
+                      <Bell className="h-4 w-4" />
+                      Ricevi notifiche via email
+                    </Label>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm flex items-center gap-1">
-                      <Heart className="h-4 w-4" />
-                      Like ricevuti
-                    </span>
-                    <span className="font-semibold">
-                      {experiences.reduce((sum, exp) => sum + exp.likes_count, 0)}
-                    </span>
+
+                  <Button onClick={updateProfile} disabled={updating} className="w-full md:w-auto">
+                    <Save className="h-4 w-4 mr-2" />
+                    {updating ? 'Aggiornamento...' : 'Salva modifiche'}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Statistiche */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Le tue statistiche</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">{experiences.length}</div>
+                  <div className="text-sm text-muted-foreground">Esperienze pubblicate</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-red-500">
+                    {experiences.reduce((sum, exp) => sum + exp.likes_count, 0)}
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm flex items-center gap-1">
-                      <MessageCircle className="h-4 w-4" />
-                      Commenti ricevuti
-                    </span>
-                    <span className="font-semibold">
-                      {experiences.reduce((sum, exp) => sum + exp.comments_count, 0)}
-                    </span>
+                  <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+                    <Heart className="h-4 w-4" />
+                    Like ricevuti
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-500">
+                    {experiences.reduce((sum, exp) => sum + exp.comments_count, 0)}
+                  </div>
+                  <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+                    <MessageCircle className="h-4 w-4" />
+                    Commenti ricevuti
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Esperienze dell'utente */}
-          <div className="lg:col-span-2">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold">Le mie esperienze</h2>
-              <Button onClick={() => navigate('/create')}>
-                Crea nuova esperienza
-              </Button>
-            </div>
-
-            {experiences.length === 0 ? (
-              <Card>
-                <CardContent className="text-center py-12">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Le mie esperienze</CardTitle>
+                <Button onClick={() => navigate('/create')}>
+                  Crea nuova esperienza
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {experiences.length === 0 ? (
+                <div className="text-center py-12">
                   <p className="text-muted-foreground mb-4">
                     Non hai ancora pubblicato nessuna esperienza
                   </p>
                   <Button onClick={() => navigate('/create')}>
                     Condividi la tua prima esperienza
                   </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-6">
-                {experiences.map((experience) => (
-                  <div key={experience.id} className="relative">
-                    <ExperienceCard
-                      id={experience.id}
-                      title={experience.title}
-                      author={profile?.nickname || 'Utente'}
-                      content={experience.content}
-                      category={experience.category}
-                      likes={experience.likes_count}
-                      comments={experience.comments_count}
-                      date={new Date(experience.created_at).toLocaleDateString('it-IT')}
-                      tags={experience.tags}
-                      imageUrl={experience.image_url}
-                    />
-                    <div className="absolute top-4 right-4 flex gap-2">
-                      <DeleteExperienceButton 
-                        experienceId={experience.id} 
-                        onDeleted={fetchUserExperiences}
-                        variant="outline"
-                        size="sm"
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {experiences.map((experience) => (
+                    <div key={experience.id} className="relative">
+                      <ExperienceCard
+                        id={experience.id}
+                        title={experience.title}
+                        author={profile?.nickname || 'Utente'}
+                        content={experience.content}
+                        category={getCategoryLabel(experience.category)}
+                        likes={experience.likes_count}
+                        comments={experience.comments_count}
+                        date={new Date(experience.created_at).toLocaleDateString('it-IT')}
+                        tags={experience.tags}
+                        imageUrl={experience.image_url}
                       />
+                      <div className="absolute top-4 right-4 flex gap-2">
+                        <EditExperienceButton 
+                          experienceId={experience.id}
+                          variant="outline"
+                          size="sm"
+                        />
+                        <DeleteExperienceButton 
+                          experienceId={experience.id} 
+                          onDeleted={fetchUserExperiences}
+                          variant="outline"
+                          size="sm"
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
 
