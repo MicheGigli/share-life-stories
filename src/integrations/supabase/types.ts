@@ -21,6 +21,7 @@ export type Database = {
           experience_id: string
           id: string
           likes_count: number | null
+          mentions: string[] | null
           parent_id: string | null
           updated_at: string
           user_id: string
@@ -31,6 +32,7 @@ export type Database = {
           experience_id: string
           id?: string
           likes_count?: number | null
+          mentions?: string[] | null
           parent_id?: string | null
           updated_at?: string
           user_id: string
@@ -41,6 +43,7 @@ export type Database = {
           experience_id?: string
           id?: string
           likes_count?: number | null
+          mentions?: string[] | null
           parent_id?: string | null
           updated_at?: string
           user_id?: string
@@ -151,6 +154,7 @@ export type Database = {
           created_at: string
           id: string
           is_read: boolean | null
+          mention_type: string | null
           message: string
           related_id: string | null
           title: string
@@ -161,6 +165,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_read?: boolean | null
+          mention_type?: string | null
           message: string
           related_id?: string | null
           title: string
@@ -171,6 +176,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_read?: boolean | null
+          mention_type?: string | null
           message?: string
           related_id?: string | null
           title?: string
@@ -257,6 +263,30 @@ export type Database = {
           },
         ]
       }
+      travel_subcategories: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -275,6 +305,27 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["user_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      vehicle_types: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
         }
         Relationships: []
       }
