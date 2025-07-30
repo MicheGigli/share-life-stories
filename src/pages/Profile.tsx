@@ -13,6 +13,12 @@ import { DeleteExperienceButton } from '@/components/DeleteExperienceButton';
 import { EditExperienceButton } from '@/components/EditExperienceButton';
 import { ProfileImageUpload } from '@/components/ProfileImageUpload';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ProgressSection } from '@/components/gamification/ProgressSection';
+import { BadgeCollection } from '@/components/gamification/BadgeCollection';
+import { PointsHistory } from '@/components/gamification/PointsHistory';
+import { LevelIndicator } from '@/components/gamification/LevelIndicator';
+import { useGameification } from '@/hooks/useGameification';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { User, Mail, Bell, Save, Heart, MessageCircle } from 'lucide-react';
@@ -41,6 +47,7 @@ const Profile = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { userPoints } = useGameification();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [updating, setUpdating] = useState(false);
@@ -178,11 +185,15 @@ const Profile = () => {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Avatar Upload Section */}
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center space-y-4">
                   <ProfileImageUpload 
                     currentAvatarUrl={profile?.avatar_url}
                     onImageUpdate={(newUrl) => setProfile(prev => prev ? {...prev, avatar_url: newUrl} : null)}
                   />
+                  <div className="text-center">
+                    <h3 className="font-semibold text-lg">{profile?.nickname}</h3>
+                    <LevelIndicator level={userPoints.current_level} />
+                  </div>
                 </div>
                 
                 {/* Profile Form */}
@@ -274,61 +285,84 @@ const Profile = () => {
             </CardContent>
           </Card>
 
-          {/* Esperienze dell'utente */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Le mie esperienze</CardTitle>
-                <Button onClick={() => navigate('/create')}>
-                  Crea nuova esperienza
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {experiences.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground mb-4">
-                    Non hai ancora pubblicato nessuna esperienza
-                  </p>
-                  <Button onClick={() => navigate('/create')}>
-                    Condividi la tua prima esperienza
-                  </Button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {experiences.map((experience) => (
-                    <div key={experience.id} className="relative">
-                      <ExperienceCard
-                        id={experience.id}
-                        title={experience.title}
-                        author={profile?.nickname || 'Utente'}
-                        content={experience.content}
-                        category={getCategoryLabel(experience.category)}
-                        likes={experience.likes_count}
-                        comments={experience.comments_count}
-                        date={new Date(experience.created_at).toLocaleDateString('it-IT')}
-                        tags={experience.tags}
-                        imageUrl={experience.image_url}
-                      />
-                      <div className="absolute top-4 right-4 flex gap-2">
-                        <EditExperienceButton 
-                          experienceId={experience.id}
-                          variant="outline"
-                          size="sm"
-                        />
-                        <DeleteExperienceButton 
-                          experienceId={experience.id} 
-                          onDeleted={fetchUserExperiences}
-                          variant="outline"
-                          size="sm"
-                        />
-                      </div>
+          {/* Sezioni con Tabs */}
+          <Tabs defaultValue="experiences" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="experiences">Esperienze</TabsTrigger>
+              <TabsTrigger value="progress">Progressi</TabsTrigger>
+              <TabsTrigger value="badges">Badge</TabsTrigger>
+              <TabsTrigger value="points">Punti</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="experiences">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Le mie esperienze</CardTitle>
+                    <Button onClick={() => navigate('/create')}>
+                      Crea nuova esperienza
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {experiences.length === 0 ? (
+                    <div className="text-center py-12">
+                      <p className="text-muted-foreground mb-4">
+                        Non hai ancora pubblicato nessuna esperienza
+                      </p>
+                      <Button onClick={() => navigate('/create')}>
+                        Condividi la tua prima esperienza
+                      </Button>
                     </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {experiences.map((experience) => (
+                        <div key={experience.id} className="relative">
+                          <ExperienceCard
+                            id={experience.id}
+                            title={experience.title}
+                            author={profile?.nickname || 'Utente'}
+                            content={experience.content}
+                            category={getCategoryLabel(experience.category)}
+                            likes={experience.likes_count}
+                            comments={experience.comments_count}
+                            date={new Date(experience.created_at).toLocaleDateString('it-IT')}
+                            tags={experience.tags}
+                            imageUrl={experience.image_url}
+                          />
+                          <div className="absolute top-4 right-4 flex gap-2">
+                            <EditExperienceButton 
+                              experienceId={experience.id}
+                              variant="outline"
+                              size="sm"
+                            />
+                            <DeleteExperienceButton 
+                              experienceId={experience.id} 
+                              onDeleted={fetchUserExperiences}
+                              variant="outline"
+                              size="sm"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="progress">
+              <ProgressSection />
+            </TabsContent>
+            
+            <TabsContent value="badges">
+              <BadgeCollection />
+            </TabsContent>
+            
+            <TabsContent value="points">
+              <PointsHistory />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
 

@@ -155,8 +155,8 @@ export const ChatbotKnowledgeBase = () => {
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col p-4">
-        <div className="flex-1 overflow-y-auto space-y-3 mb-4">
-          {messages.map((message) => (
+            <div className="flex-1 overflow-y-auto space-y-3 mb-4 max-h-72">
+              {messages.map((message) => (
             <div
               key={message.id}
               className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
