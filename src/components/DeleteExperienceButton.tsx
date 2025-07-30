@@ -11,13 +11,17 @@ interface DeleteExperienceButtonProps {
   onDeleted?: () => void;
   variant?: 'default' | 'outline' | 'destructive' | 'secondary' | 'ghost' | 'link';
   size?: 'default' | 'sm' | 'lg' | 'icon';
+  disabled?: boolean;
+  title?: string;
 }
 
 export const DeleteExperienceButton = ({ 
   experienceId, 
   onDeleted, 
   variant = 'destructive',
-  size = 'sm'
+  size = 'sm',
+  disabled = false,
+  title
 }: DeleteExperienceButtonProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -74,7 +78,13 @@ export const DeleteExperienceButton = ({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant={variant} size={size} disabled={loading}>
+        <Button 
+          variant={variant} 
+          size={size} 
+          disabled={loading || disabled}
+          title={title}
+          className={disabled ? "opacity-50 cursor-not-allowed" : ""}
+        >
           <Trash2 className="h-4 w-4" />
           {size !== 'icon' && ' Elimina'}
         </Button>

@@ -7,6 +7,7 @@ import { LatestExperiences } from "@/components/LatestExperiences";
 import { Footer } from "@/components/Footer";
 import { useSampleData } from "@/hooks/useSampleData";
 import { useProfileSync } from "@/hooks/useProfileSync";
+import { ChatbotKnowledgeBase } from "@/components/ChatbotKnowledgeBase";
 
 const Index = () => {
   // Ensure user has profile and sample data
@@ -16,7 +17,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      {user && <Header />}
       {user ? (
         <>
           <div className="pt-16">
@@ -28,6 +29,11 @@ const Index = () => {
         <Hero />
       )}
       <Footer />
+      {user && (
+        <div>
+          <ChatbotKnowledgeBase />
+        </div>
+      )}
     </div>
   );
 };

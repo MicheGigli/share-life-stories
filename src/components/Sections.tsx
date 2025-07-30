@@ -73,7 +73,7 @@ export const Sections = () => {
       stats: stats.vacanze
     },
     {
-      title: "Auto",
+      title: "Veicoli",
       description: "Esperienze di acquisto, noleggio e manutenzione",
       image: autoIcon,
       variant: "auto" as const,

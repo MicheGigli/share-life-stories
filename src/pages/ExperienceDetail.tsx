@@ -51,13 +51,17 @@ const ExperienceDetail = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [authorProfile, setAuthorProfile] = useState<Profile | null>(null);
   const [commentProfiles, setCommentProfiles] = useState<{ [key: string]: Profile }>({});
+  const [commentsRefreshTrigger, setCommentsRefreshTrigger] = useState(0);
+  const [canDelete, setCanDelete] = useState(false);
+  const [commentsCount, setCommentsCount] = useState(0);
+  const [likesCount, setLikesCount] = useState(0);
 
   useEffect(() => {
     if (id) {
       fetchExperience();
-      fetchComments();
       if (user) {
         checkIfLiked();
+        checkCanDelete();
       }
     }
   }, [id, user]);
@@ -159,6 +163,26 @@ const ExperienceDetail = () => {
       .single();
 
     setIsLiked(!!data);
+  };
+
+  const checkCanDelete = async () => {
+    if (!id || !user) return;
+
+    try {
+      const { data, error } = await supabase.rpc('can_delete_experience', {
+        experience_id: id,
+        user_id: user.id
+      });
+
+      if (error) {
+        console.error('Error checking delete permission:', error);
+        return;
+      }
+
+      setCanDelete(data || false);
+    } catch (error) {
+      console.error('Error checking delete permission:', error);
+    }
   };
 
   const toggleLike = async () => {
@@ -307,12 +331,16 @@ const ExperienceDetail = () => {
                 <Badge className={getCategoryColor(experience.category)}>
                   {experience.category}
                 </Badge>
-                {user && user.id === experience.user_id && (
-                  <div className="flex gap-2">
-                    <EditExperienceButton experienceId={experience.id} />
-                    <DeleteExperienceButton experienceId={experience.id} />
-                  </div>
-                )}
+                  {user && user.id === experience.user_id && (
+                    <div className="flex gap-2">
+                      <EditExperienceButton experienceId={experience.id} />
+                      <DeleteExperienceButton 
+                        experienceId={experience.id} 
+                        disabled={!canDelete}
+                        title={!canDelete ? "Non puoi eliminare questa esperienza perché ci sono commenti di altri utenti" : undefined}
+                      />
+                    </div>
+                  )}
               </div>
             </div>
           </CardHeader>

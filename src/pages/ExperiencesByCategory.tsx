@@ -27,6 +27,8 @@ const ExperiencesByCategory = () => {
   const { category } = useParams<{ category: string }>();
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedVehicleType, setSelectedVehicleType] = useState('all');
+  const [selectedTravelSubcategory, setSelectedTravelSubcategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('recent');
 

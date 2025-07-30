@@ -23,44 +23,48 @@ export const Header = () => {
           </div>
         </Link>
 
-        {/* Navigation menu */}
-        <nav className="hidden md:flex items-center space-x-6">
-          <Link to="/categoria/mutui" className="text-muted-foreground hover:text-foreground transition-colors">
-            Mutui
-          </Link>
-          <Link to="/categoria/vacanze" className="text-muted-foreground hover:text-foreground transition-colors">
-            Vacanze
-          </Link>
-          <Link to="/categoria/auto" className="text-muted-foreground hover:text-foreground transition-colors">
-            Auto
-          </Link>
-          <Link to="/categoria/amazon" className="text-muted-foreground hover:text-foreground transition-colors">
-            Amazon
-          </Link>
-          <Link to="/search" className="text-muted-foreground hover:text-foreground transition-colors">
-            Cerca
-          </Link>
-        </nav>
+        {/* Navigation menu - only show if user is authenticated */}
+        {user && (
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link to="/categoria/mutui" className="text-muted-foreground hover:text-foreground transition-colors">
+              Mutui
+            </Link>
+            <Link to="/categoria/vacanze" className="text-muted-foreground hover:text-foreground transition-colors">
+              Vacanze
+            </Link>
+            <Link to="/categoria/auto" className="text-muted-foreground hover:text-foreground transition-colors">
+              Veicoli
+            </Link>
+            <Link to="/categoria/amazon" className="text-muted-foreground hover:text-foreground transition-colors">
+              Prodotti
+            </Link>
+            <Link to="/search" className="text-muted-foreground hover:text-foreground transition-colors">
+              Cerca
+            </Link>
+          </nav>
+        )}
 
-        {/* Barra di ricerca */}
-        <div className="hidden lg:flex flex-1 max-w-md mx-8">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Cerca esperienze..."
-              className="w-full pl-10 pr-4 py-2 border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  const target = e.target as HTMLInputElement;
-                  if (target.value.trim()) {
-                    navigate(`/search?q=${encodeURIComponent(target.value)}`);
+        {/* Barra di ricerca - only show if user is authenticated */}
+        {user && (
+          <div className="hidden lg:flex flex-1 max-w-md mx-8">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Cerca esperienze..."
+                className="w-full pl-10 pr-4 py-2 border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    const target = e.target as HTMLInputElement;
+                    if (target.value.trim()) {
+                      navigate(`/search?q=${encodeURIComponent(target.value)}`);
+                    }
                   }
-                }
-              }}
-            />
+                }}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Pulsanti di azione */}
         <div className="flex items-center space-x-2">
