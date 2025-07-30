@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      badges: {
+        Row: {
+          category: string
+          condition_type: string
+          condition_value: number | null
+          created_at: string
+          description: string
+          id: string
+          image_url: string | null
+          name: string
+          rarity: string | null
+        }
+        Insert: {
+          category: string
+          condition_type: string
+          condition_value?: number | null
+          created_at?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          name: string
+          rarity?: string | null
+        }
+        Update: {
+          category?: string
+          condition_type?: string
+          condition_value?: number | null
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          rarity?: string | null
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           content: string
@@ -185,6 +221,36 @@ export type Database = {
         }
         Relationships: []
       }
+      point_history: {
+        Row: {
+          action_type: string
+          created_at: string
+          description: string | null
+          id: string
+          points_earned: number
+          related_id: string | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          points_earned: number
+          related_id?: string | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          points_earned?: number
+          related_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -284,6 +350,54 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+        }
+        Relationships: []
+      }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_points: {
+        Row: {
+          created_at: string
+          current_level: number
+          id: string
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_level?: number
+          id?: string
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_level?: number
+          id?: string
+          total_points?: number
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
