@@ -448,13 +448,39 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      award_points: {
+        Args: {
+          target_user_id: string
+          action_type: string
+          points: number
+          description?: string
+          related_id?: string
+        }
+        Returns: undefined
+      }
+      calculate_level_from_points: {
+        Args: { points: number }
+        Returns: number
+      }
       can_delete_experience: {
         Args: { experience_id: string; user_id: string }
         Returns: boolean
       }
+      check_and_award_badges: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
+      get_active_users_count: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       get_user_nickname: {
         Args: { user_id: string }
         Returns: string
+      }
+      points_for_next_level: {
+        Args: { current_level: number }
+        Returns: number
       }
     }
     Enums: {

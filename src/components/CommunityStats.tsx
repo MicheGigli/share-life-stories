@@ -23,8 +23,10 @@ export const CommunityStats = () => {
 
   const fetchCommunityStats = async () => {
     try {
-      // Get total users using the database function
-      const { data: userCount } = await supabase.rpc('get_active_users_count');
+      // Get total users
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id', { count: 'exact', head: true });
 
       // Get experiences with their stats
       const { data: experiences, error: experiencesError } = await supabase
@@ -42,7 +44,7 @@ export const CommunityStats = () => {
       const totalComments = experiences?.reduce((sum, exp) => sum + (exp.comments_count || 0), 0) || 0;
 
       setStats({
-        totalUsers: userCount || 0,
+        totalUsers: profiles?.length || 0,
         totalExperiences,
         totalLikes,
         totalComments: totalComments
