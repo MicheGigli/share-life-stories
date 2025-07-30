@@ -77,8 +77,8 @@ export const LatestExperiences = () => {
   const categoryLabels: Record<string, string> = {
     'mutui': 'Mutui',
     'vacanze': 'Vacanze',
-    'auto': 'Auto',
-    'amazon': 'Amazon'
+    'auto': 'Veicoli',
+    'amazon': 'Prodotti'
   };
 
   // Fallback experiences if none exist
