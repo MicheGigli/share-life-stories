@@ -5,7 +5,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +13,8 @@ import { Heart, MessageCircle, Share2, User, ArrowLeft } from 'lucide-react';
 import { ImageGallery } from '@/components/ImageGallery';
 import { DeleteExperienceButton } from '@/components/DeleteExperienceButton';
 import { EditExperienceButton } from '@/components/EditExperienceButton';
+import { CommentsList } from '@/components/CommentsList';
+import { CommentWithMentions } from '@/components/CommentWithMentions';
 
 interface Experience {
   id: string;
@@ -28,13 +29,6 @@ interface Experience {
   image_url?: string | null;
 }
 
-interface Comment {
-  id: string;
-  content: string;
-  created_at: string;
-  likes_count: number;
-  user_id: string;
-}
 
 interface Profile {
   nickname: string;
@@ -45,16 +39,11 @@ const ExperienceDetail = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [experience, setExperience] = useState<Experience | null>(null);
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [authorProfile, setAuthorProfile] = useState<Profile | null>(null);
-  const [commentProfiles, setCommentProfiles] = useState<{ [key: string]: Profile }>({});
-  const [commentsRefreshTrigger, setCommentsRefreshTrigger] = useState(0);
   const [canDelete, setCanDelete] = useState(false);
-  const [commentsCount, setCommentsCount] = useState(0);
-  const [likesCount, setLikesCount] = useState(0);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     if (id) {
@@ -111,46 +100,6 @@ const ExperienceDetail = () => {
     setLoading(false);
   };
 
-  const fetchComments = async () => {
-    if (!id) return;
-
-    const { data, error } = await supabase
-      .from('comments')
-      .select(`
-        id,
-        content,
-        created_at,
-        likes_count,
-        user_id
-      `)
-      .eq('experience_id', id)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching comments:', error);
-      return;
-    }
-
-    setComments(data || []);
-    
-    // Fetch profiles for comment authors
-    if (data && data.length > 0) {
-      const userIds = [...new Set(data.map(comment => comment.user_id))];
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('user_id, nickname')
-        .in('user_id', userIds);
-      
-      if (profiles) {
-        const profileMap = profiles.reduce((acc, profile) => {
-          acc[profile.user_id] = { nickname: profile.nickname };
-          return acc;
-        }, {} as { [key: string]: Profile });
-        
-        setCommentProfiles(profileMap);
-      }
-    }
-  };
 
   const checkIfLiked = async () => {
     if (!user || !id) return;
@@ -223,42 +172,9 @@ const ExperienceDetail = () => {
     }
   };
 
-  const addComment = async () => {
-    if (!user || !id) {
-      toast({
-        title: "Accesso richiesto",
-        description: "Devi essere autenticato per commentare",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!newComment.trim()) return;
-
-    const { error } = await supabase
-      .from('comments')
-      .insert({
-        experience_id: id,
-        user_id: user.id,
-        content: newComment.trim()
-      });
-
-    if (error) {
-      toast({
-        title: "Errore",
-        description: "Impossibile aggiungere il commento",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setNewComment('');
-    fetchComments();
-    fetchExperience();
-    toast({
-      title: "Commento aggiunto",
-      description: "Il tuo commento è stato pubblicato",
-    });
+  const handleCommentAdded = () => {
+    setRefreshTrigger(prev => prev + 1);
+    fetchExperience(); // Aggiorna il contatore commenti
   };
 
   const getCategoryColor = (cat: string) => {
@@ -401,25 +317,14 @@ const ExperienceDetail = () => {
 
         {/* Sezione commenti */}
         <div className="space-y-6">
-          <h2 className="text-xl font-bold">Commenti ({comments.length})</h2>
+          <h2 className="text-xl font-bold">Commenti</h2>
 
           {/* Form nuovo commento */}
           {user ? (
-            <Card>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
-                  <Textarea
-                    placeholder="Scrivi un commento..."
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    rows={3}
-                  />
-                  <Button onClick={addComment} disabled={!newComment.trim()}>
-                    Pubblica commento
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <CommentWithMentions 
+              experienceId={id!} 
+              onCommentAdded={handleCommentAdded}
+            />
           ) : (
             <Card>
               <CardContent className="pt-6 text-center">
@@ -434,42 +339,10 @@ const ExperienceDetail = () => {
           )}
 
           {/* Lista commenti */}
-          {comments.length === 0 ? (
-            <Card>
-              <CardContent className="pt-6 text-center">
-                <p className="text-muted-foreground">
-                  Nessun commento ancora. Sii il primo a commentare!
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {comments.map((comment) => (
-                <Card key={comment.id}>
-                  <CardContent className="pt-6">
-                     <div className="flex items-start space-x-3">
-                       <Avatar className="h-8 w-8">
-                         <AvatarFallback>
-                           <User className="h-4 w-4" />
-                         </AvatarFallback>
-                       </Avatar>
-                       <div className="flex-1">
-                         <div className="flex items-center gap-2 mb-2">
-                            <p className="font-semibold text-sm">
-                              {commentProfiles[comment.user_id]?.nickname || 'Utente'}
-                            </p>
-                           <p className="text-xs text-muted-foreground">
-                             {new Date(comment.created_at).toLocaleDateString('it-IT')}
-                           </p>
-                         </div>
-                        <p className="text-sm leading-relaxed">{comment.content}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+          <CommentsList 
+            experienceId={id!} 
+            refreshTrigger={refreshTrigger}
+          />
         </div>
       </div>
 
