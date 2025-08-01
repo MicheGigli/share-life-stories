@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Heart, Mail, MessageCircle, Facebook, Twitter, Instagram } from "lucide-react";
+import { Link } from "react-router-dom";
 import lifeshareLogo from "@/assets/lifeshare-logo.png";
 
 export const Footer = () => {
@@ -49,10 +50,10 @@ export const Footer = () => {
             <h4 className="font-semibold mb-4">Informazioni</h4>
             <ul className="space-y-2 text-primary-foreground/80">
               <li><a href="#" className="hover:text-primary-foreground transition-colors">Chi siamo</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Termini di servizio</a></li>
+              <li><Link to="/privacy" className="hover:text-primary-foreground transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="hover:text-primary-foreground transition-colors">Termini di servizio</Link></li>
               <li><a href="#" className="hover:text-primary-foreground transition-colors">Contatti</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">GDPR</a></li>
+              <li><Link to="/gdpr" className="hover:text-primary-foreground transition-colors">GDPR</Link></li>
             </ul>
           </div>
         </div>

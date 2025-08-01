@@ -1,14 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { Button } from './ui/button';
+import { MentionInput } from './MentionInput';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
-
-interface Profile {
-  nickname: string;
-}
+import { useToast } from './ui/use-toast';
 
 interface CommentWithMentionsProps {
   experienceId: string;
@@ -20,58 +15,6 @@ export const CommentWithMentions = ({ experienceId, onCommentAdded }: CommentWit
   const { toast } = useToast();
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [suggestions, setSuggestions] = useState<Profile[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [mentionStart, setMentionStart] = useState(0);
-
-  const handleCommentChange = async (value: string) => {
-    setComment(value);
-    
-    // Check for @ mentions
-    const lastAtIndex = value.lastIndexOf('@');
-    if (lastAtIndex !== -1) {
-      const searchTerm = value.substring(lastAtIndex + 1);
-      const spaceAfterAt = searchTerm.indexOf(' ');
-      
-      if (spaceAfterAt === -1 && searchTerm.length > 0) {
-        // Show suggestions
-        setMentionStart(lastAtIndex);
-        await fetchUserSuggestions(searchTerm);
-        setShowSuggestions(true);
-      } else {
-        setShowSuggestions(false);
-      }
-    } else {
-      setShowSuggestions(false);
-    }
-  };
-
-  const fetchUserSuggestions = async (searchTerm: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('nickname')
-        .ilike('nickname', `%${searchTerm}%`)
-        .limit(5);
-
-      if (error) {
-        console.error('Error fetching user suggestions:', error);
-        return;
-      }
-
-      setSuggestions(data || []);
-    } catch (error) {
-      console.error('Error fetching user suggestions:', error);
-    }
-  };
-
-  const handleSuggestionClick = (nickname: string) => {
-    const beforeMention = comment.substring(0, mentionStart);
-    const afterMention = comment.substring(comment.indexOf(' ', mentionStart) !== -1 ? comment.indexOf(' ', mentionStart) : comment.length);
-    const newComment = `${beforeMention}@${nickname} ${afterMention}`;
-    setComment(newComment);
-    setShowSuggestions(false);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,30 +54,12 @@ export const CommentWithMentions = ({ experienceId, onCommentAdded }: CommentWit
   return (
     <div className="relative">
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="relative">
-          <Textarea
-            value={comment}
-            onChange={(e) => handleCommentChange(e.target.value)}
-            placeholder="Scrivi un commento... (usa @username per menzionare utenti)"
-            className="min-h-[100px]"
-          />
-          
-          {/* Mention suggestions */}
-          {showSuggestions && suggestions.length > 0 && (
-            <div className="absolute top-full left-0 right-0 bg-background border rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
-              {suggestions.map((profile) => (
-                <button
-                  key={profile.nickname}
-                  type="button"
-                  className="w-full text-left px-3 py-2 hover:bg-muted text-sm"
-                  onClick={() => handleSuggestionClick(profile.nickname)}
-                >
-                  @{profile.nickname}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <MentionInput
+          value={comment}
+          onChange={setComment}
+          placeholder="Scrivi un commento... (usa @ per menzionare un utente)"
+          className="min-h-[80px] resize-none"
+        />
         
         <Button type="submit" disabled={isSubmitting || !comment.trim()}>
           {isSubmitting ? 'Pubblicando...' : 'Pubblica commento'}

@@ -29,11 +29,16 @@ export const CommentsList = ({ experienceId, refreshTrigger }: CommentsListProps
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchComments();
+    if (experienceId) {
+      fetchComments();
+    }
   }, [experienceId, refreshTrigger]);
 
   const fetchComments = async () => {
+    if (!experienceId) return;
+    
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('comments')
         .select('*')

@@ -19,10 +19,11 @@ interface ExperienceCardProps {
   date: string;
   tags: string[];
   imageUrl?: string | null;
+  categoryKey?: string;
 }
 
 export const ExperienceCard = ({ 
-  id,
+  id, 
   title, 
   author, 
   content, 
@@ -30,13 +31,25 @@ export const ExperienceCard = ({
   likes, 
   comments, 
   date, 
-  tags,
-  imageUrl
+  tags, 
+  imageUrl,
+  categoryKey 
 }: ExperienceCardProps) => {
+  
   const { user } = useAuth();
   const { toast } = useToast();
   const [isLiked, setIsLiked] = useState(false);
   const [currentLikes, setCurrentLikes] = useState(likes);
+
+  const getCategoryTagColor = (categoryKey: string) => {
+    const colors = {
+      mutui: 'bg-blue-100 text-blue-800 border-blue-200',
+      vacanze: 'bg-green-100 text-green-800 border-green-200',
+      auto: 'bg-orange-100 text-orange-800 border-orange-200',
+      amazon: 'bg-purple-100 text-purple-800 border-purple-200'
+    };
+    return colors[categoryKey as keyof typeof colors] || 'bg-gray-100 text-gray-800 border-gray-200';
+  };
 
   useEffect(() => {
     if (user) {
@@ -145,7 +158,11 @@ export const ExperienceCard = ({
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">
               {tags.map((tag, index) => (
-                <Badge key={index} variant="outline" className="text-xs">
+                <Badge 
+                  key={index} 
+                  variant="outline" 
+                  className={`text-xs ${categoryKey ? getCategoryTagColor(categoryKey) : 'bg-gray-100 text-gray-800 border-gray-200'}`}
+                >
                   #{tag}
                 </Badge>
               ))}

@@ -12,6 +12,9 @@ import Search from '@/pages/Search';
 import NotFound from '@/pages/NotFound';
 import PasswordReset from '@/pages/PasswordReset';
 import CreateExperienceFromCategory from '@/pages/CreateExperienceFromCategory';
+import { Privacy } from '@/pages/Privacy';
+import { Terms } from '@/pages/Terms';
+import { GDPR } from '@/pages/GDPR';
 
 function App() {
   return (
@@ -29,6 +32,9 @@ function App() {
             <Route path="/edit/:id" element={<EditExperience />} />
             <Route path="/categoria/:category" element={<ExperiencesByCategory />} />
             <Route path="/experience/:id" element={<ExperienceDetail />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/gdpr" element={<GDPR />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />
