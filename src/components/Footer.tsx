@@ -18,7 +18,7 @@ export const Footer = () => {
               </div>
             </div>
             <p className="text-primary-foreground/80 mb-6 max-w-md">
-              La community italiana per condividere esperienze autentiche su mutui, viaggi, auto e prodotti. 
+              La community italiana per condividere esperienze autentiche su mutui, viaggi, veicoli e prodotti. 
               Aiutiamo le persone a prendere decisioni migliori grazie alle storie di chi c'è già passato.
             </p>
             <div className="flex space-x-3">
@@ -40,7 +40,7 @@ export const Footer = () => {
             <ul className="space-y-2 text-primary-foreground/80">
               <li><a href="#" className="hover:text-primary-foreground transition-colors">Mutui</a></li>
               <li><a href="#" className="hover:text-primary-foreground transition-colors">Vacanze</a></li>
-              <li><a href="#" className="hover:text-primary-foreground transition-colors">Auto</a></li>
+              <li><a href="#" className="hover:text-primary-foreground transition-colors">Veicoli</a></li>
               <li><a href="#" className="hover:text-primary-foreground transition-colors">Prodotti</a></li>
             </ul>
           </div>
