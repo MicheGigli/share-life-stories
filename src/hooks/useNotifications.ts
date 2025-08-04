@@ -12,7 +12,7 @@ interface CreateNotificationParams {
 
 export const useNotifications = () => {
   const { user } = useAuth();
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -25,6 +25,17 @@ export const useNotifications = () => {
         .on('postgres_changes', 
           { 
             event: 'INSERT', 
+            schema: 'public', 
+            table: 'notifications',
+            filter: `user_id=eq.${user.id}`
+          }, 
+          () => {
+            fetchNotifications();
+          }
+        )
+        .on('postgres_changes', 
+          { 
+            event: 'UPDATE', 
             schema: 'public', 
             table: 'notifications',
             filter: `user_id=eq.${user.id}`

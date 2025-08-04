@@ -29,12 +29,12 @@ export const LatestExperiences = () => {
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      mutui: 'bg-blue-100 text-blue-800 border-blue-200',
-      vacanze: 'bg-green-100 text-green-800 border-green-200',
-      auto: 'bg-orange-100 text-orange-800 border-orange-200',
-      amazon: 'bg-purple-100 text-purple-800 border-purple-200'
+      mutui: 'bg-mutui text-mutui-foreground border-mutui',
+      vacanze: 'bg-vacanze text-vacanze-foreground border-vacanze',
+      veicoli: 'bg-auto text-auto-foreground border-auto',
+      prodotti: 'bg-amazon text-amazon-foreground border-amazon'
     };
-    return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800 border-gray-200';
+    return colors[category as keyof typeof colors] || 'bg-muted text-muted-foreground border-muted';
   };
 
   const fetchLatestExperiences = async () => {
@@ -117,7 +117,7 @@ export const LatestExperiences = () => {
       title: "Recensione onesta: Tesla Model 3 dopo 1 anno",
       author: "Luca Verdi",
       content: "Dopo un anno di utilizzo quotidiano della mia Tesla Model 3, vi racconto pro e contro di questa auto elettrica. Consumi reali, manutenzione e molto altro...",
-      category: "Auto",
+      category: "Veicoli",
       likes: 156,
       comments: 45,
       date: "3 giorni fa",
@@ -127,7 +127,7 @@ export const LatestExperiences = () => {
       title: "5 prodotti Amazon che hanno cambiato la mia vita",
       author: "Anna Neri",
       content: "Vi presento 5 acquisti su Amazon che uso ogni giorno e che consiglio a tutti. Rapporto qualità-prezzo eccezionale e funzionalità sorprendenti...",
-      category: "Amazon",
+      category: "Prodotti",
       likes: 203,
       comments: 67,
       date: "4 giorni fa",
@@ -166,6 +166,7 @@ export const LatestExperiences = () => {
                 date={new Date(experience.created_at).toLocaleDateString('it-IT')}
                 tags={experience.tags}
                 imageUrl={experience.image_url}
+                categoryKey={experience.category}
               />
             )) : fallbackExperiences.map((experience, index) => (
               <ExperienceCard 
@@ -179,6 +180,7 @@ export const LatestExperiences = () => {
                 comments={experience.comments}
                 date={experience.date}
                 tags={experience.tags}
+                categoryKey={experience.category.toLowerCase()}
               />
             ))}
           </div>

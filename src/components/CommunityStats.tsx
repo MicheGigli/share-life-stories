@@ -23,10 +23,9 @@ export const CommunityStats = () => {
 
   const fetchCommunityStats = async () => {
     try {
-      // Get total users
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id', { count: 'exact', head: true });
+      // Get total users using the database function
+      const { data: usersCount, error: usersError } = await supabase
+        .rpc('get_active_users_count');
 
       // Get experiences with their stats
       const { data: experiences, error: experiencesError } = await supabase
@@ -34,8 +33,8 @@ export const CommunityStats = () => {
         .select('likes_count, comments_count')
         .eq('is_published', true);
 
-      if (profilesError || experiencesError) {
-        console.error('Error fetching community stats:', profilesError || experiencesError);
+      if (usersError || experiencesError) {
+        console.error('Error fetching community stats:', usersError || experiencesError);
         return;
       }
 
@@ -44,7 +43,7 @@ export const CommunityStats = () => {
       const totalComments = experiences?.reduce((sum, exp) => sum + (exp.comments_count || 0), 0) || 0;
 
       setStats({
-        totalUsers: profiles?.length || 0,
+        totalUsers: usersCount || 0,
         totalExperiences,
         totalLikes,
         totalComments: totalComments

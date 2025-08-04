@@ -39,8 +39,8 @@ const CreateExperience = () => {
   const categories = [
     { value: 'mutui', label: 'Mutui', color: 'bg-mutui' },
     { value: 'vacanze', label: 'Vacanze', color: 'bg-vacanze' },
-    { value: 'auto', label: 'Auto', color: 'bg-auto' },
-    { value: 'amazon', label: 'Prodotti', color: 'bg-amazon' }
+    { value: 'veicoli', label: 'Veicoli', color: 'bg-auto' },
+    { value: 'prodotti', label: 'Prodotti', color: 'bg-amazon' }
   ];
 
   const addTag = () => {
@@ -188,7 +188,7 @@ const CreateExperience = () => {
           user_id: user.id,
           title: formData.title.trim(),
           content: formData.content.trim(),
-          category: formData.category as 'mutui' | 'vacanze' | 'auto' | 'amazon',
+          category: formData.category,
           tags: formData.tags,
           image_url: imageUrl,
           is_published: true

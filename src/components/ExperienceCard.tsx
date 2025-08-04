@@ -43,12 +43,12 @@ export const ExperienceCard = ({
 
   const getCategoryTagColor = (categoryKey: string) => {
     const colors = {
-      mutui: 'bg-blue-100 text-blue-800 border-blue-200',
-      vacanze: 'bg-green-100 text-green-800 border-green-200',
-      auto: 'bg-orange-100 text-orange-800 border-orange-200',
-      amazon: 'bg-purple-100 text-purple-800 border-purple-200'
+      mutui: 'bg-mutui text-mutui-foreground border-mutui',
+      vacanze: 'bg-vacanze text-vacanze-foreground border-vacanze',
+      veicoli: 'bg-auto text-auto-foreground border-auto',
+      prodotti: 'bg-amazon text-amazon-foreground border-amazon'
     };
-    return colors[categoryKey as keyof typeof colors] || 'bg-gray-100 text-gray-800 border-gray-200';
+    return colors[categoryKey as keyof typeof colors] || 'bg-muted text-muted-foreground border-muted';
   };
 
   useEffect(() => {
@@ -112,8 +112,8 @@ export const ExperienceCard = ({
     switch (cat.toLowerCase()) {
       case 'mutui': return 'bg-mutui text-white';
       case 'vacanze': return 'bg-vacanze text-white';
-      case 'auto': return 'bg-auto text-white';
-      case 'amazon': return 'bg-amazon text-white';
+      case 'veicoli': return 'bg-auto text-white';
+      case 'prodotti': return 'bg-amazon text-white';
       default: return 'bg-secondary text-secondary-foreground';
     }
   };

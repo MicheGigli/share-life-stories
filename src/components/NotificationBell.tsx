@@ -3,8 +3,10 @@ import { Bell, BellDot } from 'lucide-react';
 import { Button } from './ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { Badge } from './ui/badge';
-import { supabase } from '@/integrations/supabase/client';
+import { useNotifications } from '@/hooks/useNotifications';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 
 interface Notification {
   id: string;
@@ -13,59 +15,30 @@ interface Notification {
   is_read: boolean;
   created_at: string;
   type: string;
+  related_id?: string;
 }
 
 export const NotificationBell = () => {
   const { user } = useAuth();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (user) {
-      fetchNotifications();
-    }
-  }, [user]);
-
-  const fetchNotifications = async () => {
-    if (!user) return;
-
-    const { data, error } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(10);
-
-    if (error) {
-      console.error('Error fetching notifications:', error);
-      return;
-    }
-
-    setNotifications(data || []);
-    const unread = data?.filter(n => !n.is_read).length || 0;
-    setUnreadCount(unread);
-  };
-
-  const markAsRead = async (notificationId: string) => {
-    await supabase
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('id', notificationId);
+  const handleNotificationClick = async (notification: Notification) => {
+    await markAsRead(notification.id);
     
-    fetchNotifications();
-  };
-
-  const markAllAsRead = async () => {
-    if (!user) return;
-
-    await supabase
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('user_id', user.id)
-      .eq('is_read', false);
-    
-    fetchNotifications();
+    // Navigate to experience if related_id exists
+    if (notification.related_id && (notification.type === 'like' || notification.type === 'comment' || notification.type === 'mention')) {
+      navigate(`/experience/${notification.related_id}`);
+      setIsOpen(false);
+      
+      if (notification.type === 'mention') {
+        toast({
+          title: "Navigazione verso l'esperienza",
+          description: "Sei stato portato all'esperienza dove sei stato menzionato",
+        });
+      }
+    }
   };
 
   if (!user) return null;
@@ -106,7 +79,7 @@ export const NotificationBell = () => {
                 className={`p-3 cursor-pointer border-b border-border/50 ${
                   !notification.is_read ? 'bg-primary/5' : ''
                 }`}
-                onClick={() => markAsRead(notification.id)}
+                onClick={() => handleNotificationClick(notification)}
               >
                 <div className="flex-1">
                   <h4 className="font-medium text-sm">{notification.title}</h4>
