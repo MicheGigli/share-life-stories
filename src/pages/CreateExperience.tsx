@@ -188,7 +188,7 @@ const CreateExperience = () => {
           user_id: user.id,
           title: formData.title.trim(),
           content: formData.content.trim(),
-          category: formData.category,
+          category: formData.category as any,
           tags: formData.tags,
           image_url: imageUrl,
           is_published: true
