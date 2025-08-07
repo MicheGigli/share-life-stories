@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Search, User, LogOut, Plus } from "lucide-react";
+import { User, LogOut, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom";
 import { NotificationBell } from './NotificationBell';
+import { SearchWithPreview } from './SearchWithPreview';
 import lifeshareLogo from "@/assets/lifeshare-logo.png";
 
 export const Header = () => {
@@ -44,25 +45,10 @@ export const Header = () => {
           </nav>
         )}
 
-        {/* Barra di ricerca - only show if user is authenticated */}
+        {/* Barra di ricerca con anteprima - only show if user is authenticated */}
         {user && (
           <div className="hidden lg:flex flex-1 max-w-md mx-8">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Cerca esperienze..."
-                className="w-full pl-10 pr-4 py-2 border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    const target = e.target as HTMLInputElement;
-                    if (target.value.trim()) {
-                      navigate(`/search?q=${encodeURIComponent(target.value)}`);
-                    }
-                  }
-                }}
-              />
-            </div>
+            <SearchWithPreview className="w-full" />
           </div>
         )}
 

@@ -8,9 +8,16 @@ import { useToast } from './ui/use-toast';
 interface CommentWithMentionsProps {
   experienceId: string;
   onCommentAdded: () => void;
+  parentId?: string;
+  placeholder?: string;
 }
 
-export const CommentWithMentions = ({ experienceId, onCommentAdded }: CommentWithMentionsProps) => {
+export const CommentWithMentions = ({ 
+  experienceId, 
+  onCommentAdded, 
+  parentId,
+  placeholder = "Scrivi un commento... (usa @ per menzionare un utente)"
+}: CommentWithMentionsProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [comment, setComment] = useState('');
@@ -27,7 +34,8 @@ export const CommentWithMentions = ({ experienceId, onCommentAdded }: CommentWit
         .insert({
           experience_id: experienceId,
           user_id: user.id,
-          content: comment.trim()
+          content: comment.trim(),
+          parent_id: parentId || null
         });
 
       if (error) throw error;
@@ -57,12 +65,12 @@ export const CommentWithMentions = ({ experienceId, onCommentAdded }: CommentWit
         <MentionInput
           value={comment}
           onChange={setComment}
-          placeholder="Scrivi un commento... (usa @ per menzionare un utente)"
-          className="min-h-[80px] resize-none"
+          placeholder={placeholder}
+          className={parentId ? "min-h-[60px] resize-none" : "min-h-[80px] resize-none"}
         />
         
-        <Button type="submit" disabled={isSubmitting || !comment.trim()}>
-          {isSubmitting ? 'Pubblicando...' : 'Pubblica commento'}
+        <Button type="submit" disabled={isSubmitting || !comment.trim()} size={parentId ? "sm" : "default"}>
+          {isSubmitting ? 'Pubblicando...' : (parentId ? 'Rispondi' : 'Pubblica commento')}
         </Button>
       </form>
     </div>
