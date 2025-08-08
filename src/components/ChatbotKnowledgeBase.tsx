@@ -108,12 +108,13 @@ export const ChatbotKnowledgeBase = () => {
     return response;
   };
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+  const handleSendMessage = async (textOverride?: string) => {
+    const text = (textOverride ?? inputValue);
+    if (!text.trim() || isLoading) return;
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      content: inputValue,
+      content: text,
       isBot: false,
       timestamp: new Date()
     };
@@ -124,10 +125,10 @@ export const ChatbotKnowledgeBase = () => {
 
     try {
       // Search the knowledge base
-      const searchResults = await searchKnowledgeBase(inputValue);
+      const searchResults = await searchKnowledgeBase(text);
       
       // Generate response
-      const botResponse = generateResponse(inputValue, searchResults);
+      const botResponse = generateResponse(text, searchResults);
 
       const botMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
@@ -149,6 +150,16 @@ export const ChatbotKnowledgeBase = () => {
     }
   };
 
+  const handleQuickAsk = (label: string) => {
+    const presets: Record<string, string> = {
+      Mutui: 'Mutui tasso fisso',
+      Vacanze: 'Viaggi low cost',
+      Veicoli: 'Recensioni auto',
+      Prodotti: 'Prodotti consigliati'
+    };
+    handleSendMessage(presets[label] ?? label);
+  };
+
   if (!isOpen) {
     return (
       <Button
@@ -162,7 +173,7 @@ export const ChatbotKnowledgeBase = () => {
   }
 
   return (
-    <Card className="fixed bottom-6 right-6 w-96 h-96 shadow-xl z-50 flex flex-col">
+    <Card className="fixed bottom-6 right-6 w-96 h-96 shadow-xl z-50 flex flex-col" role="dialog" aria-label="LifeShare Assistant" aria-modal="false">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -180,7 +191,7 @@ export const ChatbotKnowledgeBase = () => {
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col p-4">
-            <div className="flex-1 overflow-y-auto space-y-3 mb-4 max-h-72">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-3 mb-4 max-h-72 pr-2" aria-live="polite" aria-atomic="false">
               {messages.map((message) => (
                 <div
                   key={message.id}
@@ -188,11 +199,11 @@ export const ChatbotKnowledgeBase = () => {
                 >
                   {message.isBot ? (
                     <div
-                      className="max-w-[80%] p-3 rounded-lg whitespace-pre-wrap text-sm bg-muted text-foreground"
+                      className="max-w-[80%] mx-2 p-3 rounded-lg whitespace-pre-wrap break-words text-sm bg-muted text-foreground"
                       dangerouslySetInnerHTML={{ __html: message.content }}
                     />
                   ) : (
-                    <div className="max-w-[80%] p-3 rounded-lg whitespace-pre-wrap text-sm bg-primary text-primary-foreground">
+                    <div className="max-w-[80%] mx-2 p-3 rounded-lg whitespace-pre-wrap break-words text-sm bg-primary text-primary-foreground">
                       {message.content}
                     </div>
                   )}
@@ -206,20 +217,32 @@ export const ChatbotKnowledgeBase = () => {
               </div>
             </div>
           )}
-        </div>
-        
-        <div className="flex gap-2">
+          </div>
+          
+          {!isLoading && (
+            <div className="mb-3 grid grid-cols-2 gap-2" aria-label="Azioni rapide">
+              {['Mutui','Vacanze','Veicoli','Prodotti'].map((label) => (
+                <Button key={label} variant="outline" size="sm" onClick={() => handleQuickAsk(label)} className="justify-start">
+                  {label}
+                </Button>
+              ))}
+            </div>
+          )}
+          
+          <div className="flex gap-2">
           <Input
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Fai una domanda..."
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+            aria-label="Fai una domanda"
+            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
             disabled={isLoading}
           />
           <Button
-            onClick={handleSendMessage}
+            onClick={() => handleSendMessage()}
             disabled={!inputValue.trim() || isLoading}
             size="sm"
+            aria-label="Invia messaggio"
           >
             <Send className="h-4 w-4" />
           </Button>

@@ -13,6 +13,7 @@ export const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="container flex h-16 items-center justify-between px-4 max-w-7xl mx-auto">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:bg-primary focus:text-primary-foreground focus:px-3 focus:py-1 focus:rounded">Salta al contenuto</a>
         {/* Logo e titolo */}
         <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
           <img src={lifeshareLogo} alt="LifeShare" className="h-10 w-10" />
@@ -27,19 +28,19 @@ export const Header = () => {
         {/* Navigation menu - only show if user is authenticated */}
         {user && (
           <nav className="hidden md:flex items-center space-x-6">
-            <Link to="/categoria/mutui" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/categoria/mutui" className="text-foreground hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-1">
               Mutui
             </Link>
-            <Link to="/categoria/vacanze" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/categoria/vacanze" className="text-foreground hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-1">
               Vacanze
             </Link>
-            <Link to="/categoria/auto" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/categoria/auto" className="text-foreground hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-1">
               Veicoli
             </Link>
-            <Link to="/categoria/amazon" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/categoria/amazon" className="text-foreground hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-1">
               Prodotti
             </Link>
-            <Link to="/search" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link to="/search" className="text-foreground hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-1">
               Cerca
             </Link>
           </nav>
