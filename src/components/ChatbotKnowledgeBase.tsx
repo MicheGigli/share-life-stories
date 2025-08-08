@@ -62,13 +62,21 @@ export const ChatbotKnowledgeBase = () => {
   };
 
   const generateResponse = (query: string, searchResults: any) => {
+    const escapeHtml = (str: string) =>
+      String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+
     const { experiences, comments } = searchResults;
 
     if (experiences.length === 0 && comments.length === 0) {
-      return `Non ho trovato risultati specifici per "${query}". Prova a riformulare la domanda o chiedimi ad esempio: Mutui tasso fisso, Viaggi low cost, Recensioni auto, Prodotti consigliati.`;
+      return `Non ho trovato risultati specifici per "${escapeHtml(query)}". Prova a riformulare la domanda o chiedimi ad esempio: Mutui tasso fisso, Viaggi low cost, Recensioni auto, Prodotti consigliati.`;
     }
 
-    let response = `<div><p>Ho trovato alcune informazioni utili su "<strong>${query}</strong>":</p>`;
+    let response = `<div><p>Ho trovato alcune informazioni utili su "<strong>${escapeHtml(query)}</strong>":</p>`;
 
     if (experiences.length > 0) {
       response += `<div class="mt-2">
@@ -77,9 +85,9 @@ export const ChatbotKnowledgeBase = () => {
       experiences.forEach((exp: any, index: number) => {
         const preview = (exp.content || '').slice(0, 140).replace(/\n/g, ' ');
         response += `<li>
-            <strong>${index + 1}. ${exp.title}</strong> · <span class="opacity-80">${exp.category}</span><br/>
-            <span class="opacity-80">${preview}...</span><br/>
-            <a href="/experience/${exp.id}" class="underline text-primary hover:opacity-80">Apri esperienza</a>
+            <strong>${index + 1}. ${escapeHtml(exp.title || '')}</strong> · <span class="opacity-80">${escapeHtml(exp.category || '')}</span><br/>
+            <span class="opacity-80">${escapeHtml(preview)}...</span><br/>
+            <a href="/experience/${escapeHtml(exp.id)}" class="underline text-primary hover:opacity-80">Apri esperienza</a>
           </li>`;
       });
       response += `</ul></div>`;
@@ -91,7 +99,7 @@ export const ChatbotKnowledgeBase = () => {
         <ul class="list-disc pl-5 space-y-1">`;
       comments.forEach((comment: any, index: number) => {
         const text = (comment.content || '').slice(0, 100).replace(/\n/g, ' ');
-        response += `<li>${index + 1}. ${text}...</li>`;
+        response += `<li>${index + 1}. ${escapeHtml(text)}...</li>`;
       });
       response += `</ul></div>`;
     }
@@ -174,21 +182,23 @@ export const ChatbotKnowledgeBase = () => {
       <CardContent className="flex-1 flex flex-col p-4">
             <div className="flex-1 overflow-y-auto space-y-3 mb-4 max-h-72">
               {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
-            >
-              <div
-                className={`max-w-[80%] p-3 rounded-lg whitespace-pre-wrap text-sm ${
-                  message.isBot
-                    ? 'bg-muted text-foreground'
-                    : 'bg-primary text-primary-foreground'
-                }`}
-              >
-                {message.content}
-              </div>
-            </div>
-          ))}
+                <div
+                  key={message.id}
+                  className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
+                >
+                  {message.isBot ? (
+                    <div
+                      className="max-w-[80%] p-3 rounded-lg whitespace-pre-wrap text-sm bg-muted text-foreground"
+                      dangerouslySetInnerHTML={{ __html: message.content }}
+                    />
+                  ) : (
+                    <div className="max-w-[80%] p-3 rounded-lg whitespace-pre-wrap text-sm bg-primary text-primary-foreground">
+                      {message.content}
+                    </div>
+                  )}
+                </div>
+              ))}
+
           {isLoading && (
             <div className="flex justify-start">
               <div className="bg-muted p-3 rounded-lg text-sm">

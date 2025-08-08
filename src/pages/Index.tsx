@@ -8,6 +8,7 @@ import { Footer } from "@/components/Footer";
 import { useSampleData } from "@/hooks/useSampleData";
 import { useProfileSync } from "@/hooks/useProfileSync";
 import { ChatbotKnowledgeBase } from "@/components/ChatbotKnowledgeBase";
+import { HowItWorks } from "@/components/HowItWorks";
 
 const Index = () => {
   // Ensure user has profile and sample data
@@ -26,7 +27,10 @@ const Index = () => {
           </div>
         </>
       ) : (
-        <Hero />
+        <>
+          <Hero />
+          <HowItWorks />
+        </>
       )}
       <Footer />
       {user && (
