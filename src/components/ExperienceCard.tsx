@@ -46,7 +46,9 @@ export const ExperienceCard = ({
       mutui: 'bg-mutui text-mutui-foreground border-mutui',
       vacanze: 'bg-vacanze text-vacanze-foreground border-vacanze',
       veicoli: 'bg-auto text-auto-foreground border-auto',
-      prodotti: 'bg-amazon text-amazon-foreground border-amazon'
+      prodotti: 'bg-amazon text-amazon-foreground border-amazon',
+      auto: 'bg-auto text-auto-foreground border-auto',
+      amazon: 'bg-amazon text-amazon-foreground border-amazon'
     };
     return colors[categoryKey as keyof typeof colors] || 'bg-muted text-muted-foreground border-muted';
   };
@@ -108,6 +110,23 @@ export const ExperienceCard = ({
       }
     }
   };
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `${window.location.origin}/experience/${id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast({
+        title: "Link copiato", 
+        description: url
+      });
+    } catch (error) {
+      // Fallback
+      window.prompt("Copia il link dell'esperienza:", url);
+    }
+  };
+
   const getCategoryColor = (cat: string) => {
     switch (cat.toLowerCase()) {
       case 'mutui': return 'bg-mutui text-white';
@@ -117,7 +136,6 @@ export const ExperienceCard = ({
       default: return 'bg-secondary text-secondary-foreground';
     }
   };
-
   return (
     <Link to={`/experience/${id}`}>
       <Card className="hover:shadow-lg transition-all duration-300 group cursor-pointer">
@@ -186,7 +204,7 @@ export const ExperienceCard = ({
                 {comments}
               </div>
             </div>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" onClick={handleShare} aria-label="Condividi esperienza">
               <Share2 className="h-4 w-4" />
             </Button>
           </div>

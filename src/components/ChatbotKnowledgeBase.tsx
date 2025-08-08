@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MessageCircle, Send, Bot } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface ChatMessage {
   id: string;
@@ -29,21 +29,27 @@ export const ChatbotKnowledgeBase = () => {
 
   const searchKnowledgeBase = async (query: string) => {
     try {
-      // Search in experiences
+      const trimmed = query.trim();
+      if (!trimmed) {
+        return { experiences: [], comments: [] };
+      }
+
+      // Search in experiences (by title and content)
       const { data: experiences, error: expError } = await supabase
         .from('experiences')
-        .select('title, content, category')
+        .select('id, title, content, category')
         .eq('is_published', true)
-        .textSearch('title,content', query)
+        .or(`title.ilike.%${trimmed}%,content.ilike.%${trimmed}%`)
+        .order('likes_count', { ascending: false })
         .limit(5);
 
       if (expError) throw expError;
 
-      // Search in comments
+      // Search in comments (content)
       const { data: comments, error: commError } = await supabase
         .from('comments')
         .select('content')
-        .textSearch('content', query)
+        .or(`content.ilike.%${trimmed}%`)
         .limit(5);
 
       if (commError) throw commError;
@@ -57,29 +63,40 @@ export const ChatbotKnowledgeBase = () => {
 
   const generateResponse = (query: string, searchResults: any) => {
     const { experiences, comments } = searchResults;
-    
+
     if (experiences.length === 0 && comments.length === 0) {
-      return `Mi dispiace, non ho trovato informazioni specifiche su "${query}" nelle esperienze condivise dagli utenti. Prova a riformulare la domanda o a essere più specifico.`;
+      return `Non ho trovato risultati specifici per "${query}". Prova a riformulare la domanda o chiedimi ad esempio: Mutui tasso fisso, Viaggi low cost, Recensioni auto, Prodotti consigliati.`;
     }
 
-    let response = `Ho trovato alcune informazioni rilevanti su "${query}":\n\n`;
+    let response = `<div><p>Ho trovato alcune informazioni utili su "<strong>${query}</strong>":</p>`;
 
     if (experiences.length > 0) {
-      response += "📝 **Esperienze correlate:**\n";
+      response += `<div class="mt-2">
+        <p class="font-semibold mb-1">Esperienze correlate:</p>
+        <ul class="list-disc pl-5 space-y-1">`;
       experiences.forEach((exp: any, index: number) => {
-        response += `${index + 1}. **${exp.title}** (Categoria: ${exp.category})\n`;
-        response += `   ${exp.content.substring(0, 150)}...\n\n`;
+        const preview = (exp.content || '').slice(0, 140).replace(/\n/g, ' ');
+        response += `<li>
+            <strong>${index + 1}. ${exp.title}</strong> · <span class="opacity-80">${exp.category}</span><br/>
+            <span class="opacity-80">${preview}...</span><br/>
+            <a href="/experience/${exp.id}" class="underline text-primary hover:opacity-80">Apri esperienza</a>
+          </li>`;
       });
+      response += `</ul></div>`;
     }
 
     if (comments.length > 0) {
-      response += "💬 **Commenti correlati:**\n";
+      response += `<div class="mt-3">
+        <p class="font-semibold mb-1">Commenti correlati:</p>
+        <ul class="list-disc pl-5 space-y-1">`;
       comments.forEach((comment: any, index: number) => {
-        response += `${index + 1}. ${comment.content.substring(0, 100)}...\n`;
+        const text = (comment.content || '').slice(0, 100).replace(/\n/g, ' ');
+        response += `<li>${index + 1}. ${text}...</li>`;
       });
+      response += `</ul></div>`;
     }
 
-    response += "\nSpero che queste informazioni ti siano utili! Hai altre domande?";
+    response += `<p class="mt-3">Vuoi che affini la ricerca? Dimmi una categoria (mutui, vacanze, veicoli, prodotti) o un dettaglio in più.</p></div>`;
     return response;
   };
 

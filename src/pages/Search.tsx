@@ -31,9 +31,7 @@ const Search = () => {
   const query = searchParams.get('q') || '';
 
   useEffect(() => {
-    if (query) {
-      searchExperiences(query);
-    }
+    searchExperiences(query);
   }, [query, sortBy, categoryFilter]);
 
   const searchExperiences = async (searchQuery: string) => {
@@ -55,10 +53,19 @@ const Search = () => {
       `)
       .eq('is_published', true);
 
-    // Apply text search
-    supabaseQuery = supabaseQuery.or(
-      `title.ilike.%${searchQuery}%,content.ilike.%${searchQuery}%,tags.cs.{${searchQuery}}`
-    );
+    // Apply text search only if query present; otherwise allow filtering by category alone
+    if (searchQuery && searchQuery.trim().length > 0) {
+      supabaseQuery = supabaseQuery.or(
+        `title.ilike.%${searchQuery}%,content.ilike.%${searchQuery}%,tags.cs.{${searchQuery}}`
+      );
+    } else {
+      // If no query and no category selected, avoid fetching everything
+      if (categoryFilter === 'all') {
+        setExperiences([]);
+        setLoading(false);
+        return;
+      }
+    }
 
     // Apply category filter
     if (categoryFilter !== 'all') {
