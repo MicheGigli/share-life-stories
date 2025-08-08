@@ -27,20 +27,20 @@ export const Header = () => {
 
         {/* Navigation menu - only show if user is authenticated */}
         {user && (
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link to="/categoria/mutui" className="text-foreground hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-1">
+          <nav role="navigation" aria-label="Sezioni principali" className="hidden md:flex items-center space-x-6">
+            <Link to="/categoria/mutui" className="font-medium text-foreground hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-1">
               Mutui
             </Link>
-            <Link to="/categoria/vacanze" className="text-foreground hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-1">
+            <Link to="/categoria/vacanze" className="font-medium text-foreground hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-1">
               Vacanze
             </Link>
-            <Link to="/categoria/auto" className="text-foreground hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-1">
+            <Link to="/categoria/auto" className="font-medium text-foreground hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-1">
               Veicoli
             </Link>
-            <Link to="/categoria/amazon" className="text-foreground hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-1">
+            <Link to="/categoria/amazon" className="font-medium text-foreground hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-1">
               Prodotti
             </Link>
-            <Link to="/search" className="text-foreground hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-1">
+            <Link to="/search" className="font-medium text-foreground hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-1">
               Cerca
             </Link>
           </nav>

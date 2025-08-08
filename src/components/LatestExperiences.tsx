@@ -167,6 +167,7 @@ export const LatestExperiences = () => {
                 tags={experience.tags}
                 imageUrl={experience.image_url}
                 categoryKey={experience.category}
+                userId={experience.user_id}
               />
             )) : fallbackExperiences.map((experience, index) => (
               <ExperienceCard 

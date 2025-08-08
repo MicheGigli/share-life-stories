@@ -7,6 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { CommentWithMentions } from './CommentWithMentions';
+import { LevelIndicator } from '@/components/gamification/LevelIndicator';
 
 interface Comment {
   id: string;
@@ -17,6 +18,7 @@ interface Comment {
   profiles: {
     nickname: string;
   };
+  level?: number;
   replies?: Comment[];
 }
 
@@ -60,10 +62,17 @@ export const CommentsList = ({ experienceId, refreshTrigger }: CommentsListProps
             .select('nickname')
             .eq('user_id', comment.user_id)
             .single();
+
+          const { data: points } = await supabase
+            .from('user_points')
+            .select('current_level')
+            .eq('user_id', comment.user_id)
+            .single();
           
           return {
             ...comment,
-            profiles: { nickname: profile?.nickname || 'Utente' }
+            profiles: { nickname: profile?.nickname || 'Utente' },
+            level: points?.current_level || 1
           };
         })
       );
@@ -154,9 +163,12 @@ export const CommentsList = ({ experienceId, refreshTrigger }: CommentsListProps
       <div className="border rounded-lg p-4 bg-muted/30 animate-fade-in">
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-center gap-2">
-            <span className="font-semibold">
-              {comment.profiles?.nickname || 'Utente'}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold">
+                {comment.profiles?.nickname || 'Utente'}
+              </span>
+              {comment.level && <LevelIndicator level={comment.level} size="sm" showLabel={false} />}
+            </div>
             <span className="text-sm text-muted-foreground">
               {formatDistanceToNow(new Date(comment.created_at), {
                 addSuffix: true,

@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, MessageCircle, Share2, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { LevelIndicator } from '@/components/gamification/LevelIndicator';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +21,7 @@ interface ExperienceCardProps {
   tags: string[];
   imageUrl?: string | null;
   categoryKey?: string;
+  userId?: string;
 }
 
 export const ExperienceCard = ({ 
@@ -33,13 +35,15 @@ export const ExperienceCard = ({
   date, 
   tags, 
   imageUrl,
-  categoryKey 
+  categoryKey,
+  userId
 }: ExperienceCardProps) => {
   
   const { user } = useAuth();
   const { toast } = useToast();
   const [isLiked, setIsLiked] = useState(false);
   const [currentLikes, setCurrentLikes] = useState(likes);
+  const [authorLevel, setAuthorLevel] = useState<number | null>(null);
 
   const getCategoryTagColor = (categoryKey: string) => {
     const colors = {
@@ -58,6 +62,19 @@ export const ExperienceCard = ({
       checkIfLiked();
     }
   }, [user, id]);
+
+  useEffect(() => {
+    const fetchLevel = async () => {
+      if (!userId) return;
+      const { data } = await supabase
+        .from('user_points')
+        .select('current_level')
+        .eq('user_id', userId)
+        .single();
+      setAuthorLevel(data?.current_level || 1);
+    };
+    fetchLevel();
+  }, [userId]);
 
   const checkIfLiked = async () => {
     if (!user) return;
@@ -146,7 +163,10 @@ export const ExperienceCard = ({
                 <User className="h-4 w-4" />
               </div>
               <div>
-                <p className="font-semibold text-sm">{author}</p>
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold text-sm">{author}</p>
+                  {authorLevel && <LevelIndicator level={authorLevel} size="sm" showLabel={false} />}
+                </div>
                 <p className="text-xs text-muted-foreground">{date}</p>
               </div>
             </div>

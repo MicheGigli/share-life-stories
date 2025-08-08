@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,6 +26,15 @@ export const ChatbotKnowledgeBase = () => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, [messages, isLoading]);
 
   const searchKnowledgeBase = async (query: string) => {
     try {
@@ -190,8 +199,8 @@ export const ChatbotKnowledgeBase = () => {
         </div>
       </CardHeader>
       
-      <CardContent className="flex-1 flex flex-col p-4">
-            <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-3 mb-4 max-h-72 pr-2" aria-live="polite" aria-atomic="false">
+      <CardContent className="flex-1 flex flex-col p-4 min-h-0">
+            <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden space-y-3 mb-4 pr-2" aria-live="polite" aria-atomic="false">
               {messages.map((message) => (
                 <div
                   key={message.id}

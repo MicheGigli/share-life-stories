@@ -15,6 +15,7 @@ import { DeleteExperienceButton } from '@/components/DeleteExperienceButton';
 import { EditExperienceButton } from '@/components/EditExperienceButton';
 import { CommentsList } from '@/components/CommentsList';
 import { CommentWithMentions } from '@/components/CommentWithMentions';
+import { LevelIndicator } from '@/components/gamification/LevelIndicator';
 
 interface Experience {
   id: string;
@@ -44,6 +45,7 @@ const ExperienceDetail = () => {
   const [authorProfile, setAuthorProfile] = useState<Profile | null>(null);
   const [canDelete, setCanDelete] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [authorLevel, setAuthorLevel] = useState<number | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -84,7 +86,7 @@ const ExperienceDetail = () => {
 
     setExperience(data);
     
-    // Fetch author profile
+    // Fetch author profile and level
     if (data.user_id) {
       const { data: profile } = await supabase
         .from('profiles')
@@ -95,6 +97,12 @@ const ExperienceDetail = () => {
       if (profile) {
         setAuthorProfile(profile);
       }
+      const { data: points } = await supabase
+        .from('user_points')
+        .select('current_level')
+        .eq('user_id', data.user_id)
+        .single();
+      if (points) setAuthorLevel(points.current_level);
     }
     
     setLoading(false);
@@ -237,7 +245,10 @@ const ExperienceDetail = () => {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-semibold">{authorProfile?.nickname || 'Utente'}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold">{authorProfile?.nickname || 'Utente'}</p>
+                    {authorLevel && <LevelIndicator level={authorLevel} size="sm" showLabel={false} />}
+                  </div>
                   <p className="text-sm text-muted-foreground">
                     {new Date(experience.created_at).toLocaleDateString('it-IT')}
                   </p>

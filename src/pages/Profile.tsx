@@ -329,6 +329,7 @@ const Profile = () => {
                             date={new Date(experience.created_at).toLocaleDateString('it-IT')}
                             tags={experience.tags}
                             imageUrl={experience.image_url}
+                            userId={user.id}
                           />
                           <div className="absolute top-4 right-4 flex gap-2">
                             <EditExperienceButton 

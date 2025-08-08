@@ -198,6 +198,7 @@ const Search = () => {
                   date={new Date(experience.created_at).toLocaleDateString('it-IT')}
                   tags={experience.tags}
                   imageUrl={experience.image_url}
+                  userId={experience.user_id}
                 />
               ))}
             </div>
