@@ -49,6 +49,12 @@ All colors MUST be HSL.
     --auto: 4 90% 58%;
     --amazon: 25 95% 53%;
 
+    /* Advertising colors */
+    --ad-bg: 220 14.3% 95.9%;
+    --ad-border: 220 13% 91%;
+    --ad-text: 220.9 39.3% 11%;
+    --sponsored-badge: 45 93% 47%;
+
     /* Gradients */
     --gradient-hero: linear-gradient(135deg, hsl(142 76% 36%), hsl(207 90% 54%));
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(220 14.3% 95.9%));

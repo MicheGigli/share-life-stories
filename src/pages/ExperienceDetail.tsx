@@ -16,6 +16,8 @@ import { EditExperienceButton } from '@/components/EditExperienceButton';
 import { CommentsList } from '@/components/CommentsList';
 import { CommentWithMentions } from '@/components/CommentWithMentions';
 import { LevelIndicator } from '@/components/gamification/LevelIndicator';
+import { AdBanner } from '@/components/ads/AdBanner';
+import { AffiliateLink } from '@/components/ads/AffiliateLink';
 
 interface Experience {
   id: string;
@@ -328,6 +330,14 @@ const ExperienceDetail = () => {
 
         {/* Sezione commenti */}
         <div className="space-y-6">
+          
+          {/* Ad banner prima dei commenti */}
+          <AdBanner 
+            position="horizontal" 
+            category={experience.category.toLowerCase()}
+            dismissible
+          />
+          
           <h2 className="text-xl font-bold">Commenti</h2>
 
           {/* Form nuovo commento */}
@@ -354,6 +364,23 @@ const ExperienceDetail = () => {
             experienceId={id!} 
             refreshTrigger={refreshTrigger}
           />
+          
+          {/* Ad banner dopo i commenti se categoria prodotti */}
+          {experience.category.toLowerCase() === 'amazon' && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Prodotti correlati</h3>
+              <AffiliateLink
+                url="https://amazon.it/dp/B08N5WRWNW"
+                title="Echo Dot (4ª generazione) - Altoparlante intelligente"
+                price="€49.99"
+                originalPrice="€59.99" 
+                description="Il nostro altoparlante intelligente più venduto, ora con un nuovo design"
+                image="https://images.unsplash.com/photo-1589492477829-5e65395b66cc?w=200&h=200&fit=crop"
+                affiliate="amazon"
+                className="max-w-md"
+              />
+            </div>
+          )}
         </div>
       </div>
 

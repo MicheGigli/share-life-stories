@@ -80,12 +80,22 @@ export const Privacy = () => {
               <li>Richiedere la portabilità dei dati</li>
             </ul>
 
-            <h2>7. Cookie</h2>
+            <h2>7. Cookie e Pubblicità</h2>
             <p>
-              Utilizziamo cookie essenziali per il funzionamento del sito e cookie di analisi 
-              per migliorare l'esperienza utente. Puoi gestire le preferenze sui cookie 
-              nelle impostazioni del tuo browser.
+              Utilizziamo cookie essenziali per il funzionamento del sito, cookie di analisi 
+              per migliorare l'esperienza utente e cookie pubblicitari per mostrare annunci 
+              pertinenti. Collaboriamo con partner pubblicitari (Google AdSense, Amazon Associates) 
+              che possono utilizzare cookie per personalizzare gli annunci. Puoi gestire le 
+              preferenze sui cookie nelle impostazioni del tuo browser.
             </p>
+            
+            <h3>7.1 Pubblicità e Affiliazioni</h3>
+            <ul>
+              <li>Mostriamo annunci pubblicitari attraverso Google AdSense</li>
+              <li>Utilizziamo link di affiliazione (Amazon Associates) per guadagnare commissioni</li>
+              <li>Gli annunci sono chiaramente contrassegnati come "Sponsorizzato"</li>
+              <li>I dati di navigazione possono essere utilizzati per personalizzare la pubblicità</li>
+            </ul>
 
             <h2>8. Modifiche alla Privacy Policy</h2>
             <p>

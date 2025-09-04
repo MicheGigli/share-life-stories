@@ -42,15 +42,32 @@ export const Terms = () => {
               <li>Età minima: 16 anni (con consenso genitoriale) o 18 anni</li>
             </ul>
 
-            <h2>4. Contenuti e comportamento</h2>
-            <h3>4.1 Contenuti consentiti</h3>
+            <h2>4. Pubblicità e Monetizzazione</h2>
+            <h3>4.1 Pubblicità Display</h3>
+            <ul>
+              <li>LifeShare mostra annunci pubblicitari per sostenere la piattaforma</li>
+              <li>Gli annunci sono chiaramente contrassegnati come "Sponsorizzato"</li>
+              <li>Non vendiamo i tuoi dati personali agli inserzionisti</li>
+              <li>Utilizziamo Google AdSense per la gestione degli annunci</li>
+            </ul>
+
+            <h3>4.2 Link di Affiliazione</h3>
+            <ul>
+              <li>Alcuni link presenti nel sito sono link di affiliazione</li>
+              <li>Guadagniamo una commissione quando effettui un acquisto tramite questi link</li>
+              <li>I link affiliati sono sempre identificati chiaramente</li>
+              <li>Il prezzo per te rimane invariato</li>
+            </ul>
+
+            <h2>5. Contenuti e comportamento</h2>
+            <h3>5.1 Contenuti consentiti</h3>
             <ul>
               <li>Esperienze autentiche e personali</li>
               <li>Commenti costruttivi e rispettosi</li>
               <li>Contenuti legali e appropriati</li>
             </ul>
 
-            <h3>4.2 Contenuti vietati</h3>
+            <h3>5.2 Contenuti vietati</h3>
             <ul>
               <li>Contenuti illegali, offensivi o discriminatori</li>
               <li>Spam o contenuti promozionali non autorizzati</li>
@@ -59,27 +76,27 @@ export const Terms = () => {
               <li>Contenuti che incitano all'odio o alla violenza</li>
             </ul>
 
-            <h2>5. Proprietà intellettuale</h2>
+            <h2>6. Proprietà intellettuale</h2>
             <ul>
               <li>Tu mantieni i diritti sui tuoi contenuti</li>
               <li>Ci concedi una licenza per utilizzare i contenuti sulla piattaforma</li>
               <li>Rispetta i diritti di proprietà intellettuale altrui</li>
             </ul>
 
-            <h2>6. Privacy e dati personali</h2>
+            <h2>7. Privacy e dati personali</h2>
             <p>
               Il trattamento dei tuoi dati personali è regolato dalla nostra Privacy Policy, 
               che costituisce parte integrante di questi termini.
             </p>
 
-            <h2>7. Sistema di gamification</h2>
+            <h2>8. Sistema di gamification</h2>
             <ul>
               <li>I punti e i badge sono virtuali e senza valore monetario</li>
               <li>Ci riserviamo il diritto di modificare il sistema di punti</li>
               <li>È vietato manipolare artificialmente il sistema di punti</li>
             </ul>
 
-            <h2>8. Moderazione e sanzioni</h2>
+            <h2>9. Moderazione e sanzioni</h2>
             <p>
               Ci riserviamo il diritto di:
             </p>
@@ -89,7 +106,7 @@ export const Terms = () => {
               <li>Moderare commenti e discussioni</li>
             </ul>
 
-            <h2>9. Limitazione di responsabilità</h2>
+            <h2>10. Limitazione di responsabilità</h2>
             <ul>
               <li>Il servizio è fornito "così com'è"</li>
               <li>Non garantiamo disponibilità continua</li>
@@ -97,19 +114,19 @@ export const Terms = () => {
               <li>Limitiamo la nostra responsabilità nei limiti di legge</li>
             </ul>
 
-            <h2>10. Modifiche ai termini</h2>
+            <h2>11. Modifiche ai termini</h2>
             <p>
               Possiamo modificare questi termini in qualsiasi momento. Le modifiche significative 
               saranno comunicate con almeno 30 giorni di preavviso.
             </p>
 
-            <h2>11. Risoluzione delle controversie</h2>
+            <h2>12. Risoluzione delle controversie</h2>
             <p>
               Eventuali controversie saranno risolte secondo la legge italiana e 
               presso il foro competente di Milano.
             </p>
 
-            <h2>12. Contatti</h2>
+            <h2>13. Contatti</h2>
             <p>
               Per domande sui Termini di Servizio, contattaci all'indirizzo: 
               <strong>support@lifeshare.it</strong>

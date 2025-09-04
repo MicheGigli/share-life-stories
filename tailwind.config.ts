@@ -78,7 +78,12 @@ export default {
 				vacanze: 'hsl(var(--vacanze))',
 				auto: 'hsl(var(--auto))',
 				amazon: 'hsl(var(--amazon))',
-				seria: 'hsl(var(--seria))'
+				seria: 'hsl(var(--seria))',
+				// Advertising colors
+				'ad-bg': 'hsl(var(--ad-bg))',
+				'ad-border': 'hsl(var(--ad-border))',
+				'ad-text': 'hsl(var(--ad-text))',
+				'sponsored-badge': 'hsl(var(--sponsored-badge))'
 			},
 			backgroundImage: {
 				'gradient-hero': 'var(--gradient-hero)',

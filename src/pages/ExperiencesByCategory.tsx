@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ExperienceCard } from '@/components/ExperienceCard';
+import { AdBanner } from '@/components/ads/AdBanner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -197,24 +198,45 @@ const ExperiencesByCategory = () => {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-            {filteredExperiences.map((experience) => (
-              <ExperienceCard
-                key={experience.id}
-                id={experience.id}
-                title={experience.title}
-                author={experience.author_nickname || 'Utente'}
-                content={experience.content}
-                category={categoryLabels[experience.category]}
-                likes={experience.likes_count}
-                comments={experience.comments_count}
-                date={new Date(experience.created_at).toLocaleDateString('it-IT')}
-                tags={experience.tags}
-                imageUrl={experience.image_url}
-                userId={experience.user_id}
-              />
-            ))}
-          </div>
+          <>
+            {/* Ad banner prima dei risultati */}
+            <AdBanner 
+              position="horizontal" 
+              category={category}
+              className="mb-6"
+              dismissible
+            />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+              {filteredExperiences.map((experience, index) => (
+                <div key={experience.id}>
+                  <ExperienceCard
+                    id={experience.id}
+                    title={experience.title}
+                    author={experience.author_nickname || 'Utente'}
+                    content={experience.content}
+                    category={categoryLabels[experience.category]}
+                    likes={experience.likes_count}
+                    comments={experience.comments_count}
+                    date={new Date(experience.created_at).toLocaleDateString('it-IT')}
+                    tags={experience.tags}
+                    imageUrl={experience.image_url}
+                    userId={experience.user_id}
+                  />
+                  
+                  {/* Ad after every 4 experiences */}
+                  {(index + 1) % 4 === 0 && (
+                    <AdBanner 
+                      position="horizontal" 
+                      category={category}
+                      className="my-6"
+                      dismissible
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
         {/* Statistiche */}

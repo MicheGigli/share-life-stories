@@ -9,6 +9,8 @@ import { useSampleData } from "@/hooks/useSampleData";
 import { useProfileSync } from "@/hooks/useProfileSync";
 import { ChatbotKnowledgeBase } from "@/components/ChatbotKnowledgeBase";
 import { HowItWorks } from "@/components/HowItWorks";
+import { AdBanner } from "@/components/ads/AdBanner";
+import { AdSenseLoader } from "@/components/ads/AdSenseUnit";
 
 const Index = () => {
   // Ensure user has profile and sample data
@@ -18,11 +20,22 @@ const Index = () => {
 
   return (
     <div id="main-content" className="min-h-screen bg-background">
+      <AdSenseLoader />
       {user && <Header />}
       {user ? (
         <>
           <div className="pt-16">
             <Sections />
+            
+            {/* Ad banner between sections and experiences */}
+            <div className="container mx-auto px-4 py-4">
+              <AdBanner 
+                position="horizontal" 
+                className="max-w-4xl mx-auto"
+                dismissible
+              />
+            </div>
+            
             <LatestExperiences />
           </div>
         </>
@@ -30,6 +43,14 @@ const Index = () => {
         <>
           <Hero />
           <HowItWorks />
+          
+          {/* Ad banner for non-authenticated users */}
+          <div className="container mx-auto px-4 py-8">
+            <AdBanner 
+              position="horizontal" 
+              className="max-w-4xl mx-auto"
+            />
+          </div>
         </>
       )}
       <Footer />
