@@ -27,17 +27,25 @@ export const AffiliateLink = ({
   const [imageError, setImageError] = useState(false);
 
   const handleClick = () => {
+    // Build affiliate URL with tracking
+    let affiliateUrl = url;
+    if (affiliate === 'amazon' && !url.includes('tag=')) {
+      const separator = url.includes('?') ? '&' : '?';
+      affiliateUrl = `${url}${separator}tag=${import.meta.env.VITE_AMAZON_ASSOCIATE_TAG || 'lifeshare-21'}`;
+    }
+
     // Track affiliate click
     if (typeof window !== 'undefined' && (window as any).gtag) {
       (window as any).gtag('event', 'affiliate_click', {
         affiliate_partner: affiliate,
         product_title: title,
-        product_price: price
+        product_price: price,
+        affiliate_url: affiliateUrl
       });
     }
     
     // Open in new tab
-    window.open(url, '_blank', 'noopener,noreferrer');
+    window.open(affiliateUrl, '_blank', 'noopener,noreferrer');
   };
 
   const getAffiliateBadge = () => {

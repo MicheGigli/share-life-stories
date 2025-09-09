@@ -22,7 +22,7 @@ export default {
 				sans: ['Inter', 'system-ui', 'sans-serif'],
 			},
 			colors: {
-				border: 'hsl(var(--border))',
+				amazon: 'hsl(var(--amazon))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',

@@ -24,28 +24,32 @@ export const AdBanner = ({ position, category, className, dismissible = false }:
           description: "Trova il mutuo perfetto per te. Calcola subito la rata!",
           image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=200&fit=crop",
           cta: "Calcola ora",
-          advertiser: "FinanzaOnline"
+          advertiser: "FinanzaOnline",
+          url: "https://www.fineco.it/mutui/"
         },
         vacanze: {
           title: "Offerte viaggi imperdibili",
           description: "Scopri le destinazioni più belle a prezzi scontati",
           image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400&h=200&fit=crop",
           cta: "Prenota ora",
-          advertiser: "TravelDeals"
+          advertiser: "Booking.com",
+          url: "https://www.booking.com/deals.html"
         },
         auto: {
           title: "Assicurazione auto conveniente",
           description: "Risparmia fino al 40% sulla tua RC auto",
           image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=200&fit=crop",
           cta: "Preventivo",
-          advertiser: "AssicuraBene"
+          advertiser: "LinearAssicurazioni",
+          url: "https://www.linear.it/preventivo/"
         },
         amazon: {
           title: "Offerte Amazon del giorno",
           description: "Prodotti selezionati con sconti fino al 70%",
           image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=200&fit=crop",
           cta: "Scopri ora",
-          advertiser: "Amazon"
+          advertiser: "Amazon",
+          url: `https://www.amazon.it/deals?tag=${import.meta.env.VITE_AMAZON_ASSOCIATE_TAG || 'lifeshare-21'}`
         }
       };
 
@@ -62,8 +66,14 @@ export const AdBanner = ({ position, category, className, dismissible = false }:
     if (typeof window !== 'undefined' && (window as any).gtag) {
       (window as any).gtag('event', 'ad_click', {
         ad_category: category,
-        ad_position: position
+        ad_position: position,
+        ad_url: adContent?.url
       });
+    }
+    
+    // Open the ad URL in new tab
+    if (adContent?.url) {
+      window.open(adContent.url, '_blank', 'noopener,noreferrer');
     }
   };
 

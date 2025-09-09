@@ -36,7 +36,7 @@ export const AdSenseUnit = ({
       <ins
         className="adsbygoogle"
         style={{ display: 'block', ...style }}
-        data-ad-client={process.env.VITE_ADSENSE_CLIENT_ID || "ca-pub-1234567890123456"}
+        data-ad-client="ca-pub-3604467906760129"
         data-ad-slot={adSlot}
         data-ad-format={adFormat}
         data-full-width-responsive="true"
@@ -50,10 +50,13 @@ export const AdSenseLoader = () => {
   useEffect(() => {
     if (typeof window !== 'undefined' && !document.querySelector('script[src*="adsbygoogle"]')) {
       const script = document.createElement('script');
-      script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+      script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3604467906760129';
       script.async = true;
       script.crossOrigin = 'anonymous';
       document.head.appendChild(script);
+      
+      // Initialize adsbygoogle array
+      (window as any).adsbygoogle = (window as any).adsbygoogle || [];
     }
   }, []);
 
