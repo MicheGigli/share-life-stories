@@ -47,7 +47,7 @@ All colors MUST be HSL.
     --mutui: 122 39% 49%;
     --vacanze: 207 90% 54%;
     --auto: 4 90% 58%;
-    --amazon: 25 95% 53%;
+    --amazon: 35 81% 54%;
 
     /* Advertising colors */
     --ad-bg: 220 14.3% 95.9%;
@@ -76,9 +76,6 @@ All colors MUST be HSL.
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
-    
-    /* Amazon brand color */
-    --amazon: 35 81% 54%;
   }
 
   .dark {
