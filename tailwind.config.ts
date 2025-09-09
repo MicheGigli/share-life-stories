@@ -22,7 +22,7 @@ export default {
 				sans: ['Inter', 'system-ui', 'sans-serif'],
 			},
 			colors: {
-				amazon: 'hsl(var(--amazon))',
+				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
@@ -78,7 +78,6 @@ export default {
 				vacanze: 'hsl(var(--vacanze))',
 				auto: 'hsl(var(--auto))',
 				amazon: 'hsl(var(--amazon))',
-				seria: 'hsl(var(--seria))',
 				// Advertising colors
 				'ad-bg': 'hsl(var(--ad-bg))',
 				'ad-border': 'hsl(var(--ad-border))',
