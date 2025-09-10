@@ -5,30 +5,32 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-lg",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-elegant hover:shadow-glow hover:scale-[1.02]",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-md hover:shadow-lg hover:scale-[1.02]",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "border border-input bg-background hover:bg-accent hover:text-accent-foreground shadow-sm hover:shadow-md hover:scale-[1.02]",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-        hero: "bg-gradient-hero text-white shadow-lg hover:shadow-xl transform hover:scale-105",
-        mutui: "bg-mutui text-white hover:bg-mutui/90 shadow-md hover:shadow-lg",
-        vacanze: "bg-vacanze text-white hover:bg-vacanze/90 shadow-md hover:shadow-lg",
-        auto: "bg-auto text-white hover:bg-auto/90 shadow-md hover:shadow-lg",
-        amazon: "bg-amazon text-white hover:bg-amazon/90 shadow-md hover:shadow-lg",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm hover:shadow-md hover:scale-[1.02]",
+        ghost: "hover:bg-accent hover:text-accent-foreground hover:scale-[1.02]",
+        link: "text-primary underline-offset-4 hover:underline hover:text-primary-glow transition-colors",
+        hero: "bg-gradient-hero text-white shadow-elegant hover:shadow-glow hover:scale-105 hover:bg-gradient-hero-glow font-semibold",
+        mutui: "bg-gradient-mutui text-white hover:shadow-glow shadow-elegant hover:scale-[1.02] font-medium",
+        vacanze: "bg-gradient-vacanze text-white hover:shadow-glow shadow-elegant hover:scale-[1.02] font-medium",
+        auto: "bg-gradient-auto text-white hover:shadow-glow shadow-elegant hover:scale-[1.02] font-medium",
+        amazon: "bg-gradient-amazon text-white hover:shadow-glow shadow-elegant hover:scale-[1.02] font-medium",
+        glass: "glass text-white backdrop-blur-md border border-white/20 hover:bg-white/20 shadow-elegant hover:shadow-glow",
+        premium: "bg-gradient-to-r from-primary via-primary-glow to-primary text-white shadow-glow hover:shadow-hover hover:scale-105 animate-pulse-glow",
       },
       size: {
         default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-12 rounded-lg px-8 text-base",
-        xl: "h-14 rounded-lg px-10 text-lg",
+        sm: "h-9 rounded-md px-3 text-sm",
+        lg: "h-12 rounded-lg px-8 text-base font-medium",
+        xl: "h-14 rounded-lg px-12 text-lg font-semibold",
         icon: "h-10 w-10",
       },
     },
