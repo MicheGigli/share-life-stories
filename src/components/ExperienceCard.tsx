@@ -8,6 +8,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { FollowButton } from './FollowButton';
+import { BookmarkButton } from './BookmarkButton';
+import { ReactionButtons } from './ReactionButtons';
 
 interface ExperienceCardProps {
   id: string;
@@ -208,25 +211,33 @@ export const ExperienceCard = ({
           )}
           
           {/* Azioni */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className={`p-0 h-auto ${isLiked ? 'text-red-500' : ''}`}
-                onClick={toggleLike}
-              >
-                <Heart className={`h-4 w-4 mr-1 ${isLiked ? 'fill-current' : ''}`} />
-                {currentLikes}
-              </Button>
-              <div className="flex items-center">
-                <MessageCircle className="h-4 w-4 mr-1" />
-                {comments}
+          <div className="space-y-3">
+            {/* Advanced Reactions */}
+            <ReactionButtons 
+              experienceId={id} 
+              showCounts={true}
+              compact={true}
+            />
+            
+            {/* Bottom Actions */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <MessageCircle className="h-4 w-4 mr-1" />
+                  {comments}
+                </div>
+                {userId && userId !== user?.id && (
+                  <FollowButton userId={userId} size="sm" />
+                )}
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <BookmarkButton experienceId={id} />
+                <Button variant="ghost" size="sm" onClick={handleShare} aria-label="Condividi esperienza">
+                  <Share2 className="h-4 w-4" />
+                </Button>
               </div>
             </div>
-            <Button variant="ghost" size="sm" onClick={handleShare} aria-label="Condividi esperienza">
-              <Share2 className="h-4 w-4" />
-            </Button>
           </div>
         </CardContent>
       </Card>

@@ -50,6 +50,27 @@ export type Database = {
         }
         Relationships: []
       }
+      bookmarks: {
+        Row: {
+          created_at: string
+          experience_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          experience_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          experience_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           content: string
@@ -143,6 +164,27 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          id?: string
         }
         Relationships: []
       }
@@ -284,6 +326,30 @@ export type Database = {
         }
         Relationships: []
       }
+      reactions: {
+        Row: {
+          created_at: string
+          experience_id: string
+          id: string
+          reaction_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          experience_id: string
+          id?: string
+          reaction_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          experience_id?: string
+          id?: string
+          reaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       reports: {
         Row: {
           comment_id: string | null
@@ -353,6 +419,33 @@ export type Database = {
         }
         Relationships: []
       }
+      trending_topics: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          last_used: string
+          topic: string
+          usage_count: number | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          last_used?: string
+          topic: string
+          usage_count?: number | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          last_used?: string
+          topic?: string
+          usage_count?: number | null
+        }
+        Relationships: []
+      }
       user_badges: {
         Row: {
           badge_id: string
@@ -371,6 +464,45 @@ export type Database = {
           earned_at?: string
           id?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_onboarding: {
+        Row: {
+          created_at: string
+          first_comment_made: boolean | null
+          first_experience_created: boolean | null
+          first_like_given: boolean | null
+          id: string
+          profile_completed: boolean | null
+          tutorial_completed: boolean | null
+          updated_at: string
+          user_id: string
+          welcome_tour_completed: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          first_comment_made?: boolean | null
+          first_experience_created?: boolean | null
+          first_like_given?: boolean | null
+          id?: string
+          profile_completed?: boolean | null
+          tutorial_completed?: boolean | null
+          updated_at?: string
+          user_id: string
+          welcome_tour_completed?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          first_comment_made?: boolean | null
+          first_experience_created?: boolean | null
+          first_like_given?: boolean | null
+          id?: string
+          profile_completed?: boolean | null
+          tutorial_completed?: boolean | null
+          updated_at?: string
+          user_id?: string
+          welcome_tour_completed?: boolean | null
         }
         Relationships: []
       }

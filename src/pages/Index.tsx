@@ -11,6 +11,9 @@ import { ChatbotKnowledgeBase } from "@/components/ChatbotKnowledgeBase";
 import { HowItWorks } from "@/components/HowItWorks";
 import { AdBanner } from "@/components/ads/AdBanner";
 import { AdSenseLoader } from "@/components/ads/AdSenseUnit";
+import OnboardingWelcome from "@/components/OnboardingWelcome";
+import { PersonalizedFeed } from "@/components/PersonalizedFeed";
+import { TrendingTopics } from "@/components/TrendingTopics";
 
 const Index = () => {
   // Ensure user has profile and sample data
@@ -24,19 +27,31 @@ const Index = () => {
       {user && <Header />}
       {user ? (
         <>
+          <OnboardingWelcome />
           <div className="pt-16">
-            <Sections />
-            
-            {/* Ad banner between sections and experiences */}
-            <div className="container mx-auto px-4 py-4">
-              <AdBanner 
-                position="horizontal" 
-                className="max-w-4xl mx-auto"
-                dismissible
-              />
+            <div className="container mx-auto px-4 py-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Main Content */}
+                <div className="lg:col-span-2 space-y-6">
+                  <Sections />
+                  <PersonalizedFeed />
+                  
+                  {/* Ad banner */}
+                  <AdBanner 
+                    position="horizontal" 
+                    className="max-w-full"
+                    dismissible
+                  />
+                  
+                  <LatestExperiences />
+                </div>
+                
+                {/* Sidebar */}
+                <div className="space-y-6">
+                  <TrendingTopics limit={8} />
+                </div>
+              </div>
             </div>
-            
-            <LatestExperiences />
           </div>
         </>
       ) : (
