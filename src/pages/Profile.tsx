@@ -21,7 +21,8 @@ import { LevelIndicator } from '@/components/gamification/LevelIndicator';
 import { useGameification } from '@/hooks/useGameification';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { User, Mail, Bell, Save, Heart, MessageCircle } from 'lucide-react';
+import { User, Mail, Bell, Save, Heart, MessageCircle, Bookmark } from 'lucide-react';
+import { useBookmarks } from '@/hooks/useBookmarks';
 
 interface Profile {
   id: string;
@@ -48,8 +49,10 @@ const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { userPoints } = useGameification();
+  const { getBookmarkedExperiences } = useBookmarks();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [bookmarkedExperiences, setBookmarkedExperiences] = useState<any[]>([]);
   const [updating, setUpdating] = useState(false);
   const [formData, setFormData] = useState({
     nickname: '',
@@ -66,6 +69,7 @@ const Profile = () => {
     if (user) {
       fetchProfile();
       fetchUserExperiences();
+      fetchBookmarkedExperiences();
     }
   }, [user, loading, navigate]);
 
@@ -108,6 +112,11 @@ const Profile = () => {
     }
 
     setExperiences(data || []);
+  };
+
+  const fetchBookmarkedExperiences = async () => {
+    const bookmarked = await getBookmarkedExperiences();
+    setBookmarkedExperiences(bookmarked);
   };
 
   const updateProfile = async () => {
@@ -287,8 +296,9 @@ const Profile = () => {
 
           {/* Sezioni con Tabs */}
           <Tabs defaultValue="experiences" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="experiences">Esperienze</TabsTrigger>
+              <TabsTrigger value="bookmarks">Salvate</TabsTrigger>
               <TabsTrigger value="progress">Progressi</TabsTrigger>
               <TabsTrigger value="badges">Badge</TabsTrigger>
               <TabsTrigger value="points">Punti</TabsTrigger>
@@ -345,6 +355,49 @@ const Profile = () => {
                             />
                           </div>
                         </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="bookmarks">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Bookmark className="h-5 w-5" />
+                    Esperienze salvate
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {bookmarkedExperiences.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Bookmark className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                      <p className="text-muted-foreground mb-4">
+                        Non hai ancora salvato nessuna esperienza
+                      </p>
+                      <Button onClick={() => navigate('/')}>
+                        Esplora le esperienze
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {bookmarkedExperiences.map((experience) => (
+                        <ExperienceCard
+                          key={experience.id}
+                          id={experience.id}
+                          title={experience.title}
+                          author={experience.author}
+                          content={experience.content}
+                          category={getCategoryLabel(experience.category)}
+                          likes={experience.likes_count}
+                          comments={experience.comments_count}
+                          date={new Date(experience.created_at).toLocaleDateString('it-IT')}
+                          tags={experience.tags}
+                          imageUrl={experience.image_url}
+                          userId={experience.user_id}
+                        />
                       ))}
                     </div>
                   )}

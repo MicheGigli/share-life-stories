@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -9,10 +9,17 @@ import { useOnboarding } from '@/hooks/useOnboarding';
 import { useNavigate } from 'react-router-dom';
 
 const OnboardingWelcome = () => {
-  const { progress, updateProgress, getCompletionPercentage, getNextStep, isCompleted } = useOnboarding();
+  const { progress, updateProgress, loading } = useOnboarding();
   const [currentStep, setCurrentStep] = useState(0);
-  const [isOpen, setIsOpen] = useState(!isCompleted() && !progress.welcome_tour_completed);
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Show onboarding only if user hasn't completed welcome tour and is not loading
+    if (!loading && !progress.welcome_tour_completed) {
+      setIsOpen(true);
+    }
+  }, [loading, progress.welcome_tour_completed]);
 
   const steps = [
     {

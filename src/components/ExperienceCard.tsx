@@ -158,7 +158,7 @@ export const ExperienceCard = ({
   };
   return (
     <Link to={`/experience/${id}`}>
-      <Card className="hover:shadow-lg transition-all duration-300 group cursor-pointer">
+      <Card className="hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 group cursor-pointer hover:scale-[1.02] hover:-translate-y-1">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-3">
@@ -188,7 +188,7 @@ export const ExperienceCard = ({
             />
           )}
           
-          <h3 className="font-bold text-lg mb-3 group-hover:text-primary transition-colors">
+          <h3 className="font-bold text-lg mb-3 group-hover:text-primary transition-all duration-300 group-hover:scale-105">
             {title}
           </h3>
           <p className="text-muted-foreground mb-4 line-clamp-3">

@@ -1,248 +1,207 @@
 import { Button } from "@/components/ui/button";
-import { User, LogOut, Plus, Menu, X } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { Badge } from "@/components/ui/badge";
 import { Link, useNavigate } from "react-router-dom";
-import { NotificationBell } from './NotificationBell';
-import { SearchWithPreview } from './SearchWithPreview';
+import { User, LogOut, Settings, Plus, Menu, X } from "lucide-react";
+import { SearchBar } from "./SearchBar";
+import { NotificationBell } from "./NotificationBell";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import lifeshareLogo from "@/assets/lifeshare-logo.png";
-import { useState } from "react";
+import { LevelIndicator } from './gamification/LevelIndicator';
+import { useGameification } from '@/hooks/useGameification';
+import { useState } from 'react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/hooks/useAuth';
 
 export const Header = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { userPoints } = useGameification();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-card animate-fade-in">
-      <div className="container flex h-16 items-center justify-between px-4 max-w-7xl mx-auto">
-        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:bg-primary focus:text-primary-foreground focus:px-3 focus:py-1 focus:rounded">Salta al contenuto</a>
-        
-        {/* Logo e titolo */}
-        <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-all duration-300 hover:scale-105 group">
-          <img src={lifeshareLogo} alt="LifeShare" className="h-10 w-10 group-hover:rotate-12 transition-transform duration-300" />
-          <div>
-            <h1 className="text-xl font-bold bg-gradient-hero bg-clip-text text-transparent font-display">
-              LifeShare
-            </h1>
-            <p className="text-xs text-muted-foreground">La tua esperienza, la nostra community</p>
-          </div>
-        </Link>
-
-        {/* Navigation menu - desktop */}
-        {user && (
-          <nav role="navigation" aria-label="Sezioni principali" className="hidden lg:flex items-center space-x-8">
-            <Link to="/categoria/mutui" className="font-medium text-foreground hover:text-mutui transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-2 py-1 story-link">
-              Mutui
+    <>
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <Link to="/" className="flex items-center space-x-2 hover:scale-105 transition-transform duration-300">
+              <img src={lifeshareLogo} alt="Lifeshare" className="h-8 w-8 hover:rotate-12 transition-transform duration-300" />
+              <span className="font-bold text-xl text-foreground">Lifeshare</span>
             </Link>
-            <Link to="/categoria/vacanze" className="font-medium text-foreground hover:text-vacanze transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-2 py-1 story-link">
-              Vacanze
-            </Link>
-            <Link to="/categoria/auto" className="font-medium text-foreground hover:text-auto transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-2 py-1 story-link">
-              Veicoli
-            </Link>
-            <Link to="/categoria/amazon" className="font-medium text-foreground hover:text-amazon transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-2 py-1 story-link">
-              Prodotti
-            </Link>
-            <Link to="/search" className="font-medium text-foreground hover:text-primary transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-sm px-2 py-1 story-link">
-              Cerca
-            </Link>
-          </nav>
-        )}
 
-        {/* Barra di ricerca con anteprima - desktop */}
-        {user && (
-          <div className="hidden xl:flex flex-1 max-w-md mx-8">
-            <SearchWithPreview className="w-full" />
-          </div>
-        )}
-
-        {/* Desktop Actions */}
-        <div className="hidden md:flex items-center space-x-3">
-          {user && <NotificationBell />}
-          {user ? (
-            <>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => navigate('/create')}
-                className="hidden lg:flex"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Crea
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => navigate('/profile')}
-              >
-                <User className="h-4 w-4 mr-2" />
-                Profilo
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={signOut}
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Esci
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => navigate('/auth')}
-              >
-                <User className="h-4 w-4 mr-2" />
-                Accedi
-              </Button>
-              <Button 
-                variant="hero" 
-                size="sm"
-                onClick={() => navigate('/auth')}
-              >
-                Registrati
-              </Button>
-            </>
-          )}
-        </div>
-
-        {/* Mobile menu button */}
-        <div className="md:hidden flex items-center space-x-2">
-          {user && <NotificationBell />}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden"
-          >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
-        </div>
-      </div>
-
-      {/* Mobile menu */}
-      {mobileMenuOpen && user && (
-        <div className="md:hidden bg-background/95 backdrop-blur-xl border-t animate-slide-in-right">
-          <div className="px-4 py-6 space-y-4">
-            {/* Mobile search */}
-            <div className="mb-4">
-              <SearchWithPreview className="w-full" />
+            {/* Search Bar - Hidden on mobile */}
+            <div className="hidden md:flex flex-1 max-w-md mx-8">
+              <SearchBar />
             </div>
-            
-            {/* Mobile navigation */}
-            <nav className="space-y-3">
-              <Link 
-                to="/categoria/mutui" 
-                className="block py-2 px-3 text-foreground hover:text-mutui hover:bg-muted/50 rounded-lg transition-all duration-300"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Mutui
-              </Link>
-              <Link 
-                to="/categoria/vacanze" 
-                className="block py-2 px-3 text-foreground hover:text-vacanze hover:bg-muted/50 rounded-lg transition-all duration-300"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Vacanze
-              </Link>
-              <Link 
-                to="/categoria/auto" 
-                className="block py-2 px-3 text-foreground hover:text-auto hover:bg-muted/50 rounded-lg transition-all duration-300"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Veicoli
-              </Link>
-              <Link 
-                to="/categoria/amazon" 
-                className="block py-2 px-3 text-foreground hover:text-amazon hover:bg-muted/50 rounded-lg transition-all duration-300"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Prodotti
-              </Link>
-              <Link 
-                to="/search" 
-                className="block py-2 px-3 text-foreground hover:text-primary hover:bg-muted/50 rounded-lg transition-all duration-300"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Cerca
-              </Link>
-            </nav>
 
-            {/* Mobile actions */}
-            <div className="pt-4 border-t space-y-3">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => {
-                  navigate('/create');
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full justify-start"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Crea Esperienza
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => {
-                  navigate('/profile');
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full justify-start"
-              >
-                <User className="h-4 w-4 mr-2" />
-                Profilo
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => {
-                  signOut();
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full justify-start"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Esci
-              </Button>
+            {/* Desktop User Menu */}
+            {user ? (
+              <div className="hidden md:flex items-center space-x-4">
+                <Button 
+                  onClick={() => navigate('/create')}
+                  size="sm"
+                  className="hover:scale-105 transition-transform duration-200"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Crea
+                </Button>
+                
+                <ThemeToggle />
+                <NotificationBell />
+                
+                <div className="flex items-center space-x-2">
+                  <LevelIndicator level={userPoints.current_level} size="sm" />
+                  <Badge variant="secondary" className="hover:scale-105 transition-transform duration-200">
+                    {userPoints.total_points} punti
+                  </Badge>
+                </div>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="hover:scale-105 transition-transform duration-200">
+                      <User className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => navigate('/profile')}>
+                      <User className="mr-2 h-4 w-4" />
+                      Profilo
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/create')}>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Crea esperienza
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={signOut}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Esci
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            ) : (
+              <div className="hidden md:flex items-center space-x-2">
+                <ThemeToggle />
+                <Button variant="ghost" onClick={() => navigate('/auth')}>
+                  Accedi
+                </Button>
+                <Button onClick={() => navigate('/auth')}>
+                  Registrati
+                </Button>
+              </div>
+            )}
+
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </div>
+          
+          {/* Mobile Search Bar */}
+          <div className="md:hidden pb-3">
+            <SearchBar />
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div className="fixed inset-0 bg-black/50" onClick={() => setMobileMenuOpen(false)} />
+          <div className="fixed top-16 right-0 bottom-0 w-64 bg-background border-l border-border shadow-lg transform transition-transform duration-300 ease-in-out">
+            <div className="p-4 space-y-4">
+              {user ? (
+                <>
+                  <div className="flex items-center space-x-3 pb-4 border-b">
+                    <div className="bg-muted p-2 rounded-full">
+                      <User className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <LevelIndicator level={userPoints.current_level} size="sm" />
+                      <Badge variant="secondary" className="mt-1">
+                        {userPoints.total_points} punti
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    onClick={() => {
+                      navigate('/create');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full justify-start"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Crea esperienza
+                  </Button>
+                  
+                  <Button 
+                    variant="ghost"
+                    onClick={() => {
+                      navigate('/profile');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full justify-start"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Profilo
+                  </Button>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Tema</span>
+                    <ThemeToggle />
+                  </div>
+                  
+                  <Button 
+                    variant="ghost"
+                    onClick={() => {
+                      signOut();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full justify-start text-destructive hover:text-destructive"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Esci
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Tema</span>
+                    <ThemeToggle />
+                  </div>
+                  
+                  <Button 
+                    variant="ghost"
+                    onClick={() => {
+                      navigate('/auth');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full justify-start"
+                  >
+                    Accedi
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => {
+                      navigate('/auth');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full"
+                  >
+                    Registrati
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
       )}
-
-      {/* Mobile actions for non-authenticated */}
-      {mobileMenuOpen && !user && (
-        <div className="md:hidden bg-background/95 backdrop-blur-xl border-t animate-slide-in-right">
-          <div className="px-4 py-6 space-y-3">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => {
-                navigate('/auth');
-                setMobileMenuOpen(false);
-              }}
-              className="w-full justify-start"
-            >
-              <User className="h-4 w-4 mr-2" />
-              Accedi
-            </Button>
-            <Button 
-              variant="hero" 
-              size="sm"
-              onClick={() => {
-                navigate('/auth');
-                setMobileMenuOpen(false);
-              }}
-              className="w-full justify-start"
-            >
-              Registrati
-            </Button>
-          </div>
-        </div>
-      )}
-    </header>
+    </>
   );
 };

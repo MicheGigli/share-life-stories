@@ -14,12 +14,23 @@ import { AdSenseLoader } from "@/components/ads/AdSenseUnit";
 import OnboardingWelcome from "@/components/OnboardingWelcome";
 import { PersonalizedFeed } from "@/components/PersonalizedFeed";
 import { TrendingTopics } from "@/components/TrendingTopics";
+import { FloatingActionButton } from "@/components/ui/floating-action-button";
+import { PullToRefresh } from "@/components/ui/pull-to-refresh";
+import { useState } from 'react';
 
 const Index = () => {
   // Ensure user has profile and sample data
   useProfileSync();
   useSampleData();
   const { user } = useAuth();
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleRefresh = async () => {
+    // Trigger a refresh of the data
+    setRefreshKey(prev => prev + 1);
+    // Small delay to show the refresh animation
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  };
 
   return (
     <div id="main-content" className="min-h-screen bg-background">
@@ -28,31 +39,42 @@ const Index = () => {
       {user ? (
         <>
           <OnboardingWelcome />
-          <div className="pt-16">
-            <div className="container mx-auto px-4 py-6">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Main Content */}
-                <div className="lg:col-span-2 space-y-6">
-                  <Sections />
-                  <PersonalizedFeed />
+          <PullToRefresh onRefresh={handleRefresh}>
+            <div className="pt-16">
+              <div className="container mx-auto px-4 py-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Main Content */}
+                  <div className="lg:col-span-2 space-y-6">
+                    <div className="transform transition-all duration-500 hover:scale-[1.01]">
+                      <Sections />
+                    </div>
+                    <div className="transform transition-all duration-500 hover:scale-[1.01]">
+                      <PersonalizedFeed key={refreshKey} />
+                    </div>
+                    
+                    {/* Ad banner */}
+                    <AdBanner 
+                      position="horizontal" 
+                      className="max-w-full transform transition-all duration-300 hover:scale-[1.02]"
+                      dismissible
+                    />
+                    
+                    <div className="transform transition-all duration-500 hover:scale-[1.01]">
+                      <LatestExperiences key={refreshKey} />
+                    </div>
+                  </div>
                   
-                  {/* Ad banner */}
-                  <AdBanner 
-                    position="horizontal" 
-                    className="max-w-full"
-                    dismissible
-                  />
-                  
-                  <LatestExperiences />
-                </div>
-                
-                {/* Sidebar */}
-                <div className="space-y-6">
-                  <TrendingTopics limit={8} />
+                  {/* Sidebar */}
+                  <div className="space-y-6">
+                    <div className="transform transition-all duration-500 hover:scale-[1.01]">
+                      <TrendingTopics limit={8} key={refreshKey} />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </PullToRefresh>
+          <FloatingActionButton />
         </>
       ) : (
         <>
