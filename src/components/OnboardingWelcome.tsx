@@ -16,10 +16,11 @@ const OnboardingWelcome = () => {
 
   useEffect(() => {
     // Show onboarding only if user hasn't completed welcome tour and is not loading
-    if (!loading && !progress.welcome_tour_completed) {
+    // And only if the user actually needs onboarding (not already initialized)
+    if (!loading && !progress.welcome_tour_completed && !isOpen) {
       setIsOpen(true);
     }
-  }, [loading, progress.welcome_tour_completed]);
+  }, [loading, progress.welcome_tour_completed, isOpen]);
 
   const steps = [
     {

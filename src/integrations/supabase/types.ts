@@ -14,6 +14,96 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_links: {
+        Row: {
+          affiliate_url: string
+          created_at: string
+          experience_id: string
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          platform: string
+          price: number | null
+          product_name: string
+          updated_at: string
+        }
+        Insert: {
+          affiliate_url: string
+          created_at?: string
+          experience_id: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          platform?: string
+          price?: number | null
+          product_name: string
+          updated_at?: string
+        }
+        Update: {
+          affiliate_url?: string
+          created_at?: string
+          experience_id?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          platform?: string
+          price?: number | null
+          product_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_recommendations: {
+        Row: {
+          confidence_score: number | null
+          created_at: string
+          experience_id: string
+          id: string
+          recommendation_type: string
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string
+          experience_id: string
+          id?: string
+          recommendation_type: string
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string
+          experience_id?: string
+          id?: string
+          recommendation_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           category: string
@@ -122,6 +212,39 @@ export type Database = {
           },
         ]
       }
+      experience_locations: {
+        Row: {
+          address: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          experience_id: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          experience_id: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          experience_id?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+        }
+        Relationships: []
+      }
       experiences: {
         Row: {
           category: Database["public"]["Enums"]["experience_category"]
@@ -163,6 +286,36 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      export_requests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          export_type: string
+          file_url: string | null
+          id: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          export_type: string
+          file_url?: string | null
+          id?: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          export_type?: string
+          file_url?: string | null
+          id?: string
+          status?: string | null
           user_id?: string
         }
         Relationships: []
@@ -326,6 +479,60 @@ export type Database = {
         }
         Relationships: []
       }
+      push_tokens: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          platform: string
+          token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          platform: string
+          token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          platform?: string
+          token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      qr_codes: {
+        Row: {
+          created_at: string
+          experience_id: string
+          id: string
+          qr_code_url: string
+          scan_count: number | null
+        }
+        Insert: {
+          created_at?: string
+          experience_id: string
+          id?: string
+          qr_code_url: string
+          scan_count?: number | null
+        }
+        Update: {
+          created_at?: string
+          experience_id?: string
+          id?: string
+          qr_code_url?: string
+          scan_count?: number | null
+        }
+        Relationships: []
+      }
       reactions: {
         Row: {
           created_at: string
@@ -394,6 +601,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      structured_reviews: {
+        Row: {
+          cons: string[] | null
+          created_at: string
+          criteria_ratings: Json | null
+          experience_id: string
+          id: string
+          overall_rating: number
+          pros: string[] | null
+          updated_at: string
+          user_id: string
+          would_recommend: boolean | null
+        }
+        Insert: {
+          cons?: string[] | null
+          created_at?: string
+          criteria_ratings?: Json | null
+          experience_id: string
+          id?: string
+          overall_rating: number
+          pros?: string[] | null
+          updated_at?: string
+          user_id: string
+          would_recommend?: boolean | null
+        }
+        Update: {
+          cons?: string[] | null
+          created_at?: string
+          criteria_ratings?: Json | null
+          experience_id?: string
+          id?: string
+          overall_rating?: number
+          pros?: string[] | null
+          updated_at?: string
+          user_id?: string
+          would_recommend?: boolean | null
+        }
+        Relationships: []
       }
       travel_subcategories: {
         Row: {
@@ -601,6 +847,10 @@ export type Database = {
       check_and_award_badges: {
         Args: { target_user_id: string }
         Returns: undefined
+      }
+      generate_qr_code: {
+        Args: { experience_id: string }
+        Returns: string
       }
       get_active_users_count: {
         Args: Record<PropertyKey, never>

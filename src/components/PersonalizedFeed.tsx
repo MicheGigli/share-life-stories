@@ -53,7 +53,7 @@ export const PersonalizedFeed = () => {
           tags,
           image_url,
           user_id,
-          profiles!experiences_user_id_fkey(nickname)
+          profiles(nickname)
         `)
         .eq('is_published', true);
 

@@ -4,6 +4,8 @@ import { Heart, MessageCircle, Share2, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { LevelIndicator } from '@/components/gamification/LevelIndicator';
 import { useAuth } from '@/hooks/useAuth';
+import { useAnalytics } from '@/hooks/useAnalytics';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
@@ -25,6 +27,7 @@ interface ExperienceCardProps {
   imageUrl?: string | null;
   categoryKey?: string;
   userId?: string;
+  compact?: boolean;
 }
 
 export const ExperienceCard = ({ 
@@ -39,10 +42,18 @@ export const ExperienceCard = ({
   tags, 
   imageUrl,
   categoryKey,
-  userId
+  userId,
+  compact = false
 }: ExperienceCardProps) => {
   
+  const navigate = useNavigate();
   const { user } = useAuth();
+  const { trackExperienceView } = useAnalytics();
+
+  const handleCardClick = () => {
+    trackExperienceView(id, category);
+    navigate(`/experience/${id}`);
+  };
   const { toast } = useToast();
   const [isLiked, setIsLiked] = useState(false);
   const [currentLikes, setCurrentLikes] = useState(likes);
@@ -157,20 +168,20 @@ export const ExperienceCard = ({
     }
   };
   return (
-    <Link to={`/experience/${id}`}>
-      <Card className="hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 group cursor-pointer hover:scale-[1.02] hover:-translate-y-1">
-        <CardHeader className="pb-3">
+    <div onClick={handleCardClick}>
+      <Card className={`hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 group cursor-pointer hover:scale-[1.02] hover:-translate-y-1 ${compact ? 'text-sm' : ''}`}>
+        <CardHeader className={compact ? "pb-2" : "pb-3"}>
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-3">
               <div className="bg-muted p-2 rounded-full">
-                <User className="h-4 w-4" />
+                <User className={compact ? "h-3 w-3" : "h-4 w-4"} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="font-semibold text-sm">{author}</p>
+                  <p className={`font-semibold ${compact ? 'text-xs' : 'text-sm'}`}>{author}</p>
                   {authorLevel && <LevelIndicator level={authorLevel} size="sm" showLabel={false} />}
                 </div>
-                <p className="text-xs text-muted-foreground">{date}</p>
+                <p className={`text-muted-foreground ${compact ? 'text-xs' : 'text-xs'}`}>{date}</p>
               </div>
             </div>
             <Badge className={getCategoryColor(category)}>
@@ -180,7 +191,7 @@ export const ExperienceCard = ({
         </CardHeader>
         
         <CardContent className="pt-0">
-          {imageUrl && (
+          {imageUrl && !compact && (
             <img 
               src={imageUrl} 
               alt={title}
@@ -188,15 +199,15 @@ export const ExperienceCard = ({
             />
           )}
           
-          <h3 className="font-bold text-lg mb-3 group-hover:text-primary transition-all duration-300 group-hover:scale-105">
+          <h3 className={`font-bold mb-3 group-hover:text-primary transition-all duration-300 group-hover:scale-105 ${compact ? 'text-sm' : 'text-lg'}`}>
             {title}
           </h3>
-          <p className="text-muted-foreground mb-4 line-clamp-3">
+          <p className={`text-muted-foreground mb-4 line-clamp-3 ${compact ? 'text-xs' : ''}`}>
             {content}
           </p>
           
           {/* Tags */}
-          {tags.length > 0 && (
+          {tags.length > 0 && !compact && (
             <div className="flex flex-wrap gap-2 mb-4">
               {tags.map((tag, index) => (
                 <Badge 
@@ -213,34 +224,36 @@ export const ExperienceCard = ({
           {/* Azioni */}
           <div className="space-y-3">
             {/* Advanced Reactions */}
-            <ReactionButtons 
-              experienceId={id} 
-              showCounts={true}
-              compact={true}
-            />
+            {!compact && (
+              <ReactionButtons 
+                experienceId={id} 
+                showCounts={true}
+                compact={true}
+              />
+            )}
             
             {/* Bottom Actions */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <MessageCircle className="h-4 w-4 mr-1" />
+                <div className={`flex items-center text-muted-foreground ${compact ? 'text-xs' : 'text-sm'}`}>
+                  <MessageCircle className={compact ? "h-3 w-3 mr-1" : "h-4 w-4 mr-1"} />
                   {comments}
                 </div>
-                {userId && userId !== user?.id && (
+                {userId && userId !== user?.id && !compact && (
                   <FollowButton userId={userId} size="sm" />
                 )}
               </div>
               
               <div className="flex items-center gap-2">
-                <BookmarkButton experienceId={id} />
-                <Button variant="ghost" size="sm" onClick={handleShare} aria-label="Condividi esperienza">
-                  <Share2 className="h-4 w-4" />
+                {!compact && <BookmarkButton experienceId={id} />}
+                <Button variant="ghost" size={compact ? "sm" : "sm"} onClick={handleShare} aria-label="Condividi esperienza">
+                  <Share2 className={compact ? "h-3 w-3" : "h-4 w-4"} />
                 </Button>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
-    </Link>
+    </div>
   );
 };

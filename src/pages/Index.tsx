@@ -13,7 +13,7 @@ import { AdBanner } from "@/components/ads/AdBanner";
 import { AdSenseLoader } from "@/components/ads/AdSenseUnit";
 import OnboardingWelcome from "@/components/OnboardingWelcome";
 import { PersonalizedFeed } from "@/components/PersonalizedFeed";
-import { TrendingTopics } from "@/components/TrendingTopics";
+// Removed TrendingTopics import - too resource intensive
 import { FloatingActionButton } from "@/components/ui/floating-action-button";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { useState } from 'react';
@@ -42,34 +42,27 @@ const Index = () => {
           <PullToRefresh onRefresh={handleRefresh}>
             <div className="pt-16">
               <div className="container mx-auto px-4 py-6">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Main Content */}
-                  <div className="lg:col-span-2 space-y-6">
-                    <div className="transform transition-all duration-500 hover:scale-[1.01]">
-                      <Sections />
-                    </div>
-                    <div className="transform transition-all duration-500 hover:scale-[1.01]">
-                      <PersonalizedFeed key={refreshKey} />
-                    </div>
-                    
-                    {/* Ad banner */}
-                    <AdBanner 
-                      position="horizontal" 
-                      className="max-w-full transform transition-all duration-300 hover:scale-[1.02]"
-                      dismissible
-                    />
-                    
-                    <div className="transform transition-all duration-500 hover:scale-[1.01]">
-                      <LatestExperiences key={refreshKey} />
-                    </div>
-                  </div>
-                  
-                  {/* Sidebar */}
-                  <div className="space-y-6">
-                    <div className="transform transition-all duration-500 hover:scale-[1.01]">
-                      <TrendingTopics limit={8} key={refreshKey} />
-                    </div>
-                  </div>
+                <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+                  {/* Main Content - Full width now */}
+          <div className="space-y-6">
+            <div className="transform transition-all duration-500 hover:scale-[1.01]">
+              <Sections />
+            </div>
+            <div className="transform transition-all duration-500 hover:scale-[1.01]">
+              <PersonalizedFeed key={refreshKey} />
+            </div>
+            
+            {/* Ad banner */}
+            <AdBanner 
+              position="horizontal" 
+              className="max-w-full transform transition-all duration-300 hover:scale-[1.02]"
+              dismissible
+            />
+            
+            <div className="transform transition-all duration-500 hover:scale-[1.01]">
+              <LatestExperiences key={refreshKey} />
+            </div>
+          </div>
                 </div>
               </div>
             </div>
