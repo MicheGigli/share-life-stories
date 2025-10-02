@@ -42,19 +42,7 @@ export const PersonalizedFeed = () => {
     try {
       let query = supabase
         .from('experiences')
-        .select(`
-          id,
-          title,
-          content,
-          category,
-          likes_count,
-          comments_count,
-          created_at,
-          tags,
-          image_url,
-          user_id,
-          profiles(nickname)
-        `)
+        .select('*')
         .eq('is_published', true);
 
       switch (feedType) {
@@ -112,16 +100,23 @@ export const PersonalizedFeed = () => {
           break;
       }
 
-      const { data, error } = await query
+      const { data: expData, error } = await query
         .order('created_at', { ascending: false })
         .limit(20);
 
       if (error) throw error;
 
-      // Transform data to ensure proper typing
-      const transformedData = (data || []).map(item => ({
+      // Get profiles separately to avoid foreign key issues
+      const userIds = [...new Set(expData?.map(e => e.user_id) || [])];
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('user_id, nickname')
+        .in('user_id', userIds);
+
+      // Combine data
+      const transformedData = (expData || []).map(item => ({
         ...item,
-        profiles: item.profiles ? { nickname: (item.profiles as any).nickname || 'Utente' } : null
+        profiles: profileData?.find(p => p.user_id === item.user_id) || null
       }));
 
       setExperiences(transformedData);
