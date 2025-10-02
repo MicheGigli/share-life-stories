@@ -42,7 +42,7 @@ export const PersonalizedFeed = () => {
     try {
       let query = supabase
         .from('experiences')
-        .select('*')
+        .select('id, title, content, category, likes_count, comments_count, created_at, tags, image_url, user_id, is_published')
         .eq('is_published', true);
 
       switch (feedType) {
