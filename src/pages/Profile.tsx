@@ -21,8 +21,10 @@ import { LevelIndicator } from '@/components/gamification/LevelIndicator';
 import { useGameification } from '@/hooks/useGameification';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { User, Mail, Bell, Save, Heart, MessageCircle, Bookmark } from 'lucide-react';
+import { User, Mail, Bell, Save, Heart, MessageCircle, Bookmark, Users, UserCheck } from 'lucide-react';
 import { useBookmarks } from '@/hooks/useBookmarks';
+import { FollowingList } from '@/components/FollowingList';
+import { FollowersList } from '@/components/FollowersList';
 
 interface Profile {
   id: string;
@@ -296,9 +298,11 @@ const Profile = () => {
 
           {/* Sezioni con Tabs */}
           <Tabs defaultValue="experiences" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="experiences">Esperienze</TabsTrigger>
               <TabsTrigger value="bookmarks">Salvate</TabsTrigger>
+              <TabsTrigger value="following">Seguiti</TabsTrigger>
+              <TabsTrigger value="followers">Follower</TabsTrigger>
               <TabsTrigger value="progress">Progressi</TabsTrigger>
               <TabsTrigger value="badges">Badge</TabsTrigger>
               <TabsTrigger value="points">Punti</TabsTrigger>
@@ -403,6 +407,30 @@ const Profile = () => {
                   )}
                 </CardContent>
               </Card>
+            </TabsContent>
+            
+            <TabsContent value="following">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Utenti che segui
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+              <FollowingList />
+            </TabsContent>
+            
+            <TabsContent value="followers">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <UserCheck className="h-5 w-5" />
+                    I tuoi follower
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+              <FollowersList />
             </TabsContent>
             
             <TabsContent value="progress">

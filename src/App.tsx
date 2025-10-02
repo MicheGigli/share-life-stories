@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import Index from '@/pages/Index';
 import Auth from '@/pages/Auth';
 import Profile from '@/pages/Profile';
+import PublicProfile from '@/pages/PublicProfile';
 import ExperienceDetail from '@/pages/ExperienceDetail';
 import CreateExperience from '@/pages/CreateExperience';
 import EditExperience from '@/pages/EditExperience';
@@ -26,6 +27,7 @@ function App() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/password-reset" element={<PasswordReset />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/:userId" element={<PublicProfile />} />
             <Route path="/search" element={<Search />} />
             <Route path="/create" element={<CreateExperience />} />
             <Route path="/create/:category" element={<CreateExperienceFromCategory />} />

@@ -26,7 +26,6 @@ export const useOnboarding = () => {
   useEffect(() => {
     if (user) {
       fetchProgress();
-      initializeOnboarding();
     }
   }, [user]);
 
@@ -38,7 +37,7 @@ export const useOnboarding = () => {
         .from('user_onboarding')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (data) {
         setProgress({
@@ -49,31 +48,21 @@ export const useOnboarding = () => {
           tutorial_completed: data.tutorial_completed,
           welcome_tour_completed: data.welcome_tour_completed,
         });
+      } else {
+        // If no record exists, mark as completed (existing user)
+        setProgress({
+          profile_completed: true,
+          first_experience_created: true,
+          first_like_given: true,
+          first_comment_made: true,
+          tutorial_completed: true,
+          welcome_tour_completed: true,
+        });
       }
     } catch (error) {
       console.error('Error fetching onboarding progress:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const initializeOnboarding = async () => {
-    if (!user) return;
-
-    const { error } = await supabase
-      .from('user_onboarding')
-      .upsert({
-        user_id: user.id,
-        profile_completed: false,
-        first_experience_created: false,
-        first_like_given: false,
-        first_comment_made: false,
-        tutorial_completed: false,
-        welcome_tour_completed: false,
-      }, { onConflict: 'user_id' });
-
-    if (error) {
-      console.error('Error initializing onboarding:', error);
     }
   };
 
