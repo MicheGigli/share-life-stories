@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Circle, Star, Users, Heart, MessageCircle, Trophy } from 'lucide-react';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 const OnboardingWelcome = () => {
   const { progress, updateProgress, loading } = useOnboarding();
@@ -15,11 +16,24 @@ const OnboardingWelcome = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Show onboarding only if user hasn't completed welcome tour and is not loading
-    // And only if the user actually needs onboarding (not already initialized)
-    if (!loading && !progress.welcome_tour_completed && !isOpen) {
-      setIsOpen(true);
-    }
+    const checkAndShowOnboarding = async () => {
+      if (loading || isOpen) return;
+
+      // Check if user has any experiences - if yes, they don't need onboarding
+      const { data: experiences } = await supabase
+        .from('experiences')
+        .select('id')
+        .limit(1);
+
+      // Show onboarding only if:
+      // 1. Welcome tour not completed
+      // 2. User has no experiences (brand new user)
+      if (!progress.welcome_tour_completed && (!experiences || experiences.length === 0)) {
+        setIsOpen(true);
+      }
+    };
+
+    checkAndShowOnboarding();
   }, [loading, progress.welcome_tour_completed, isOpen]);
 
   const steps = [
