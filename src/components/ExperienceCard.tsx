@@ -167,6 +167,16 @@ export const ExperienceCard = ({
       default: return 'bg-secondary text-secondary-foreground';
     }
   };
+
+  const getCategoryDisplayName = (cat: string) => {
+    switch (cat.toLowerCase()) {
+      case 'auto': return 'Veicoli';
+      case 'amazon': return 'Prodotti';
+      case 'mutui': return 'Mutui';
+      case 'vacanze': return 'Vacanze';
+      default: return cat;
+    }
+  };
   return (
     <div onClick={handleCardClick}>
       <Card className={`hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 group cursor-pointer hover:scale-[1.02] hover:-translate-y-1 ${compact ? 'text-sm' : ''}`}>
@@ -191,7 +201,7 @@ export const ExperienceCard = ({
               </div>
             </div>
             <Badge className={getCategoryColor(category)}>
-              {category}
+              {getCategoryDisplayName(category)}
             </Badge>
           </div>
         </CardHeader>

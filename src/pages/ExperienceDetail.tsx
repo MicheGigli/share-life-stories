@@ -197,6 +197,16 @@ const ExperienceDetail = () => {
     }
   };
 
+  const getCategoryDisplayName = (cat: string) => {
+    switch (cat.toLowerCase()) {
+      case 'auto': return 'Veicoli';
+      case 'amazon': return 'Prodotti';
+      case 'mutui': return 'Mutui';
+      case 'vacanze': return 'Vacanze';
+      default: return cat;
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -261,7 +271,7 @@ const ExperienceDetail = () => {
               </Link>
               <div className="flex items-center gap-2">
                 <Badge className={getCategoryColor(experience.category)}>
-                  {experience.category}
+                  {getCategoryDisplayName(experience.category)}
                 </Badge>
                   {user && user.id === experience.user_id && (
                     <div className="flex gap-2">

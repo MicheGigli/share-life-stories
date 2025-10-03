@@ -36,7 +36,7 @@ const ExperiencesByCategory = () => {
   const categoryLabels: Record<string, string> = {
     'mutui': 'Mutui',
     'vacanze': 'Vacanze',
-    'auto': 'Auto',
+    'auto': 'Veicoli',
     'amazon': 'Prodotti'
   };
 
