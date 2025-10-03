@@ -240,7 +240,10 @@ const ExperienceDetail = () => {
         <Card className="mb-8">
           <CardHeader className="pb-4">
             <div className="flex items-start justify-between">
-              <div className="flex items-center space-x-3">
+              <Link 
+                to={`/profile/${experience.user_id}`}
+                className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity rounded-lg p-1 -m-1"
+              >
                 <Avatar className="h-12 w-12">
                   <AvatarFallback>
                     <User className="h-6 w-6" />
@@ -255,7 +258,7 @@ const ExperienceDetail = () => {
                     {new Date(experience.created_at).toLocaleDateString('it-IT')}
                   </p>
                 </div>
-              </div>
+              </Link>
               <div className="flex items-center gap-2">
                 <Badge className={getCategoryColor(experience.category)}>
                   {experience.category}

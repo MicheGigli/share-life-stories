@@ -163,7 +163,10 @@ export const CommentsList = ({ experienceId, refreshTrigger }: CommentsListProps
       <div className="border rounded-lg p-4 bg-muted/30 animate-fade-in">
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
+            <div 
+              className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => window.location.href = `/profile/${comment.user_id}`}
+            >
               <span className="font-semibold">
                 {comment.profiles?.nickname || 'Utente'}
               </span>

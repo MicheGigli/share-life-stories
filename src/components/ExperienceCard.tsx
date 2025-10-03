@@ -172,7 +172,13 @@ export const ExperienceCard = ({
       <Card className={`hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 group cursor-pointer hover:scale-[1.02] hover:-translate-y-1 ${compact ? 'text-sm' : ''}`}>
         <CardHeader className={compact ? "pb-2" : "pb-3"}>
           <div className="flex items-start justify-between">
-            <div className="flex items-center space-x-3">
+            <div 
+              className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity rounded-lg p-1 -m-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (userId) navigate(`/profile/${userId}`);
+              }}
+            >
               <div className="bg-muted p-2 rounded-full">
                 <User className={compact ? "h-3 w-3" : "h-4 w-4"} />
               </div>
