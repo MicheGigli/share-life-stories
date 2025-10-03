@@ -864,6 +864,10 @@ export type Database = {
         Args: { user_id: string }
         Returns: string
       }
+      has_role: {
+        Args: { _role: string; _user_id: string }
+        Returns: boolean
+      }
       points_for_next_level: {
         Args: { current_level: number }
         Returns: number
