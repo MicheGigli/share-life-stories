@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { X, Upload } from 'lucide-react';
+import { X, Upload, ArrowLeft } from 'lucide-react';
 
 const CreateExperienceFromCategory = () => {
   const { category } = useParams<{ category: string }>();
@@ -201,6 +201,15 @@ const CreateExperienceFromCategory = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <div className="container mx-auto px-4 py-8 pt-24">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate(-1)} 
+          className="mb-6"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Indietro
+        </Button>
+
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle className="text-2xl font-bold">

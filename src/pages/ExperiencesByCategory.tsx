@@ -8,7 +8,8 @@ import { AdBanner } from '@/components/ads/AdBanner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface Experience {
   id: string;
@@ -26,6 +27,7 @@ interface Experience {
 
 const ExperiencesByCategory = () => {
   const { category } = useParams<{ category: string }>();
+  const navigate = useNavigate();
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedVehicleType, setSelectedVehicleType] = useState('all');
@@ -144,6 +146,15 @@ const ExperiencesByCategory = () => {
       <Header />
       
       <div className="container mx-auto px-4 py-8 pt-24">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate(-1)} 
+          className="mb-6"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Indietro
+        </Button>
+
         {/* Header sezione */}
         <div className="text-center mb-8">
           <div className={`inline-flex items-center gap-3 px-6 py-3 rounded-full ${categoryColors[category]} text-white mb-4`}>

@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { PenTool, Tag, X, Upload, Image as ImageIcon } from 'lucide-react';
+import { PenTool, Tag, X, Upload, Image as ImageIcon, ArrowLeft } from 'lucide-react';
 
 const CreateExperience = () => {
   const { user, loading } = useAuth();
@@ -241,6 +241,15 @@ const CreateExperience = () => {
       <Header />
       
       <div className="container mx-auto px-4 py-8 pt-24 max-w-4xl">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate(-1)} 
+          className="mb-6"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Indietro
+        </Button>
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

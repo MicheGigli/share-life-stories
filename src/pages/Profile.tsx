@@ -21,7 +21,7 @@ import { LevelIndicator } from '@/components/gamification/LevelIndicator';
 import { useGameification } from '@/hooks/useGameification';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { User, Mail, Bell, Save, Heart, MessageCircle, Bookmark, Users, UserCheck } from 'lucide-react';
+import { User, Mail, Bell, Save, Heart, MessageCircle, Bookmark, Users, UserCheck, ArrowLeft } from 'lucide-react';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { FollowingList } from '@/components/FollowingList';
 import { FollowersList } from '@/components/FollowersList';
@@ -221,6 +221,15 @@ const Profile = () => {
       
       <div className="container mx-auto px-4 py-8 pt-24">
         <div className="max-w-4xl mx-auto">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate(-1)} 
+            className="mb-6"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Indietro
+          </Button>
+
           <Card className="mb-8">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
