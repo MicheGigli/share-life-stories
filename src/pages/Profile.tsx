@@ -31,6 +31,9 @@ interface Profile {
   nickname: string;
   bio: string | null;
   avatar_url: string | null;
+}
+
+interface UserPreferences {
   email_notifications: boolean;
 }
 
@@ -53,6 +56,7 @@ const Profile = () => {
   const { userPoints } = useGameification();
   const { getBookmarkedExperiences } = useBookmarks();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [preferences, setPreferences] = useState<UserPreferences | null>(null);
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [bookmarkedExperiences, setBookmarkedExperiences] = useState<any[]>([]);
   const [updating, setUpdating] = useState(false);
@@ -78,23 +82,36 @@ const Profile = () => {
   const fetchProfile = async () => {
     if (!user) return;
 
-    const { data, error } = await supabase
+    // Fetch profile data
+    const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('*')
       .eq('user_id', user.id)
       .single();
 
-    if (error) {
-      console.error('Error fetching profile:', error);
+    if (profileError) {
+      console.error('Error fetching profile:', profileError);
       return;
     }
 
-    if (data) {
-      setProfile(data);
+    // Fetch user preferences
+    const { data: preferencesData, error: preferencesError } = await supabase
+      .from('user_preferences')
+      .select('email_notifications')
+      .eq('user_id', user.id)
+      .single();
+
+    if (preferencesError) {
+      console.error('Error fetching preferences:', preferencesError);
+    }
+
+    if (profileData) {
+      setProfile(profileData);
+      setPreferences(preferencesData || { email_notifications: true });
       setFormData({
-        nickname: data.nickname,
-        bio: data.bio || '',
-        email_notifications: data.email_notifications
+        nickname: profileData.nickname,
+        bio: profileData.bio || '',
+        email_notifications: preferencesData?.email_notifications ?? true
       });
     }
   };
@@ -126,19 +143,37 @@ const Profile = () => {
 
     setUpdating(true);
 
-    const { error } = await supabase
+    // Update profile (public data)
+    const { error: profileError } = await supabase
       .from('profiles')
       .update({
         nickname: formData.nickname,
         bio: formData.bio,
+      })
+      .eq('user_id', user.id);
+
+    if (profileError) {
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiornare il profilo",
+        variant: "destructive",
+      });
+      setUpdating(false);
+      return;
+    }
+
+    // Update preferences (private data)
+    const { error: preferencesError } = await supabase
+      .from('user_preferences')
+      .update({
         email_notifications: formData.email_notifications
       })
       .eq('user_id', user.id);
 
-    if (error) {
+    if (preferencesError) {
       toast({
         title: "Errore",
-        description: "Impossibile aggiornare il profilo",
+        description: "Impossibile aggiornare le preferenze",
         variant: "destructive",
       });
       setUpdating(false);

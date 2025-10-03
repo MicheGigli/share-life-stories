@@ -451,7 +451,6 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string
-          email_notifications: boolean | null
           id: string
           nickname: string
           updated_at: string
@@ -461,7 +460,6 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
-          email_notifications?: boolean | null
           id?: string
           nickname: string
           updated_at?: string
@@ -471,7 +469,6 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
-          email_notifications?: boolean | null
           id?: string
           nickname?: string
           updated_at?: string
@@ -774,6 +771,30 @@ export type Database = {
           current_level?: number
           id?: string
           total_points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string
+          email_notifications: boolean
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_notifications?: boolean
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_notifications?: boolean
+          id?: string
           updated_at?: string
           user_id?: string
         }
