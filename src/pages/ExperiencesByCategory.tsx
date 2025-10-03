@@ -131,7 +131,7 @@ const ExperiencesByCategory = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto px-4 py-8 text-center">
+        <div className="container mx-auto px-4 py-8 pt-24 text-center">
           <h1 className="text-2xl font-bold">Categoria non trovata</h1>
         </div>
         <Footer />
@@ -143,7 +143,7 @@ const ExperiencesByCategory = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 pt-24">
         {/* Header sezione */}
         <div className="text-center mb-8">
           <div className={`inline-flex items-center gap-3 px-6 py-3 rounded-full ${categoryColors[category]} text-white mb-4`}>

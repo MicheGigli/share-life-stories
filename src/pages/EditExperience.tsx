@@ -276,7 +276,7 @@ const EditExperience = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 pt-24">
           <div className="text-center">Caricamento...</div>
         </div>
         <Footer />
@@ -288,7 +288,7 @@ const EditExperience = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto px-4 py-8 text-center">
+        <div className="container mx-auto px-4 py-8 pt-24 text-center">
           <h1 className="text-2xl font-bold">Esperienza non trovata</h1>
           <Button asChild className="mt-4">
             <a href="/">Torna alla home</a>
@@ -303,7 +303,7 @@ const EditExperience = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 pt-24 max-w-4xl">
         <Button variant="ghost" onClick={() => navigate(`/experience/${experience.id}`)} className="mb-6">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Torna all'esperienza

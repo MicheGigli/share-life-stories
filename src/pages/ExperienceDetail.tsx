@@ -201,7 +201,7 @@ const ExperienceDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 pt-24">
           <div className="text-center">Caricamento...</div>
         </div>
         <Footer />
@@ -213,7 +213,7 @@ const ExperienceDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto px-4 py-8 text-center">
+        <div className="container mx-auto px-4 py-8 pt-24 text-center">
           <h1 className="text-2xl font-bold">Esperienza non trovata</h1>
           <Button asChild className="mt-4">
             <Link to="/">Torna alla home</Link>
@@ -228,7 +228,7 @@ const ExperienceDetail = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 pt-24 max-w-4xl">
         <Button variant="ghost" asChild className="mb-6">
           <Link to="/">
             <ArrowLeft className="h-4 w-4 mr-2" />

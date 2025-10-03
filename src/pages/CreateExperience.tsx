@@ -224,7 +224,7 @@ const CreateExperience = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 pt-24">
           <div className="text-center">Caricamento...</div>
         </div>
         <Footer />
@@ -240,7 +240,7 @@ const CreateExperience = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 pt-24 max-w-4xl">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
