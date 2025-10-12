@@ -21,10 +21,11 @@ import { LevelIndicator } from '@/components/gamification/LevelIndicator';
 import { useGameification } from '@/hooks/useGameification';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { User, Mail, Bell, Save, Heart, MessageCircle, Bookmark, Users, UserCheck, ArrowLeft } from 'lucide-react';
+import { User, Mail, Bell, Save, Heart, MessageCircle, Bookmark, Users, UserCheck, ArrowLeft, Shield } from 'lucide-react';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { FollowingList } from '@/components/FollowingList';
 import { FollowersList } from '@/components/FollowersList';
+import { useRoles } from '@/hooks/useRoles';
 
 interface Profile {
   id: string;
@@ -55,6 +56,7 @@ const Profile = () => {
   const { toast } = useToast();
   const { userPoints } = useGameification();
   const { getBookmarkedExperiences } = useBookmarks();
+  const { isAdmin } = useRoles();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [preferences, setPreferences] = useState<UserPreferences | null>(null);
   const [experiences, setExperiences] = useState<Experience[]>([]);
@@ -342,7 +344,7 @@ const Profile = () => {
 
           {/* Sezioni con Tabs */}
           <Tabs defaultValue="experiences" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-7">
+            <TabsList className={`grid w-full ${isAdmin() ? 'grid-cols-8' : 'grid-cols-7'}`}>
               <TabsTrigger value="experiences">Esperienze</TabsTrigger>
               <TabsTrigger value="bookmarks">Salvate</TabsTrigger>
               <TabsTrigger value="following">Seguiti</TabsTrigger>
@@ -350,6 +352,12 @@ const Profile = () => {
               <TabsTrigger value="progress">Progressi</TabsTrigger>
               <TabsTrigger value="badges">Badge</TabsTrigger>
               <TabsTrigger value="points">Punti</TabsTrigger>
+              {isAdmin() && (
+                <TabsTrigger value="admin" className="text-yellow-600 dark:text-yellow-400">
+                  <Shield className="h-4 w-4 mr-1" />
+                  Admin
+                </TabsTrigger>
+              )}
             </TabsList>
             
             <TabsContent value="experiences">
@@ -488,6 +496,63 @@ const Profile = () => {
             <TabsContent value="points">
               <PointsHistory />
             </TabsContent>
+
+            {isAdmin() && (
+              <TabsContent value="admin">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Shield className="h-5 w-5 text-yellow-500" />
+                      Dashboard Amministratore
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-muted-foreground">
+                      Accedi alla dashboard completa per gestire utenti, contenuti e segnalazioni.
+                    </p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Card className="border-yellow-200 dark:border-yellow-800">
+                        <CardContent className="p-6">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                              <Users className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                            </div>
+                            <h3 className="font-semibold">Gestione Utenti</h3>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            Modifica ruoli, visualizza statistiche e gestisci gli utenti della piattaforma
+                          </p>
+                        </CardContent>
+                      </Card>
+
+                      <Card className="border-yellow-200 dark:border-yellow-800">
+                        <CardContent className="p-6">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                              <MessageCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                            </div>
+                            <h3 className="font-semibold">Moderazione</h3>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            Gestisci contenuti, segnalazioni e mantieni la qualità della community
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    <Button 
+                      onClick={() => navigate('/admin')} 
+                      className="w-full"
+                      size="lg"
+                    >
+                      <Shield className="h-4 w-4 mr-2" />
+                      Apri Dashboard Amministratore
+                    </Button>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            )}
           </Tabs>
         </div>
       </div>
