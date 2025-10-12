@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -10,14 +8,14 @@ import {
   FileText, 
   MessageSquare, 
   TrendingUp, 
-  AlertCircle, 
-  Settings,
-  Search,
-  Filter,
-  Download
+  AlertCircle
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { UserManagement } from './admin/UserManagement';
+import { ContentModeration } from './admin/ContentModeration';
+import { ReportsManager } from './admin/ReportsManager';
+import { AnalyticsDashboard } from './admin/AnalyticsDashboard';
 
 interface AdminStats {
   totalUsers: number;
@@ -127,135 +125,28 @@ export const AdminDashboard = () => {
       {/* Admin Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Panoramica</TabsTrigger>
+          <TabsTrigger value="overview">Analytics</TabsTrigger>
           <TabsTrigger value="users">Utenti</TabsTrigger>
           <TabsTrigger value="content">Contenuti</TabsTrigger>
           <TabsTrigger value="reports">Segnalazioni</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Attività Recente
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center p-4 bg-muted rounded-lg">
-                  <span>Utenti registrati oggi</span>
-                  <Badge>+{Math.floor(Math.random() * 10)}</Badge>
-                </div>
-                <div className="flex justify-between items-center p-4 bg-muted rounded-lg">
-                  <span>Esperienze pubblicate oggi</span>
-                  <Badge>+{Math.floor(Math.random() * 15)}</Badge>
-                </div>
-                <div className="flex justify-between items-center p-4 bg-muted rounded-lg">
-                  <span>Commenti oggi</span>
-                  <Badge>+{Math.floor(Math.random() * 25)}</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="overview" className="space-y-6 mt-6">
+          <AnalyticsDashboard />
         </TabsContent>
 
-        <TabsContent value="users" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Gestione Utenti</CardTitle>
-              <div className="flex gap-2">
-                <Input placeholder="Cerca utenti..." className="max-w-sm" />
-                <Button variant="outline">
-                  <Search className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Funzionalità di gestione utenti in sviluppo...
-              </p>
-            </CardContent>
-          </Card>
+        <TabsContent value="users" className="space-y-6 mt-6">
+          <UserManagement />
         </TabsContent>
 
-        <TabsContent value="content" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Gestione Contenuti</CardTitle>
-              <div className="flex gap-2">
-                <Input placeholder="Cerca contenuti..." className="max-w-sm" />
-                <Button variant="outline">
-                  <Filter className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span>Esperienze in attesa di moderazione</span>
-                  <Badge variant="outline">0</Badge>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span>Commenti segnalati</span>
-                  <Badge variant="destructive">{stats.reportsCount}</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="content" className="space-y-6 mt-6">
+          <ContentModeration />
         </TabsContent>
 
-        <TabsContent value="reports" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5" />
-                Segnalazioni Pendenti
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {stats.reportsCount === 0 ? (
-                <p className="text-muted-foreground">Nessuna segnalazione pendente</p>
-              ) : (
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    Ci sono {stats.reportsCount} segnalazioni che richiedono attenzione.
-                  </p>
-                  <Button>
-                    Rivedi Segnalazioni
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        <TabsContent value="reports" className="space-y-6 mt-6">
+          <ReportsManager />
         </TabsContent>
       </Tabs>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            Azioni Rapide
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <Download className="h-6 w-6" />
-              Esporta Dati
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <Settings className="h-6 w-6" />
-              Configurazioni
-            </Button>
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
-              <TrendingUp className="h-6 w-6" />
-              Analytics
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
