@@ -889,6 +889,14 @@ export type Database = {
         Args: { _role: string; _user_id: string }
         Returns: boolean
       }
+      is_admin: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
+      is_moderator: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
       points_for_next_level: {
         Args: { current_level: number }
         Returns: number
