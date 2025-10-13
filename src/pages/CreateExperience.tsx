@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useModeration } from '@/hooks/useModeration';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,7 @@ const CreateExperience = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { moderateContent: moderateContentHook } = useModeration();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [moderating, setModerating] = useState(false);
   const [formData, setFormData] = useState({
@@ -102,19 +104,12 @@ const CreateExperience = () => {
   const moderateContent = async (content: string): Promise<boolean> => {
     try {
       setModerating(true);
-      const { data, error } = await supabase.functions.invoke('moderate-content', {
-        body: { content }
-      });
+      const result = await moderateContentHook(content, 'experience', undefined, user?.id);
 
-      if (error) {
-        console.error('Error moderating content:', error);
-        return true; // Allow content if moderation fails
-      }
-
-      if (!data.isAppropriate) {
+      if (!result.isAppropriate) {
         toast({
           title: "Contenuto non appropriato",
-          description: data.reason || "Il contenuto contiene elementi non permessi",
+          description: result.reason || "Il contenuto contiene elementi non permessi",
           variant: "destructive",
         });
         return false;
@@ -123,7 +118,7 @@ const CreateExperience = () => {
       return true;
     } catch (error) {
       console.error('Error in content moderation:', error);
-      return true; // Allow content if moderation fails
+      return true;
     } finally {
       setModerating(false);
     }

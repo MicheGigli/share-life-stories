@@ -4,6 +4,7 @@ import { MentionInput } from './MentionInput';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from './ui/use-toast';
+import { useModeration } from '@/hooks/useModeration';
 
 interface CommentWithMentionsProps {
   experienceId: string;
@@ -20,6 +21,7 @@ export const CommentWithMentions = ({
 }: CommentWithMentionsProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { moderateContent } = useModeration();
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -29,6 +31,24 @@ export const CommentWithMentions = ({
 
     setIsSubmitting(true);
     try {
+      // Moderate comment content
+      const moderationResult = await moderateContent(
+        comment.trim(),
+        'comment',
+        undefined,
+        user.id
+      );
+
+      if (!moderationResult.isAppropriate) {
+        toast({
+          title: "Commento non appropriato",
+          description: moderationResult.reason || "Il commento contiene elementi non permessi",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       const { error } = await supabase
         .from('comments')
         .insert({

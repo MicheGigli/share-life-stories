@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useModeration } from '@/hooks/useModeration';
 import { Header } from '@/components/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ const CreateExperienceFromCategory = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { moderateContent: moderateContentHook } = useModeration();
   
   const [formData, setFormData] = useState({
     title: '',
@@ -99,19 +101,11 @@ const CreateExperienceFromCategory = () => {
 
   const moderateContent = async (content: string): Promise<boolean> => {
     try {
-      const { data, error } = await supabase.functions.invoke('moderate-content', {
-        body: { content }
-      });
-
-      if (error) {
-        console.error('Moderation error:', error);
-        return true; // Allow content if moderation fails
-      }
-
-      return data.approved;
+      const result = await moderateContentHook(content, 'experience', undefined, user?.id);
+      return result.isAppropriate;
     } catch (error) {
       console.error('Moderation error:', error);
-      return true; // Allow content if moderation fails
+      return true;
     }
   };
 

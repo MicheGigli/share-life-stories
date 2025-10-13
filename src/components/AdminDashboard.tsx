@@ -16,6 +16,7 @@ import { UserManagement } from './admin/UserManagement';
 import { ContentModeration } from './admin/ContentModeration';
 import { ReportsManager } from './admin/ReportsManager';
 import { AnalyticsDashboard } from './admin/AnalyticsDashboard';
+import { ModerationLogs } from './admin/ModerationLogs';
 
 interface AdminStats {
   totalUsers: number;
@@ -124,11 +125,12 @@ export const AdminDashboard = () => {
 
       {/* Admin Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Analytics</TabsTrigger>
           <TabsTrigger value="users">Utenti</TabsTrigger>
           <TabsTrigger value="content">Contenuti</TabsTrigger>
           <TabsTrigger value="reports">Segnalazioni</TabsTrigger>
+          <TabsTrigger value="moderation">Moderazione AI</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6 mt-6">
@@ -145,6 +147,10 @@ export const AdminDashboard = () => {
 
         <TabsContent value="reports" className="space-y-6 mt-6">
           <ReportsManager />
+        </TabsContent>
+
+        <TabsContent value="moderation" className="space-y-6 mt-6">
+          <ModerationLogs />
         </TabsContent>
       </Tabs>
     </div>

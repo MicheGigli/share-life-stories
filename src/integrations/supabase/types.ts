@@ -380,6 +380,39 @@ export type Database = {
           },
         ]
       }
+      moderation_logs: {
+        Row: {
+          content: string
+          content_id: string | null
+          content_type: string
+          created_at: string
+          id: string
+          is_appropriate: boolean
+          reason: string | null
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          content_id?: string | null
+          content_type: string
+          created_at?: string
+          id?: string
+          is_appropriate: boolean
+          reason?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          content_id?: string | null
+          content_type?: string
+          created_at?: string
+          id?: string
+          is_appropriate?: boolean
+          reason?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string

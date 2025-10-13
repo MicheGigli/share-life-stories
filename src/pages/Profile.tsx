@@ -26,6 +26,7 @@ import { useBookmarks } from '@/hooks/useBookmarks';
 import { FollowingList } from '@/components/FollowingList';
 import { FollowersList } from '@/components/FollowersList';
 import { useRoles } from '@/hooks/useRoles';
+import { DataExportButton } from '@/components/DataExportButton';
 
 interface Profile {
   id: string;
@@ -300,10 +301,13 @@ const Profile = () => {
                     </Label>
                   </div>
 
-                  <Button onClick={updateProfile} disabled={updating} className="w-full md:w-auto">
-                    <Save className="h-4 w-4 mr-2" />
-                    {updating ? 'Aggiornamento...' : 'Salva modifiche'}
-                  </Button>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button onClick={updateProfile} disabled={updating} className="w-full sm:w-auto">
+                      <Save className="h-4 w-4 mr-2" />
+                      {updating ? 'Aggiornamento...' : 'Salva modifiche'}
+                    </Button>
+                    <DataExportButton />
+                  </div>
                 </div>
               </div>
             </CardContent>
