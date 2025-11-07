@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Link, useNavigate } from "react-router-dom";
-import { User, LogOut, Settings, Plus, Menu, X } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { User, LogOut, Settings, Plus, Menu, X, ArrowLeft, Home } from "lucide-react";
 import { SearchBar } from "./SearchBar";
 import { NotificationBell } from "./NotificationBell";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -15,19 +15,56 @@ import { useAuth } from '@/hooks/useAuth';
 export const Header = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { userPoints } = useGameification();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const isHomePage = location.pathname === '/';
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
 
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2 hover:scale-105 transition-transform duration-300">
-              <img src={lifeshareLogo} alt="Lifeshare" className="h-8 w-8 hover:rotate-12 transition-transform duration-300" />
-              <span className="font-bold text-xl text-foreground">Lifeshare</span>
-            </Link>
+            {/* Back and Home buttons */}
+            <div className="flex items-center gap-2">
+              {!isHomePage && (
+                <>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={handleBack}
+                    className="hover:scale-105 transition-transform duration-200"
+                    title="Torna indietro"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => navigate('/')}
+                    className="hover:scale-105 transition-transform duration-200"
+                    title="Torna alla homepage"
+                  >
+                    <Home className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+              
+              {/* Logo */}
+              <Link to="/" className="flex items-center space-x-2 hover:scale-105 transition-transform duration-300">
+                <img src={lifeshareLogo} alt="Lifeshare" className="h-8 w-8 hover:rotate-12 transition-transform duration-300" />
+                <span className="font-bold text-xl text-foreground hidden sm:inline">Lifeshare</span>
+              </Link>
+            </div>
 
             {/* Search Bar - Hidden on mobile */}
             <div className="hidden md:flex flex-1 max-w-md mx-8">
