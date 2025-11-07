@@ -2,14 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageCircle, Send, Bot } from 'lucide-react';
+import { MessageCircle, Send, Bot, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface ChatMessage {
   id: string;
   content: string;
-  isBot: boolean;
+  role: 'user' | 'assistant';
   timestamp: Date;
 }
 
@@ -18,8 +18,8 @@ export const ChatbotKnowledgeBase = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
-      content: 'Ciao! Sono il tuo assistente LifeShare. Posso aiutarti a trovare informazioni basate sulle esperienze condivise dagli utenti. Cosa vorresti sapere?',
-      isBot: true,
+      content: '👋 Ciao! Sono il tuo assistente LifeShare con intelligenza artificiale. Posso aiutarti a esplorare esperienze su mutui, vacanze, veicoli e prodotti. Chiedi pure!',
+      role: 'assistant',
       timestamp: new Date()
     }
   ]);
@@ -43,7 +43,7 @@ export const ChatbotKnowledgeBase = () => {
         return { experiences: [], comments: [] };
       }
 
-      // Search in experiences (by title and content)
+      // Search in experiences
       const { data: experiences, error: expError } = await supabase
         .from('experiences')
         .select('id, title, content, category')
@@ -54,12 +54,12 @@ export const ChatbotKnowledgeBase = () => {
 
       if (expError) throw expError;
 
-      // Search in comments (content)
+      // Search in comments
       const { data: comments, error: commError } = await supabase
         .from('comments')
         .select('content')
         .or(`content.ilike.%${trimmed}%`)
-        .limit(5);
+        .limit(3);
 
       if (commError) throw commError;
 
@@ -70,61 +70,14 @@ export const ChatbotKnowledgeBase = () => {
     }
   };
 
-  const generateResponse = (query: string, searchResults: any) => {
-    const escapeHtml = (str: string) =>
-      String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-
-    const { experiences, comments } = searchResults;
-
-    if (experiences.length === 0 && comments.length === 0) {
-      return `Non ho trovato risultati specifici per "${escapeHtml(query)}". Prova a riformulare la domanda o chiedimi ad esempio: Mutui tasso fisso, Viaggi low cost, Recensioni auto, Prodotti consigliati.`;
-    }
-
-    let response = `<div><p>Ho trovato alcune informazioni utili su "<strong>${escapeHtml(query)}</strong>":</p>`;
-
-    if (experiences.length > 0) {
-      response += `<div class="mt-2">
-        <p class="font-semibold mb-1">Esperienze correlate:</p>
-        <ul class="list-disc pl-5 space-y-1">`;
-      experiences.forEach((exp: any, index: number) => {
-        const preview = (exp.content || '').slice(0, 140).replace(/\n/g, ' ');
-        response += `<li>
-            <strong>${index + 1}. ${escapeHtml(exp.title || '')}</strong> · <span class="opacity-80">${escapeHtml(exp.category || '')}</span><br/>
-            <span class="opacity-80">${escapeHtml(preview)}...</span><br/>
-            <a href="/experience/${escapeHtml(exp.id)}" class="underline text-primary hover:opacity-80">Apri esperienza</a>
-          </li>`;
-      });
-      response += `</ul></div>`;
-    }
-
-    if (comments.length > 0) {
-      response += `<div class="mt-3">
-        <p class="font-semibold mb-1">Commenti correlati:</p>
-        <ul class="list-disc pl-5 space-y-1">`;
-      comments.forEach((comment: any, index: number) => {
-        const text = (comment.content || '').slice(0, 100).replace(/\n/g, ' ');
-        response += `<li>${index + 1}. ${escapeHtml(text)}...</li>`;
-      });
-      response += `</ul></div>`;
-    }
-
-    response += `<p class="mt-3">Vuoi che affini la ricerca? Dimmi una categoria (mutui, vacanze, veicoli, prodotti) o un dettaglio in più.</p></div>`;
-    return response;
-  };
-
   const handleSendMessage = async (textOverride?: string) => {
-    const text = (textOverride ?? inputValue);
-    if (!text.trim() || isLoading) return;
+    const text = (textOverride ?? inputValue).trim();
+    if (!text || isLoading) return;
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       content: text,
-      isBot: false,
+      role: 'user',
       timestamp: new Date()
     };
 
@@ -133,22 +86,51 @@ export const ChatbotKnowledgeBase = () => {
     setIsLoading(true);
 
     try {
-      // Search the knowledge base
+      // Search the knowledge base for context
       const searchResults = await searchKnowledgeBase(text);
       
-      // Generate response
-      const botResponse = generateResponse(text, searchResults);
+      // Prepare conversation history for AI
+      const conversationHistory = messages.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
 
-      const botMessage: ChatMessage = {
+      // Add current user message
+      conversationHistory.push({
+        role: 'user',
+        content: text
+      });
+
+      // Call AI chat function
+      const { data, error } = await supabase.functions.invoke('ai-chat', {
+        body: { 
+          messages: conversationHistory,
+          searchContext: searchResults
+        }
+      });
+
+      if (error) throw error;
+
+      const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        content: botResponse,
-        isBot: true,
+        content: data.message || 'Mi dispiace, non sono riuscito a generare una risposta.',
+        role: 'assistant',
         timestamp: new Date()
       };
 
-      setMessages(prev => [...prev, botMessage]);
+      setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error processing message:', error);
+      
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        content: '😔 Mi dispiace, si è verificato un errore. Riprova tra poco o riformula la domanda.',
+        role: 'assistant',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+      
       toast({
         title: "Errore",
         description: "Si è verificato un errore nel processare la tua richiesta.",
@@ -161,10 +143,10 @@ export const ChatbotKnowledgeBase = () => {
 
   const handleQuickAsk = (label: string) => {
     const presets: Record<string, string> = {
-      Mutui: 'Mutui tasso fisso',
-      Vacanze: 'Viaggi low cost',
-      Veicoli: 'Recensioni auto',
-      Prodotti: 'Prodotti consigliati'
+      'Mutui': 'Quali sono le migliori offerte per mutui a tasso fisso?',
+      'Vacanze': 'Consigli per viaggi low cost in Europa?',
+      'Veicoli': 'Quale auto usata mi consigli per famiglia?',
+      'Prodotti': 'Prodotti più recensiti su LifeShare'
     };
     handleSendMessage(presets[label] ?? label);
   };
@@ -173,26 +155,35 @@ export const ChatbotKnowledgeBase = () => {
     return (
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-lg z-50"
+        className="fixed bottom-6 right-6 rounded-full w-16 h-16 shadow-2xl z-50 bg-gradient-to-br from-primary to-primary/80 hover:scale-110 transition-transform"
         size="lg"
       >
-        <MessageCircle className="h-6 w-6" />
+        <div className="relative">
+          <Bot className="h-7 w-7" />
+          <Sparkles className="h-3 w-3 absolute -top-1 -right-1 text-yellow-300" />
+        </div>
       </Button>
     );
   }
 
   return (
-    <Card className="fixed bottom-6 right-6 w-96 h-96 shadow-xl z-50 flex flex-col" role="dialog" aria-label="LifeShare Assistant" aria-modal="false">
-      <CardHeader className="pb-2">
+    <Card className="fixed bottom-6 right-6 w-[420px] h-[600px] shadow-2xl z-50 flex flex-col border-2" role="dialog" aria-label="LifeShare AI Assistant" aria-modal="false">
+      <CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-primary/5">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Bot className="h-5 w-5" />
-            LifeShare Assistant
+            <div className="relative">
+              <Bot className="h-5 w-5 text-primary" />
+              <Sparkles className="h-3 w-3 absolute -top-1 -right-1 text-yellow-500" />
+            </div>
+            <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent font-bold">
+              LifeShare AI Assistant
+            </span>
           </CardTitle>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setIsOpen(false)}
+            className="h-8 w-8 rounded-full"
           >
             ✕
           </Button>
@@ -200,58 +191,71 @@ export const ChatbotKnowledgeBase = () => {
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col p-4 min-h-0">
-            <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden space-y-3 mb-4 pr-2" aria-live="polite" aria-atomic="false">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
-                >
-                  {message.isBot ? (
-                    <div
-                      className="max-w-[80%] mx-2 p-3 rounded-lg whitespace-pre-wrap break-words text-sm bg-muted text-foreground"
-                      dangerouslySetInnerHTML={{ __html: message.content }}
-                    />
-                  ) : (
-                    <div className="max-w-[80%] mx-2 p-3 rounded-lg whitespace-pre-wrap break-words text-sm bg-primary text-primary-foreground">
-                      {message.content}
-                    </div>
-                  )}
-                </div>
-              ))}
+        <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden space-y-3 mb-4 pr-2" aria-live="polite" aria-atomic="false">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div
+                className={`max-w-[85%] mx-2 p-3 rounded-2xl whitespace-pre-wrap break-words text-sm shadow-sm ${
+                  message.role === 'user'
+                    ? 'bg-primary text-primary-foreground rounded-br-sm'
+                    : 'bg-muted/60 text-foreground rounded-bl-sm'
+                }`}
+              >
+                {message.content}
+              </div>
+            </div>
+          ))}
 
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-muted p-3 rounded-lg text-sm">
-                Sto cercando informazioni...
+              <div className="bg-muted/60 p-3 rounded-2xl rounded-bl-sm text-sm flex items-center gap-2">
+                <div className="flex gap-1">
+                  <span className="animate-bounce delay-0">●</span>
+                  <span className="animate-bounce delay-100">●</span>
+                  <span className="animate-bounce delay-200">●</span>
+                </div>
+                <span className="text-muted-foreground">Sto pensando...</span>
               </div>
             </div>
           )}
+        </div>
+        
+        {!isLoading && messages.length <= 2 && (
+          <div className="mb-3 grid grid-cols-2 gap-2" aria-label="Domande suggerite">
+            {['Mutui', 'Vacanze', 'Veicoli', 'Prodotti'].map((label) => (
+              <Button 
+                key={label} 
+                variant="outline" 
+                size="sm" 
+                onClick={() => handleQuickAsk(label)}
+                className="justify-start hover:bg-primary/10 border-primary/20"
+              >
+                <Sparkles className="h-3 w-3 mr-1" />
+                {label}
+              </Button>
+            ))}
           </div>
-          
-          {!isLoading && (
-            <div className="mb-3 grid grid-cols-2 gap-2" aria-label="Azioni rapide">
-              {['Mutui','Vacanze','Veicoli','Prodotti'].map((label) => (
-                <Button key={label} variant="outline" size="sm" onClick={() => handleQuickAsk(label)} className="justify-start">
-                  {label}
-                </Button>
-              ))}
-            </div>
-          )}
-          
-          <div className="flex gap-2">
+        )}
+        
+        <div className="flex gap-2">
           <Input
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Fai una domanda..."
-            aria-label="Fai una domanda"
+            placeholder="Chiedimi qualcosa..."
+            aria-label="Scrivi un messaggio"
             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
             disabled={isLoading}
+            className="flex-1"
           />
           <Button
             onClick={() => handleSendMessage()}
             disabled={!inputValue.trim() || isLoading}
             size="sm"
             aria-label="Invia messaggio"
+            className="px-4"
           >
             <Send className="h-4 w-4" />
           </Button>
