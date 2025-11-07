@@ -4,6 +4,7 @@ import { ExperienceCard } from "./ExperienceCard";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { InfiniteScroll } from "@/components/ui/infinite-scroll";
 
 interface Experience {
   id: string;
@@ -22,6 +23,9 @@ interface Experience {
 export const LatestExperiences = () => {
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const ITEMS_PER_PAGE = 8;
 
   useEffect(() => {
     fetchLatestExperiences();
@@ -37,7 +41,10 @@ export const LatestExperiences = () => {
     return colors[category as keyof typeof colors] || 'bg-muted text-muted-foreground border-muted';
   };
 
-  const fetchLatestExperiences = async () => {
+  const fetchLatestExperiences = async (pageNum: number = 0) => {
+    const from = pageNum * ITEMS_PER_PAGE;
+    const to = from + ITEMS_PER_PAGE - 1;
+
     const { data, error } = await supabase
       .from('experiences')
       .select(`
@@ -54,7 +61,7 @@ export const LatestExperiences = () => {
       `)
       .eq('is_published', true)
       .order('created_at', { ascending: false })
-      .limit(4);
+      .range(from, to);
 
     if (error) {
       console.error('Error fetching experiences:', error);
@@ -62,7 +69,6 @@ export const LatestExperiences = () => {
       return;
     }
 
-    // Get profiles for all experiences
     if (data && data.length > 0) {
       const userIds = [...new Set(data.map(exp => exp.user_id))];
       const { data: profiles } = await supabase
@@ -70,18 +76,25 @@ export const LatestExperiences = () => {
         .select('user_id, nickname')
         .in('user_id', userIds);
 
-      // Combine experiences with profile data
       const experiencesWithProfiles = data.map(exp => ({
         ...exp,
         author: profiles?.find(p => p.user_id === exp.user_id)?.nickname || 'Utente'
       }));
 
-      setExperiences(experiencesWithProfiles as any);
+      setExperiences(prev => pageNum === 0 ? experiencesWithProfiles as any : [...prev, ...(experiencesWithProfiles as any)]);
+      setHasMore(data.length === ITEMS_PER_PAGE);
     } else {
-      setExperiences([]);
+      if (pageNum === 0) setExperiences([]);
+      setHasMore(false);
     }
     
     setLoading(false);
+  };
+
+  const loadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchLatestExperiences(nextPage);
   };
 
   const categoryLabels: Record<string, string> = {
@@ -147,44 +160,50 @@ export const LatestExperiences = () => {
           </p>
         </div>
 
-        {loading ? (
+        {loading && page === 0 ? (
           <div className="text-center py-12">
             <div className="text-muted-foreground">Caricamento esperienze...</div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-12">
-            {experiences.length > 0 ? experiences.map((experience) => (
-              <ExperienceCard 
-                key={experience.id}
-                id={experience.id}
-                title={experience.title}
-                author={experience.author || 'Utente'}
-                content={experience.content}
-                category={categoryLabels[experience.category] || experience.category}
-                likes={experience.likes_count || 0}
-                comments={experience.comments_count || 0}
-                date={new Date(experience.created_at).toLocaleDateString('it-IT')}
-                tags={experience.tags}
-                imageUrl={experience.image_url}
-                categoryKey={experience.category}
-                userId={experience.user_id}
-              />
-            )) : fallbackExperiences.map((experience, index) => (
-              <ExperienceCard 
-                key={index}
-                id={`fallback-${index}`}
-                title={experience.title}
-                author={experience.author}
-                content={experience.content}
-                category={experience.category}
-                likes={experience.likes}
-                comments={experience.comments}
-                date={experience.date}
-                tags={experience.tags}
-                categoryKey={experience.category.toLowerCase()}
-              />
-            ))}
-          </div>
+          <InfiniteScroll
+            hasMore={hasMore}
+            loading={loading}
+            onLoadMore={loadMore}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-12">
+              {experiences.length > 0 ? experiences.map((experience) => (
+                <ExperienceCard 
+                  key={experience.id}
+                  id={experience.id}
+                  title={experience.title}
+                  author={experience.author || 'Utente'}
+                  content={experience.content}
+                  category={categoryLabels[experience.category] || experience.category}
+                  likes={experience.likes_count || 0}
+                  comments={experience.comments_count || 0}
+                  date={new Date(experience.created_at).toLocaleDateString('it-IT')}
+                  tags={experience.tags}
+                  imageUrl={experience.image_url}
+                  categoryKey={experience.category}
+                  userId={experience.user_id}
+                />
+              )) : fallbackExperiences.map((experience, index) => (
+                <ExperienceCard 
+                  key={index}
+                  id={`fallback-${index}`}
+                  title={experience.title}
+                  author={experience.author}
+                  content={experience.content}
+                  category={experience.category}
+                  likes={experience.likes}
+                  comments={experience.comments}
+                  date={experience.date}
+                  tags={experience.tags}
+                  categoryKey={experience.category.toLowerCase()}
+                />
+              ))}
+            </div>
+          </InfiniteScroll>
         )}
 
         <div className="text-center">

@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFollow } from '@/hooks/useFollow';
 import { Sparkles, Users, TrendingUp, RefreshCw } from 'lucide-react';
+import { InfiniteScroll } from '@/components/ui/infinite-scroll';
 
 interface Experience {
   id: string;
@@ -28,18 +29,25 @@ export const PersonalizedFeed = () => {
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [loading, setLoading] = useState(true);
   const [feedType, setFeedType] = useState<'personalized' | 'following' | 'trending'>('personalized');
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const ITEMS_PER_PAGE = 10;
 
   useEffect(() => {
     if (user) {
-      fetchPersonalizedFeed();
+      setPage(0);
+      setExperiences([]);
+      fetchPersonalizedFeed(0);
     }
   }, [user, feedType, following]);
 
-  const fetchPersonalizedFeed = async () => {
+  const fetchPersonalizedFeed = async (pageNum: number = 0) => {
     if (!user) return;
     
     setLoading(true);
     try {
+      const from = pageNum * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
       let query = supabase
         .from('experiences')
         .select('id, title, content, category, likes_count, comments_count, created_at, tags, image_url, user_id, is_published')
@@ -102,7 +110,7 @@ export const PersonalizedFeed = () => {
 
       const { data: expData, error } = await query
         .order('created_at', { ascending: false })
-        .limit(20);
+        .range(from, to);
 
       if (error) throw error;
 
@@ -119,12 +127,19 @@ export const PersonalizedFeed = () => {
         profiles: profileData?.find(p => p.user_id === item.user_id) || null
       }));
 
-      setExperiences(transformedData);
+      setExperiences(prev => pageNum === 0 ? transformedData : [...prev, ...transformedData]);
+      setHasMore(expData ? expData.length === ITEMS_PER_PAGE : false);
     } catch (error) {
       console.error('Error fetching personalized feed:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchPersonalizedFeed(nextPage);
   };
 
   const formatDate = (dateString: string) => {
@@ -163,7 +178,11 @@ export const PersonalizedFeed = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={fetchPersonalizedFeed}
+              onClick={() => {
+                setPage(0);
+                setExperiences([]);
+                fetchPersonalizedFeed(0);
+              }}
               disabled={loading}
             >
               <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
@@ -200,7 +219,7 @@ export const PersonalizedFeed = () => {
       </CardHeader>
       
       <CardContent>
-        {loading ? (
+        {loading && page === 0 ? (
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="h-32 bg-muted animate-pulse rounded-lg" />
@@ -224,24 +243,30 @@ export const PersonalizedFeed = () => {
             )}
           </div>
         ) : (
-          <div className="space-y-4">
-            {experiences.map((experience) => (
-              <ExperienceCard
-                key={experience.id}
-                id={experience.id}
-                title={experience.title}
-                author={experience.profiles?.nickname || 'Utente'}
-                content={experience.content}
-                category={experience.category}
-                likes={experience.likes_count}
-                comments={experience.comments_count}
-                date={formatDate(experience.created_at)}
-                tags={experience.tags}
-                imageUrl={experience.image_url}
-                userId={experience.user_id}
-              />
-            ))}
-          </div>
+          <InfiniteScroll
+            hasMore={hasMore}
+            loading={loading}
+            onLoadMore={loadMore}
+          >
+            <div className="space-y-4">
+              {experiences.map((experience) => (
+                <ExperienceCard
+                  key={experience.id}
+                  id={experience.id}
+                  title={experience.title}
+                  author={experience.profiles?.nickname || 'Utente'}
+                  content={experience.content}
+                  category={experience.category}
+                  likes={experience.likes_count}
+                  comments={experience.comments_count}
+                  date={formatDate(experience.created_at)}
+                  tags={experience.tags}
+                  imageUrl={experience.image_url}
+                  userId={experience.user_id}
+                />
+              ))}
+            </div>
+          </InfiniteScroll>
         )}
       </CardContent>
     </Card>

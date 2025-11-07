@@ -8,6 +8,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { CommentWithMentions } from './CommentWithMentions';
 import { LevelIndicator } from '@/components/gamification/LevelIndicator';
+import { InfiniteScroll } from '@/components/ui/infinite-scroll';
 
 interface Comment {
   id: string;
@@ -34,23 +35,33 @@ export const CommentsList = ({ experienceId, refreshTrigger }: CommentsListProps
   const [loading, setLoading] = useState(true);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [expandedReplies, setExpandedReplies] = useState<Set<string>>(new Set());
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const ITEMS_PER_PAGE = 10;
 
   useEffect(() => {
     if (experienceId) {
-      fetchComments();
+      setPage(0);
+      setComments([]);
+      fetchComments(0);
     }
   }, [experienceId, refreshTrigger]);
 
-  const fetchComments = async () => {
+  const fetchComments = async (pageNum: number = 0) => {
     if (!experienceId) return;
     
     try {
       setLoading(true);
+      const from = pageNum * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+
       const { data, error } = await supabase
         .from('comments')
         .select('*')
         .eq('experience_id', experienceId)
-        .order('created_at', { ascending: false });
+        .is('parent_id', null)
+        .order('created_at', { ascending: false })
+        .range(from, to);
 
       if (error) throw error;
 
@@ -77,28 +88,46 @@ export const CommentsList = ({ experienceId, refreshTrigger }: CommentsListProps
         })
       );
 
-      // Organize comments into tree structure
-      const commentsMap = new Map();
-      const rootComments: Comment[] = [];
+      // Fetch replies for each root comment
+      const commentsWithReplies = await Promise.all(
+        commentsWithProfiles.map(async (comment) => {
+          const { data: replies } = await supabase
+            .from('comments')
+            .select('*')
+            .eq('parent_id', comment.id)
+            .order('created_at', { ascending: true });
 
-      // First pass: create map of all comments
-      commentsWithProfiles.forEach(comment => {
-        commentsMap.set(comment.id, { ...comment, replies: [] });
-      });
+          const repliesWithProfiles = await Promise.all(
+            (replies || []).map(async (reply) => {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('nickname')
+                .eq('user_id', reply.user_id)
+                .single();
 
-      // Second pass: organize into tree structure
-      commentsWithProfiles.forEach(comment => {
-        if (comment.parent_id) {
-          const parent = commentsMap.get(comment.parent_id);
-          if (parent) {
-            parent.replies.push(commentsMap.get(comment.id));
-          }
-        } else {
-          rootComments.push(commentsMap.get(comment.id));
-        }
-      });
+              const { data: points } = await supabase
+                .from('user_points')
+                .select('current_level')
+                .eq('user_id', reply.user_id)
+                .single();
 
-      setComments(rootComments);
+              return {
+                ...reply,
+                profiles: { nickname: profile?.nickname || 'Utente' },
+                level: points?.current_level || 1
+              };
+            })
+          );
+
+          return {
+            ...comment,
+            replies: repliesWithProfiles
+          };
+        })
+      );
+
+      setComments(prev => pageNum === 0 ? commentsWithReplies : [...prev, ...commentsWithReplies]);
+      setHasMore(commentsWithProfiles.length === ITEMS_PER_PAGE);
     } catch (error) {
       console.error('Error fetching comments:', error);
     } finally {
@@ -154,8 +183,16 @@ export const CommentsList = ({ experienceId, refreshTrigger }: CommentsListProps
   };
 
   const handleCommentAdded = () => {
-    fetchComments();
+    setPage(0);
+    setComments([]);
+    fetchComments(0);
     setReplyingTo(null);
+  };
+
+  const loadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchComments(nextPage);
   };
 
   const renderComment = (comment: Comment, isReply: boolean = false) => (
@@ -265,8 +302,14 @@ export const CommentsList = ({ experienceId, refreshTrigger }: CommentsListProps
   }
 
   return (
-    <div className="space-y-4">
-      {comments.map((comment) => renderComment(comment))}
-    </div>
+    <InfiniteScroll
+      hasMore={hasMore}
+      loading={loading}
+      onLoadMore={loadMore}
+    >
+      <div className="space-y-4">
+        {comments.map((comment) => renderComment(comment))}
+      </div>
+    </InfiniteScroll>
   );
 };
