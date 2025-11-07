@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -13,9 +14,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Eye, Trash2, Star } from 'lucide-react';
+import { Eye, Trash2, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { format } from 'date-fns';
+import { it } from 'date-fns/locale';
 
 interface Experience {
   id: string;
@@ -30,14 +33,27 @@ interface Experience {
   image_url: string | null;
 }
 
+interface Comment {
+  id: string;
+  content: string;
+  created_at: string;
+  user_id: string;
+  experience_id: string;
+  nickname: string;
+  experience_title: string;
+}
+
 export const ContentModeration = () => {
   const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deleteDialog, setDeleteDialog] = useState<string | null>(null);
+  const [loadingComments, setLoadingComments] = useState(true);
+  const [deleteDialog, setDeleteDialog] = useState<{ id: string; type: 'experience' | 'comment' } | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchExperiences();
+    fetchComments();
   }, []);
 
   const fetchExperiences = async () => {
@@ -79,27 +95,72 @@ export const ContentModeration = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const fetchComments = async () => {
     try {
+      const { data, error } = await supabase
+        .from('comments')
+        .select(`
+          id,
+          content,
+          created_at,
+          user_id,
+          experience_id,
+          profiles!inner(nickname),
+          experiences!inner(title)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+
+      const formattedData = data?.map(comment => ({
+        ...comment,
+        nickname: (comment.profiles as any).nickname,
+        experience_title: (comment.experiences as any).title
+      })) || [];
+
+      setComments(formattedData);
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile caricare i commenti",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingComments(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteDialog) return;
+
+    try {
+      const table = deleteDialog.type === 'experience' ? 'experiences' : 'comments';
       const { error } = await supabase
-        .from('experiences')
+        .from(table)
         .delete()
-        .eq('id', id);
+        .eq('id', deleteDialog.id);
 
       if (error) throw error;
 
       toast({
-        title: "Esperienza eliminata",
-        description: "L'esperienza è stata rimossa con successo"
+        title: `${deleteDialog.type === 'experience' ? 'Esperienza' : 'Commento'} eliminato`,
+        description: `${deleteDialog.type === 'experience' ? "L'esperienza è stata rimossa" : "Il commento è stato rimosso"} con successo`
       });
 
-      setExperiences(experiences.filter(exp => exp.id !== id));
+      if (deleteDialog.type === 'experience') {
+        setExperiences(experiences.filter(exp => exp.id !== deleteDialog.id));
+      } else {
+        setComments(comments.filter(comment => comment.id !== deleteDialog.id));
+      }
+      
       setDeleteDialog(null);
     } catch (error) {
-      console.error('Error deleting experience:', error);
+      console.error('Error deleting content:', error);
       toast({
         title: "Errore",
-        description: "Impossibile eliminare l'esperienza",
+        description: `Impossibile eliminare ${deleteDialog.type === 'experience' ? "l'esperienza" : "il commento"}`,
         variant: "destructive"
       });
     }
@@ -131,12 +192,31 @@ export const ContentModeration = () => {
         <CardHeader>
           <CardTitle>Moderazione Contenuti</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Gestisci le esperienze pubblicate sulla piattaforma
+            Gestisci tutti i contenuti pubblicati sulla piattaforma
           </p>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {experiences.map((exp) => (
+          <Tabs defaultValue="experiences" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="experiences">
+                Esperienze ({experiences.length})
+              </TabsTrigger>
+              <TabsTrigger value="comments">
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Commenti ({comments.length})
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="experiences" className="space-y-4 mt-4">
+              {loading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <Skeleton key={i} className="h-48 w-full" />
+                  ))}
+                </div>
+              ) : (
+                <>
+                  {experiences.map((exp) => (
               <div
                 key={exp.id}
                 className="border rounded-lg p-4 space-y-3 hover:bg-muted/30 transition-colors"
@@ -184,23 +264,90 @@ export const ContentModeration = () => {
                   </Button>
                   
                   <Button
-                    variant="outline"
+                    variant="destructive"
                     size="sm"
-                    onClick={() => setDeleteDialog(exp.id)}
+                    onClick={() => setDeleteDialog({ id: exp.id, type: 'experience' })}
                   >
-                    <Trash2 className="h-4 w-4 mr-2 text-red-500" />
+                    <Trash2 className="h-4 w-4 mr-2" />
                     Elimina
                   </Button>
                 </div>
               </div>
             ))}
 
-            {experiences.length === 0 && (
-              <p className="text-center text-muted-foreground py-8">
-                Nessuna esperienza da moderare
-              </p>
-            )}
-          </div>
+                  {experiences.length === 0 && (
+                    <p className="text-center text-muted-foreground py-8">
+                      Nessuna esperienza da moderare
+                    </p>
+                  )}
+                </>
+              )}
+            </TabsContent>
+
+            <TabsContent value="comments" className="space-y-4 mt-4">
+              {loadingComments ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <Skeleton key={i} className="h-32 w-full" />
+                  ))}
+                </div>
+              ) : (
+                <>
+                  {comments.map((comment) => (
+                    <div
+                      key={comment.id}
+                      className="border rounded-lg p-4 space-y-3 hover:bg-muted/30 transition-colors"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 space-y-1">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <span className="font-medium text-foreground">{comment.nickname}</span>
+                              <span>•</span>
+                              <span>{format(new Date(comment.created_at), 'dd MMM yyyy HH:mm', { locale: it })}</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              su: <span className="font-medium text-foreground">{comment.experience_title}</span>
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <p className="text-sm bg-muted/50 p-3 rounded">
+                          {comment.content}
+                        </p>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.open(`/experience/${comment.experience_id}`, '_blank')}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Visualizza esperienza
+                        </Button>
+                        
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => setDeleteDialog({ id: comment.id, type: 'comment' })}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Elimina
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+
+                  {comments.length === 0 && (
+                    <p className="text-center text-muted-foreground py-8">
+                      Nessun commento da moderare
+                    </p>
+                  )}
+                </>
+              )}
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
@@ -209,16 +356,17 @@ export const ContentModeration = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Conferma eliminazione</AlertDialogTitle>
             <AlertDialogDescription>
-              Sei sicuro di voler eliminare questa esperienza? Questa azione non può essere annullata.
+              Sei sicuro di voler eliminare {deleteDialog?.type === 'experience' ? 'questa esperienza' : 'questo commento'}? 
+              Questa azione non può essere annullata e rimuoverà permanentemente il contenuto dalla piattaforma.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annulla</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => deleteDialog && handleDelete(deleteDialog)}
-              className="bg-red-500 hover:bg-red-600"
+              onClick={handleDelete}
+              className="bg-destructive hover:bg-destructive/90"
             >
-              Elimina
+              Elimina definitivamente
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

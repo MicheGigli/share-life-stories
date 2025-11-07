@@ -890,10 +890,7 @@ export type Database = {
         }
         Returns: undefined
       }
-      calculate_level_from_points: {
-        Args: { points: number }
-        Returns: number
-      }
+      calculate_level_from_points: { Args: { points: number }; Returns: number }
       can_delete_experience: {
         Args: { experience_id: string; user_id: string }
         Returns: boolean
@@ -902,34 +899,13 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: undefined
       }
-      generate_qr_code: {
-        Args: { experience_id: string }
-        Returns: string
-      }
-      get_active_users_count: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_user_nickname: {
-        Args: { user_id: string }
-        Returns: string
-      }
-      has_role: {
-        Args: { _role: string; _user_id: string }
-        Returns: boolean
-      }
-      is_admin: {
-        Args: { _user_id: string }
-        Returns: boolean
-      }
-      is_moderator: {
-        Args: { _user_id: string }
-        Returns: boolean
-      }
+      generate_qr_code: { Args: { experience_id: string }; Returns: string }
+      get_active_users_count: { Args: never; Returns: number }
+      get_current_user_role: { Args: never; Returns: string }
+      get_user_nickname: { Args: { user_id: string }; Returns: string }
+      has_role: { Args: { _role: string; _user_id: string }; Returns: boolean }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_moderator: { Args: { _user_id: string }; Returns: boolean }
       points_for_next_level: {
         Args: { current_level: number }
         Returns: number
