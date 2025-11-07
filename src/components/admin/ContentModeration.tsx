@@ -58,29 +58,39 @@ export const ContentModeration = () => {
 
   const fetchExperiences = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch experiences
+      const { data: experiencesData, error: expError } = await supabase
         .from('experiences')
-        .select(`
-          id,
-          title,
-          content,
-          category,
-          created_at,
-          user_id,
-          likes_count,
-          comments_count,
-          image_url,
-          profiles!inner(nickname)
-        `)
+        .select('id, title, content, category, created_at, user_id, likes_count, comments_count, image_url')
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (error) throw error;
+      if (expError) throw expError;
 
-      const formattedData = data?.map(exp => ({
+      if (!experiencesData || experiencesData.length === 0) {
+        setExperiences([]);
+        return;
+      }
+
+      // Get unique user IDs
+      const userIds = [...new Set(experiencesData.map(exp => exp.user_id))];
+
+      // Fetch profiles for these users
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, nickname')
+        .in('user_id', userIds);
+
+      if (profilesError) throw profilesError;
+
+      // Create a map of user_id to nickname
+      const profilesMap = new Map(profilesData?.map(p => [p.user_id, p.nickname]) || []);
+
+      // Combine data
+      const formattedData = experiencesData.map(exp => ({
         ...exp,
-        nickname: (exp.profiles as any).nickname
-      })) || [];
+        nickname: profilesMap.get(exp.user_id) || 'Utente'
+      }));
 
       setExperiences(formattedData);
     } catch (error) {
@@ -97,27 +107,50 @@ export const ContentModeration = () => {
 
   const fetchComments = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch comments
+      const { data: commentsData, error: commError } = await supabase
         .from('comments')
-        .select(`
-          id,
-          content,
-          created_at,
-          user_id,
-          experience_id,
-          profiles!inner(nickname),
-          experiences!inner(title)
-        `)
+        .select('id, content, created_at, user_id, experience_id')
         .order('created_at', { ascending: false })
         .limit(50);
 
-      if (error) throw error;
+      if (commError) throw commError;
 
-      const formattedData = data?.map(comment => ({
+      if (!commentsData || commentsData.length === 0) {
+        setComments([]);
+        return;
+      }
+
+      // Get unique user IDs and experience IDs
+      const userIds = [...new Set(commentsData.map(c => c.user_id))];
+      const experienceIds = [...new Set(commentsData.map(c => c.experience_id))];
+
+      // Fetch profiles
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, nickname')
+        .in('user_id', userIds);
+
+      if (profilesError) throw profilesError;
+
+      // Fetch experiences
+      const { data: experiencesData, error: experiencesError } = await supabase
+        .from('experiences')
+        .select('id, title')
+        .in('id', experienceIds);
+
+      if (experiencesError) throw experiencesError;
+
+      // Create maps
+      const profilesMap = new Map(profilesData?.map(p => [p.user_id, p.nickname]) || []);
+      const experiencesMap = new Map(experiencesData?.map(e => [e.id, e.title]) || []);
+
+      // Combine data
+      const formattedData = commentsData.map(comment => ({
         ...comment,
-        nickname: (comment.profiles as any).nickname,
-        experience_title: (comment.experiences as any).title
-      })) || [];
+        nickname: profilesMap.get(comment.user_id) || 'Utente',
+        experience_title: experiencesMap.get(comment.experience_id) || 'Esperienza'
+      }));
 
       setComments(formattedData);
     } catch (error) {

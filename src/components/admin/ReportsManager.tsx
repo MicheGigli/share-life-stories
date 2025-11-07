@@ -31,24 +31,36 @@ export const ReportsManager = () => {
 
   const fetchReports = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch reports
+      const { data: reportsData, error: reportsError } = await supabase
         .from('reports')
-        .select(`
-          id,
-          reason,
-          status,
-          created_at,
-          experience_id,
-          comment_id,
-          profiles!reports_reporter_id_fkey(nickname)
-        `)
+        .select('id, reason, status, created_at, experience_id, comment_id, reporter_id')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (reportsError) throw reportsError;
+
+      if (!reportsData || reportsData.length === 0) {
+        setReports([]);
+        return;
+      }
+
+      // Get unique reporter IDs
+      const reporterIds = [...new Set(reportsData.map(r => r.reporter_id))];
+
+      // Fetch profiles for reporters
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, nickname')
+        .in('user_id', reporterIds);
+
+      if (profilesError) throw profilesError;
+
+      // Create profiles map
+      const profilesMap = new Map(profilesData?.map(p => [p.user_id, p.nickname]) || []);
 
       // Fetch content previews
       const reportsWithContent = await Promise.all(
-        (data || []).map(async (report) => {
+        reportsData.map(async (report) => {
           let content_preview = '';
           
           if (report.experience_id) {
@@ -56,14 +68,14 @@ export const ReportsManager = () => {
               .from('experiences')
               .select('title, content')
               .eq('id', report.experience_id)
-              .single();
+              .maybeSingle();
             content_preview = exp ? `${exp.title}: ${exp.content.substring(0, 100)}...` : 'Contenuto non disponibile';
           } else if (report.comment_id) {
             const { data: comment } = await supabase
               .from('comments')
               .select('content')
               .eq('id', report.comment_id)
-              .single();
+              .maybeSingle();
             content_preview = comment ? comment.content.substring(0, 100) + '...' : 'Commento non disponibile';
           }
 
@@ -74,7 +86,7 @@ export const ReportsManager = () => {
             created_at: report.created_at,
             experience_id: report.experience_id,
             comment_id: report.comment_id,
-            reporter_nickname: (report.profiles as any)?.nickname || 'Anonimo',
+            reporter_nickname: profilesMap.get(report.reporter_id) || 'Anonimo',
             content_preview
           };
         })
