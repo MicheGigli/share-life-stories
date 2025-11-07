@@ -31,6 +31,7 @@ interface Experience {
   comments_count: number;
   nickname: string;
   image_url: string | null;
+  is_published: boolean;
 }
 
 interface Comment {
@@ -48,6 +49,7 @@ export const ContentModeration = () => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingComments, setLoadingComments] = useState(true);
+  const [showUnpublished, setShowUnpublished] = useState(true);
   const [deleteDialog, setDeleteDialog] = useState<{ id: string; type: 'experience' | 'comment' } | null>(null);
   const { toast } = useToast();
 
@@ -61,7 +63,7 @@ export const ContentModeration = () => {
       // Fetch experiences
       const { data: experiencesData, error: expError } = await supabase
         .from('experiences')
-        .select('id, title, content, category, created_at, user_id, likes_count, comments_count, image_url')
+        .select('id, title, content, category, created_at, user_id, likes_count, comments_count, image_url, is_published')
         .order('created_at', { ascending: false })
         .limit(20);
 
@@ -223,10 +225,23 @@ export const ContentModeration = () => {
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Moderazione Contenuti</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Gestisci tutti i contenuti pubblicati sulla piattaforma
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Moderazione Contenuti</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Gestisci tutti i contenuti pubblicati sulla piattaforma
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium">Mostra non pubblicate</label>
+              <input
+                type="checkbox"
+                checked={showUnpublished}
+                onChange={(e) => setShowUnpublished(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="experiences" className="w-full">
@@ -249,18 +264,25 @@ export const ContentModeration = () => {
                 </div>
               ) : (
                 <>
-                  {experiences.map((exp) => (
+                  {experiences
+                    .filter(exp => showUnpublished || exp.is_published)
+                    .map((exp) => (
               <div
                 key={exp.id}
                 className="border rounded-lg p-4 space-y-3 hover:bg-muted/30 transition-colors"
               >
                 <div className="flex justify-between items-start gap-4">
                   <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-semibold text-lg">{exp.title}</h3>
                       <Badge variant="outline">
                         {getCategoryDisplayName(exp.category)}
                       </Badge>
+                      {!exp.is_published && (
+                        <Badge variant="destructive" className="text-xs">
+                          Non pubblicata
+                        </Badge>
+                      )}
                     </div>
                     
                     <p className="text-sm text-muted-foreground line-clamp-2">
@@ -308,9 +330,9 @@ export const ContentModeration = () => {
               </div>
             ))}
 
-                  {experiences.length === 0 && (
+                  {experiences.filter(exp => showUnpublished || exp.is_published).length === 0 && (
                     <p className="text-center text-muted-foreground py-8">
-                      Nessuna esperienza da moderare
+                      {showUnpublished ? 'Nessuna esperienza da moderare' : 'Nessuna esperienza pubblicata da moderare'}
                     </p>
                   )}
                 </>
