@@ -22,9 +22,9 @@ Deno.serve(async (req) => {
       throw new Error('Messages array is required');
     }
 
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openaiApiKey) {
-      throw new Error('OpenAI API key not configured');
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    if (!lovableApiKey) {
+      throw new Error('Lovable AI not configured');
     }
 
     // Build the system prompt with context
@@ -60,35 +60,41 @@ Categorie principali: Mutui, Vacanze, Veicoli (Auto), Prodotti (Amazon)`;
       systemPrompt += '\nUsa queste informazioni per fornire risposte accurate e cita le esperienze quando rilevanti.';
     }
 
-    // Call OpenAI API
-    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Call Lovable AI Gateway
+    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openaiApiKey}`,
+        'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
           ...messages
         ],
-        temperature: 0.7,
-        max_tokens: 500,
       }),
     });
 
-    if (!openaiResponse.ok) {
-      const errorData = await openaiResponse.text();
-      console.error('OpenAI API error:', errorData);
-      throw new Error(`OpenAI API error: ${openaiResponse.status}`);
+    if (!aiResponse.ok) {
+      const errorData = await aiResponse.text();
+      console.error('AI Gateway error:', errorData);
+      
+      if (aiResponse.status === 429) {
+        throw new Error('Troppe richieste. Riprova tra poco.');
+      }
+      if (aiResponse.status === 402) {
+        throw new Error('Crediti esauriti. Contatta l\'amministratore.');
+      }
+      
+      throw new Error(`AI Gateway error: ${aiResponse.status}`);
     }
 
-    const data = await openaiResponse.json();
+    const data = await aiResponse.json();
     const assistantMessage = data.choices[0]?.message?.content;
 
     if (!assistantMessage) {
-      throw new Error('No response from OpenAI');
+      throw new Error('Nessuna risposta dall\'AI');
     }
 
     return new Response(
