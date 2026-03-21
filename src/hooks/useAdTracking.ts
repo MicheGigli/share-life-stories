@@ -42,7 +42,7 @@ export const useAdTracking = () => {
       }
 
       // Custom analytics (could be sent to your backend)
-      if (process.env.NODE_ENV === 'production') {
+      if (import.meta.env.PROD) {
         fetch('/api/track-ad', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
