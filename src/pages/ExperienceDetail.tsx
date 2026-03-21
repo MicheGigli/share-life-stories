@@ -335,6 +335,10 @@ const ExperienceDetail = () => {
                   <MessageCircle className="h-4 w-4 mr-1" />
                   {experience.comments_count} commenti
                 </div>
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <Eye className="h-4 w-4 mr-1" />
+                  {(experience as any).views_count ?? 0} visualizzazioni
+                </div>
               </div>
               <Button variant="ghost" size="sm">
                 <Share2 className="h-4 w-4" />

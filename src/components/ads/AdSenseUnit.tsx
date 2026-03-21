@@ -20,14 +20,10 @@ export const AdSenseUnit = ({
   style 
 }: AdSenseUnitProps) => {
   const pushed = useRef(false);
-
-  // Don't render if ads are disabled
-  if (import.meta.env.VITE_ADS_ENABLED !== 'true') {
-    return null;
-  }
+  const adsEnabled = import.meta.env.VITE_ADS_ENABLED === 'true';
 
   useEffect(() => {
-    if (pushed.current) return;
+    if (!adsEnabled || pushed.current) return;
     try {
       if (typeof window !== 'undefined') {
         (window.adsbygoogle = window.adsbygoogle || []).push({});
@@ -36,7 +32,9 @@ export const AdSenseUnit = ({
     } catch (error) {
       console.error('AdSense error:', error);
     }
-  }, []);
+  }, [adsEnabled]);
+
+  if (!adsEnabled) return null;
 
   return (
     <div className={`ad-container ${className}`} style={style}>
