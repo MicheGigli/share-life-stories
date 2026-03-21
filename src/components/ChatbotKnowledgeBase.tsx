@@ -104,7 +104,8 @@ export const ChatbotKnowledgeBase = () => {
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: { 
           messages: conversationHistory,
-          searchContext: searchResults
+          searchContext: { experiences: searchResults.experiences },
+          siteUrl: window.location.origin
         }
       });
 
