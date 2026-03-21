@@ -24,7 +24,7 @@ export const useAdTracking = () => {
           (window as any).dataLayer.push(arguments);
         };
         (window as any).gtag('js', new Date());
-        (window as any).gtag('config', process.env.VITE_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX');
+        (window as any).gtag('config', import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX');
       }
     }
   }, []);
