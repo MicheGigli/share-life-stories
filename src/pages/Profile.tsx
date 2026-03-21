@@ -22,7 +22,7 @@ import { LevelIndicator } from '@/components/gamification/LevelIndicator';
 import { useGameification } from '@/hooks/useGameification';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { User, Mail, Bell, Save, Heart, MessageCircle, Bookmark, Users, UserCheck, ArrowLeft, Shield } from 'lucide-react';
+import { User, Mail, Bell, Save, Heart, MessageCircle, Bookmark, Users, UserCheck, ArrowLeft, Shield, Globe, MapPin } from 'lucide-react';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { FollowingList } from '@/components/FollowingList';
 import { FollowersList } from '@/components/FollowersList';
