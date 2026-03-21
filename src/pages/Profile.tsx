@@ -72,6 +72,8 @@ const Profile = () => {
   const [formData, setFormData] = useState({
     nickname: '',
     bio: '',
+    website: '',
+    location: '',
     email_notifications: true
   });
 
