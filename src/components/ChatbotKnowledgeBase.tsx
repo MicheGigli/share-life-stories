@@ -207,7 +207,7 @@ export const ChatbotKnowledgeBase = () => {
               Virginia 🤖
             </div>
             <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
               Online
             </div>
           </div>
