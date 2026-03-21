@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff } from 'lucide-react';
 
 const PasswordReset = () => {
-  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
