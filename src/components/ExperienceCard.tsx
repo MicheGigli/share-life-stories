@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, MessageCircle, Share2, User } from "lucide-react";
+import { Heart, MessageCircle, Share2, User, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { LevelIndicator } from '@/components/gamification/LevelIndicator';
 import { useAuth } from '@/hooks/useAuth';
