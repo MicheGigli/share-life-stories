@@ -44,7 +44,8 @@ export const ExperienceCard = ({
   imageUrl,
   categoryKey,
   userId,
-  compact = false
+  compact = false,
+  views = 0
 }: ExperienceCardProps) => {
   
   const navigate = useNavigate();
