@@ -39,7 +39,6 @@ export const ChatbotKnowledgeBase = () => {
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Show welcome message on first open
   useEffect(() => {
     if (isOpen && !hasShownWelcome) {
       const timer = setTimeout(() => {
@@ -75,28 +74,52 @@ export const ChatbotKnowledgeBase = () => {
     const trimmed = query.trim();
     if (!trimmed) return [];
 
-    const { data, error } = await supabase
-      .from('experiences')
-      .select('id, title, content, category, likes_count, comments_count, user_id')
-      .eq('is_published', true)
-      .or(`title.ilike.%${trimmed}%,content.ilike.%${trimmed}%`)
-      .limit(5);
+    try {
+      // Use search_experiences RPC for better relevance
+      const { data, error } = await (supabase.rpc as any)('search_experiences', {
+        search_query: trimmed,
+        category_filter: null,
+        result_limit: 5
+      });
 
-    if (error || !data) return [];
+      if (error || !data) {
+        // Fallback to simple query
+        const { data: fallbackData } = await supabase
+          .from('experiences')
+          .select('id, title, content, category, likes_count, comments_count, user_id')
+          .eq('is_published', true)
+          .or(`title.ilike.%${trimmed}%,content.ilike.%${trimmed}%`)
+          .limit(5);
 
-    // Fetch nicknames for authors
-    const userIds = [...new Set(data.map(e => e.user_id))];
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('user_id, nickname')
-      .in('user_id', userIds);
+        if (!fallbackData) return [];
 
-    const nicknameMap = new Map(profiles?.map(p => [p.user_id, p.nickname]) ?? []);
+        const userIds = [...new Set(fallbackData.map(e => e.user_id))];
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, nickname')
+          .in('user_id', userIds);
 
-    return data.map(e => ({
-      ...e,
-      nickname: nicknameMap.get(e.user_id) ?? undefined,
-    }));
+        const nicknameMap = new Map(profiles?.map(p => [p.user_id, p.nickname]) ?? []);
+
+        return fallbackData.map(e => ({
+          ...e,
+          nickname: nicknameMap.get(e.user_id) ?? undefined,
+        }));
+      }
+
+      // RPC already returns nickname
+      return (data as any[]).map((e: any) => ({
+        id: e.id,
+        title: e.title,
+        content: e.content,
+        category: e.category,
+        likes_count: e.likes_count,
+        comments_count: e.comments_count,
+        nickname: e.nickname ?? undefined,
+      }));
+    } catch {
+      return [];
+    }
   };
 
   const handleSendMessage = async (textOverride?: string) => {
@@ -115,24 +138,21 @@ export const ChatbotKnowledgeBase = () => {
     setIsLoading(true);
 
     try {
-      // Search DB for relevant experiences
       const experiences = await searchExperiences(text);
       const userNickname = await getUserNickname();
 
-      // Prepare conversation history
       const conversationHistory = messages
         .filter(m => m.id !== 'welcome' || messages.length <= 1)
         .map(msg => ({ role: msg.role, content: msg.content }));
       conversationHistory.push({ role: 'user', content: text });
 
-      // Call Edge Function
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: {
           messages: conversationHistory,
           searchContext: { experiences },
           siteUrl: window.location.origin,
           currentPage: window.location.pathname,
-          userNickname: userNickname,
+          userNickname,
         },
       });
 
