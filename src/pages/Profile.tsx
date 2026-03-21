@@ -122,6 +122,8 @@ const Profile = () => {
       setFormData({
         nickname: profileData.nickname,
         bio: profileData.bio || '',
+        website: profileData.website || '',
+        location: profileData.location || '',
         email_notifications: preferencesData?.email_notifications ?? true
       });
     }
