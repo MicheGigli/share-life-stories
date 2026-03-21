@@ -10,7 +10,6 @@ import { Eye, EyeOff } from 'lucide-react';
 
 const PasswordReset = () => {
   const navigate = useNavigate();
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<'request' | 'reset'>('request');
