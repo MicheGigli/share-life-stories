@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Heart, MessageCircle, Share2, User, ArrowLeft } from 'lucide-react';
+import { Heart, MessageCircle, Share2, User, ArrowLeft, Eye } from 'lucide-react';
 import { ImageGallery } from '@/components/ImageGallery';
 import { DeleteExperienceButton } from '@/components/DeleteExperienceButton';
 import { EditExperienceButton } from '@/components/EditExperienceButton';
