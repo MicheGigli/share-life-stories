@@ -115,6 +115,7 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+          views_count: number | null
         }
         Insert: {
           category: Database["public"]["Enums"]["experience_category"]
@@ -129,6 +130,7 @@ export type Database = {
           title: string
           updated_at?: string
           user_id: string
+          views_count?: number | null
         }
         Update: {
           category?: Database["public"]["Enums"]["experience_category"]
@@ -143,6 +145,28 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+          views_count?: number | null
+        }
+        Relationships: []
+      }
+      follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          id?: string
         }
         Relationships: []
       }
@@ -257,59 +281,83 @@ export type Database = {
           bio: string | null
           created_at: string
           email_notifications: boolean | null
+          experiences_count: number | null
+          followers_count: number | null
+          following_count: number | null
           id: string
+          location: string | null
           nickname: string
           updated_at: string
           user_id: string
+          website: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
           email_notifications?: boolean | null
+          experiences_count?: number | null
+          followers_count?: number | null
+          following_count?: number | null
           id?: string
+          location?: string | null
           nickname: string
           updated_at?: string
           user_id: string
+          website?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
           email_notifications?: boolean | null
+          experiences_count?: number | null
+          followers_count?: number | null
+          following_count?: number | null
           id?: string
+          location?: string | null
           nickname?: string
           updated_at?: string
           user_id?: string
+          website?: string | null
         }
         Relationships: []
       }
       reports: {
         Row: {
+          admin_note: string | null
           comment_id: string | null
           created_at: string
           experience_id: string | null
           id: string
           reason: string
           reporter_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
           status: string | null
         }
         Insert: {
+          admin_note?: string | null
           comment_id?: string | null
           created_at?: string
           experience_id?: string | null
           id?: string
           reason: string
           reporter_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: string | null
         }
         Update: {
+          admin_note?: string | null
           comment_id?: string | null
           created_at?: string
           experience_id?: string | null
           id?: string
           reason?: string
           reporter_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: string | null
         }
         Relationships: [
@@ -322,6 +370,35 @@ export type Database = {
           },
           {
             foreignKeyName: "reports_experience_id_fkey"
+            columns: ["experience_id"]
+            isOneToOne: false
+            referencedRelation: "experiences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_experiences: {
+        Row: {
+          created_at: string
+          experience_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          experience_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          experience_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_experiences_experience_id_fkey"
             columns: ["experience_id"]
             isOneToOne: false
             referencedRelation: "experiences"
@@ -476,11 +553,57 @@ export type Database = {
         Returns: undefined
       }
       get_active_users_count: { Args: never; Returns: number }
+      get_experience_with_details: {
+        Args: { exp_id: string }
+        Returns: {
+          avatar_url: string
+          category: Database["public"]["Enums"]["experience_category"]
+          comments_count: number
+          content: string
+          created_at: string
+          id: string
+          image_url: string
+          is_saved: boolean
+          likes_count: number
+          nickname: string
+          tags: string[]
+          title: string
+          updated_at: string
+          user_id: string
+          views_count: number
+        }[]
+      }
       get_user_nickname: { Args: { user_id: string }; Returns: string }
+      increment_experience_views: {
+        Args: { experience_id: string }
+        Returns: undefined
+      }
       points_for_next_level: {
         Args: { current_level: number }
         Returns: number
       }
+      search_experiences: {
+        Args: {
+          category_filter?: string
+          result_limit?: number
+          search_query: string
+        }
+        Returns: {
+          category: Database["public"]["Enums"]["experience_category"]
+          comments_count: number
+          content: string
+          created_at: string
+          id: string
+          image_url: string
+          likes_count: number
+          nickname: string
+          relevance: number
+          tags: string[]
+          title: string
+        }[]
+      }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
       experience_category: "mutui" | "vacanze" | "auto" | "amazon"
