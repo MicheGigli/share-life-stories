@@ -46,10 +46,9 @@ export const ChatbotKnowledgeBase = () => {
       // Search in experiences
       const { data: experiences, error: expError } = await supabase
         .from('experiences')
-        .select('id, title, content, category')
+        .select('id, title, content, category, likes_count, comments_count, user_id')
         .eq('is_published', true)
         .or(`title.ilike.%${trimmed}%,content.ilike.%${trimmed}%`)
-        .order('likes_count', { ascending: false })
         .limit(5);
 
       if (expError) throw expError;
@@ -105,7 +104,8 @@ export const ChatbotKnowledgeBase = () => {
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: { 
           messages: conversationHistory,
-          searchContext: searchResults
+          searchContext: { experiences: searchResults.experiences },
+          siteUrl: window.location.origin
         }
       });
 
