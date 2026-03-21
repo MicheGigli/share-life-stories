@@ -575,7 +575,7 @@ export type Database = {
       }
       get_user_nickname: { Args: { user_id: string }; Returns: string }
       increment_experience_views: {
-        Args: { experience_id: string }
+        Args: { p_experience_id: string }
         Returns: undefined
       }
       points_for_next_level: {
@@ -597,9 +597,10 @@ export type Database = {
           image_url: string
           likes_count: number
           nickname: string
-          relevance: number
           tags: string[]
           title: string
+          user_id: string
+          views_count: number
         }[]
       }
       show_limit: { Args: never; Returns: number }

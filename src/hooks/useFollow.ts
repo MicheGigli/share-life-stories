@@ -14,6 +14,8 @@ export const useFollow = () => {
   useEffect(() => {
     if (user) {
       fetchFollowData();
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
@@ -21,24 +23,22 @@ export const useFollow = () => {
     if (!user) return;
 
     try {
-      // Get who the current user is following
       const { data: followingData } = await supabase
         .from('follows')
         .select('following_id')
         .eq('follower_id', user.id);
 
       if (followingData) {
-        setFollowing(new Set(followingData.map(f => f.following_id)));
+        setFollowing(new Set(followingData.map((f: any) => f.following_id)));
       }
 
-      // Get follower counts for all users
       const { data: followerCounts } = await supabase
         .from('follows')
         .select('following_id');
 
       if (followerCounts) {
         const counts: Record<string, number> = {};
-        followerCounts.forEach(f => {
+        followerCounts.forEach((f: any) => {
           counts[f.following_id] = (counts[f.following_id] || 0) + 1;
         });
         setFollowers(counts);
@@ -162,13 +162,18 @@ export const useFollow = () => {
     try {
       const { data } = await supabase
         .from('follows')
-        .select(`
-          following_id,
-          profiles!follows_following_id_fkey(nickname, avatar_url)
-        `)
+        .select('following_id')
         .eq('follower_id', user.id);
 
-      return data || [];
+      if (!data || data.length === 0) return [];
+
+      const userIds = data.map((f: any) => f.following_id);
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, nickname, avatar_url')
+        .in('user_id', userIds);
+
+      return profiles || [];
     } catch (error) {
       console.error('Error fetching following list:', error);
       return [];
