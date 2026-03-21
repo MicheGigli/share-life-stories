@@ -162,6 +162,8 @@ const Profile = () => {
       .update({
         nickname: formData.nickname,
         bio: formData.bio,
+        website: formData.website || null,
+        location: formData.location || null,
       })
       .eq('user_id', user.id);
 
