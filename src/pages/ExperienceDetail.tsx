@@ -52,6 +52,8 @@ const ExperienceDetail = () => {
   useEffect(() => {
     if (id) {
       fetchExperience();
+      // Increment view count
+      supabase.rpc('increment_experience_views', { p_experience_id: id }).catch(console.error);
       if (user) {
         checkIfLiked();
         checkCanDelete();
