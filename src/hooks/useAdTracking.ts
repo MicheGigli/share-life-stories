@@ -15,7 +15,7 @@ export const useAdTracking = () => {
       // Google Analytics 4 setup for ads
       if (!(window as any).gtag) {
         const script = document.createElement('script');
-        script.src = `https://www.googletagmanager.com/gtag/js?id=${process.env.VITE_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX'}`;
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX'}`;
         script.async = true;
         document.head.appendChild(script);
 
@@ -24,7 +24,7 @@ export const useAdTracking = () => {
           (window as any).dataLayer.push(arguments);
         };
         (window as any).gtag('js', new Date());
-        (window as any).gtag('config', process.env.VITE_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX');
+        (window as any).gtag('config', import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX');
       }
     }
   }, []);
@@ -42,7 +42,7 @@ export const useAdTracking = () => {
       }
 
       // Custom analytics (could be sent to your backend)
-      if (process.env.NODE_ENV === 'production') {
+      if (import.meta.env.PROD) {
         fetch('/api/track-ad', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
