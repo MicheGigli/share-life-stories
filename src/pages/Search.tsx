@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 
-interface Experience {
+interface SearchResult {
   id: string;
   title: string;
   content: string;
@@ -19,17 +19,19 @@ interface Experience {
   tags: string[];
   likes_count: number;
   comments_count: number;
+  views_count: number;
   created_at: string;
   user_id: string;
   image_url?: string | null;
+  nickname: string | null;
 }
 
 const Search = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [experiences, setExperiences] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
-  const [sortBy, setSortBy] = useState('recent');
+  const [sortBy, setSortBy] = useState('relevance');
   const [categoryFilter, setCategoryFilter] = useState('all');
 
   const query = searchParams.get('q') || '';
@@ -39,66 +41,40 @@ const Search = () => {
   }, [query, sortBy, categoryFilter]);
 
   const searchExperiences = async (searchQuery: string) => {
-    setLoading(true);
-
-    let supabaseQuery = supabase
-      .from('experiences')
-      .select(`
-        id,
-        title,
-        content,
-        category,
-        tags,
-        likes_count,
-        comments_count,
-        created_at,
-        user_id,
-        image_url
-      `)
-      .eq('is_published', true);
-
-    // Apply text search only if query present; otherwise allow filtering by category alone
-    if (searchQuery && searchQuery.trim().length > 0) {
-      supabaseQuery = supabaseQuery.or(
-        `title.ilike.%${searchQuery}%,content.ilike.%${searchQuery}%,tags.cs.{${searchQuery}}`
-      );
-    } else {
-      // If no query and no category selected, avoid fetching everything
-      if (categoryFilter === 'all') {
-        setExperiences([]);
-        setLoading(false);
-        return;
-      }
-    }
-
-    // Apply category filter
-    if (categoryFilter !== 'all') {
-      supabaseQuery = supabaseQuery.eq('category', categoryFilter as any);
-    }
-
-    // Apply sorting
-    switch (sortBy) {
-      case 'recent':
-        supabaseQuery = supabaseQuery.order('created_at', { ascending: false });
-        break;
-      case 'popular':
-        supabaseQuery = supabaseQuery.order('likes_count', { ascending: false });
-        break;
-      case 'discussed':
-        supabaseQuery = supabaseQuery.order('comments_count', { ascending: false });
-        break;
-    }
-
-    const { data, error } = await supabaseQuery;
-
-    if (error) {
-      console.error('Error searching experiences:', error);
-      setLoading(false);
+    if (!searchQuery.trim() && categoryFilter === 'all') {
+      setExperiences([]);
       return;
     }
 
-    setExperiences(data || []);
-    setLoading(false);
+    setLoading(true);
+
+    try {
+      const { data, error } = await (supabase.rpc as any)('search_experiences', {
+        search_query: searchQuery.trim() || null,
+        category_filter: categoryFilter !== 'all' ? categoryFilter : null,
+        result_limit: 20
+      });
+
+      if (error) throw error;
+
+      let results = data || [];
+
+      // Apply client-side sorting if not relevance
+      if (sortBy === 'recent') {
+        results.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      } else if (sortBy === 'popular') {
+        results.sort((a: any, b: any) => (b.likes_count || 0) - (a.likes_count || 0));
+      } else if (sortBy === 'discussed') {
+        results.sort((a: any, b: any) => (b.comments_count || 0) - (a.comments_count || 0));
+      }
+
+      setExperiences(results);
+    } catch (error) {
+      console.error('Error searching experiences:', error);
+      setExperiences([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSearch = (newQuery: string) => {
@@ -132,7 +108,6 @@ const Search = () => {
             Cerca esperienze
           </h1>
 
-          {/* Search bar */}
           <div className="mb-8">
             <SearchBar 
               onSearch={handleSearch}
@@ -140,7 +115,6 @@ const Search = () => {
             />
           </div>
 
-          {/* Filters */}
           <div className="flex flex-col md:flex-row gap-4 mb-8">
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-full md:w-48">
@@ -158,6 +132,7 @@ const Search = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="relevance">Più rilevanti</SelectItem>
                 <SelectItem value="recent">Più recenti</SelectItem>
                 <SelectItem value="popular">Più apprezzate</SelectItem>
                 <SelectItem value="discussed">Più commentate</SelectItem>
@@ -165,7 +140,6 @@ const Search = () => {
             </Select>
           </div>
 
-          {/* Search results */}
           {query && (
             <div className="mb-6">
               <p className="text-muted-foreground">
@@ -182,7 +156,6 @@ const Search = () => {
             </div>
           )}
 
-          {/* Results grid */}
           {loading ? (
             <div className="text-center py-12">
               <div className="text-muted-foreground">Ricerca in corso...</div>
@@ -198,7 +171,6 @@ const Search = () => {
             </div>
           ) : (
             <>
-              {/* Ad banner prima dei risultati se ci sono risultati */}
               {experiences.length > 0 && (
                 <AdBanner 
                   position="horizontal" 
@@ -214,7 +186,7 @@ const Search = () => {
                     key={experience.id}
                     id={experience.id}
                     title={experience.title}
-                    author="Utente"
+                    author={experience.nickname || 'Utente'}
                     content={experience.content}
                     category={categoryLabels[experience.category] || experience.category}
                     likes={experience.likes_count}
@@ -223,6 +195,7 @@ const Search = () => {
                     tags={experience.tags}
                     imageUrl={experience.image_url}
                     userId={experience.user_id}
+                    views={experience.views_count}
                   />
                 ))}
               </div>

@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, MessageCircle, Share2, User } from "lucide-react";
+import { Heart, MessageCircle, Share2, User, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { LevelIndicator } from '@/components/gamification/LevelIndicator';
 import { useAuth } from '@/hooks/useAuth';
@@ -28,6 +28,7 @@ interface ExperienceCardProps {
   categoryKey?: string;
   userId?: string;
   compact?: boolean;
+  views?: number;
 }
 
 export const ExperienceCard = ({ 
@@ -43,7 +44,8 @@ export const ExperienceCard = ({
   imageUrl,
   categoryKey,
   userId,
-  compact = false
+  compact = false,
+  views = 0
 }: ExperienceCardProps) => {
   
   const navigate = useNavigate();
@@ -254,6 +256,10 @@ export const ExperienceCard = ({
                 <div className={`flex items-center text-muted-foreground ${compact ? 'text-xs' : 'text-sm'}`}>
                   <MessageCircle className={compact ? "h-3 w-3 mr-1" : "h-4 w-4 mr-1"} />
                   {comments}
+                </div>
+                <div className={`flex items-center text-muted-foreground ${compact ? 'text-xs' : 'text-sm'}`}>
+                  <Eye className={compact ? "h-3 w-3 mr-1" : "h-4 w-4 mr-1"} />
+                  {views}
                 </div>
                 {userId && userId !== user?.id && !compact && (
                   <FollowButton userId={userId} size="sm" />

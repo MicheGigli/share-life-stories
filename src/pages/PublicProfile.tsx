@@ -9,10 +9,9 @@ import { ExperienceCard } from '@/components/ExperienceCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { FollowButton } from '@/components/FollowButton';
 import { LevelIndicator } from '@/components/gamification/LevelIndicator';
-import { User, ArrowLeft, BookOpen, Award } from 'lucide-react';
+import { User, ArrowLeft, BookOpen, Globe, MapPin } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 interface Profile {
@@ -20,6 +19,11 @@ interface Profile {
   nickname: string;
   bio: string | null;
   avatar_url: string | null;
+  website: string | null;
+  location: string | null;
+  experiences_count: number;
+  followers_count: number;
+  following_count: number;
 }
 
 interface Experience {
@@ -32,6 +36,7 @@ interface Experience {
   comments_count: number;
   created_at: string;
   image_url?: string | null;
+  views_count?: number;
 }
 
 interface UserPoints {
@@ -47,12 +52,9 @@ const PublicProfile = () => {
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [userPoints, setUserPoints] = useState<UserPoints | null>(null);
   const [loading, setLoading] = useState(true);
-  const [followersCount, setFollowersCount] = useState(0);
-  const [followingCount, setFollowingCount] = useState(0);
 
   useEffect(() => {
     if (userId) {
-      // Redirect to own profile if viewing own user ID
       if (currentUser && userId === currentUser.id) {
         navigate('/profile');
         return;
@@ -60,7 +62,6 @@ const PublicProfile = () => {
       fetchPublicProfile();
       fetchUserExperiences();
       fetchUserPoints();
-      fetchFollowCounts();
     }
   }, [userId, currentUser]);
 
@@ -69,7 +70,7 @@ const PublicProfile = () => {
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('user_id, nickname, bio, avatar_url')
+      .select('user_id, nickname, bio, avatar_url, website, location, experiences_count, followers_count, following_count')
       .eq('user_id', userId)
       .single();
 
@@ -115,23 +116,6 @@ const PublicProfile = () => {
     }
   };
 
-  const fetchFollowCounts = async () => {
-    if (!userId) return;
-
-    const { count: followersCount } = await supabase
-      .from('follows')
-      .select('*', { count: 'exact', head: true })
-      .eq('following_id', userId);
-
-    const { count: followingCount } = await supabase
-      .from('follows')
-      .select('*', { count: 'exact', head: true })
-      .eq('follower_id', userId);
-
-    setFollowersCount(followersCount || 0);
-    setFollowingCount(followingCount || 0);
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('it-IT', {
       day: 'numeric',
@@ -144,7 +128,7 @@ const PublicProfile = () => {
     return (
       <>
         <Header />
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-4 py-8 pt-24">
           <div className="animate-pulse space-y-4">
             <div className="h-32 bg-muted rounded-lg"></div>
             <div className="h-64 bg-muted rounded-lg"></div>
@@ -159,7 +143,7 @@ const PublicProfile = () => {
     return (
       <>
         <Header />
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-4 py-8 pt-24">
           <Card>
             <CardContent className="py-8 text-center">
               <User className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
@@ -182,7 +166,7 @@ const PublicProfile = () => {
   return (
     <>
       <Header />
-      <main className="container mx-auto px-4 py-8 space-y-8">
+      <main className="container mx-auto px-4 py-8 pt-24 space-y-8">
         <Button
           variant="ghost"
           onClick={() => navigate(-1)}
@@ -208,7 +192,7 @@ const PublicProfile = () => {
                     <h1 className="text-3xl font-bold">{profile.nickname}</h1>
                     {userPoints && (
                       <div className="flex items-center gap-4 mt-2">
-                    <LevelIndicator level={userPoints.current_level} />
+                        <LevelIndicator level={userPoints.current_level} />
                       </div>
                     )}
                   </div>
@@ -221,17 +205,37 @@ const PublicProfile = () => {
                   <p className="text-muted-foreground">{profile.bio}</p>
                 )}
 
+                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                  {profile.location && (
+                    <span className="flex items-center gap-1">
+                      <MapPin className="h-4 w-4" />
+                      {profile.location}
+                    </span>
+                  )}
+                  {profile.website && (
+                    <a
+                      href={profile.website.startsWith('http') ? profile.website : `https://${profile.website}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-primary hover:underline"
+                    >
+                      <Globe className="h-4 w-4" />
+                      {profile.website.replace(/^https?:\/\//, '')}
+                    </a>
+                  )}
+                </div>
+
                 <div className="flex gap-6">
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{experiences.length}</div>
+                    <div className="text-2xl font-bold">{profile.experiences_count ?? experiences.length}</div>
                     <div className="text-sm text-muted-foreground">Esperienze</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{followersCount}</div>
+                    <div className="text-2xl font-bold">{profile.followers_count ?? 0}</div>
                     <div className="text-sm text-muted-foreground">Follower</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{followingCount}</div>
+                    <div className="text-2xl font-bold">{profile.following_count ?? 0}</div>
                     <div className="text-sm text-muted-foreground">Seguiti</div>
                   </div>
                 </div>
@@ -273,6 +277,7 @@ const PublicProfile = () => {
                   tags={experience.tags}
                   imageUrl={experience.image_url}
                   userId={profile.user_id}
+                  views={experience.views_count ?? 0}
                 />
               ))
             )}

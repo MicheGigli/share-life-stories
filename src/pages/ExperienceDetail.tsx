@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Heart, MessageCircle, Share2, User, ArrowLeft } from 'lucide-react';
+import { Heart, MessageCircle, Share2, User, ArrowLeft, Eye } from 'lucide-react';
 import { ImageGallery } from '@/components/ImageGallery';
 import { DeleteExperienceButton } from '@/components/DeleteExperienceButton';
 import { EditExperienceButton } from '@/components/EditExperienceButton';
@@ -52,6 +52,8 @@ const ExperienceDetail = () => {
   useEffect(() => {
     if (id) {
       fetchExperience();
+      // Increment view count
+      (supabase.rpc as any)('increment_experience_views', { p_experience_id: id }).then(() => {}).catch(console.error);
       if (user) {
         checkIfLiked();
         checkCanDelete();
@@ -332,6 +334,10 @@ const ExperienceDetail = () => {
                 <div className="flex items-center text-sm text-muted-foreground">
                   <MessageCircle className="h-4 w-4 mr-1" />
                   {experience.comments_count} commenti
+                </div>
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <Eye className="h-4 w-4 mr-1" />
+                  {(experience as any).views_count ?? 0} visualizzazioni
                 </div>
               </div>
               <Button variant="ghost" size="sm">

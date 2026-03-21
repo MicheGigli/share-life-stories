@@ -22,7 +22,7 @@ import { LevelIndicator } from '@/components/gamification/LevelIndicator';
 import { useGameification } from '@/hooks/useGameification';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { User, Mail, Bell, Save, Heart, MessageCircle, Bookmark, Users, UserCheck, ArrowLeft, Shield } from 'lucide-react';
+import { User, Mail, Bell, Save, Heart, MessageCircle, Bookmark, Users, UserCheck, ArrowLeft, Shield, Globe, MapPin } from 'lucide-react';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { FollowingList } from '@/components/FollowingList';
 import { FollowersList } from '@/components/FollowersList';
@@ -34,6 +34,11 @@ interface Profile {
   nickname: string;
   bio: string | null;
   avatar_url: string | null;
+  website: string | null;
+  location: string | null;
+  experiences_count: number;
+  followers_count: number;
+  following_count: number;
 }
 
 interface UserPreferences {
@@ -67,6 +72,8 @@ const Profile = () => {
   const [formData, setFormData] = useState({
     nickname: '',
     bio: '',
+    website: '',
+    location: '',
     email_notifications: true
   });
 
@@ -115,6 +122,8 @@ const Profile = () => {
       setFormData({
         nickname: profileData.nickname,
         bio: profileData.bio || '',
+        website: profileData.website || '',
+        location: profileData.location || '',
         email_notifications: preferencesData?.email_notifications ?? true
       });
     }
@@ -153,6 +162,8 @@ const Profile = () => {
       .update({
         nickname: formData.nickname,
         bio: formData.bio,
+        website: formData.website || null,
+        location: formData.location || null,
       })
       .eq('user_id', user.id);
 
@@ -288,6 +299,33 @@ const Profile = () => {
                       placeholder="Raccontaci qualcosa di te..."
                       className="min-h-24"
                     />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="website" className="flex items-center gap-2">
+                        <Globe className="h-4 w-4" />
+                        Website
+                      </Label>
+                      <Input
+                        id="website"
+                        value={formData.website}
+                        onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
+                        placeholder="https://miosito.it"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="location" className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        Località
+                      </Label>
+                      <Input
+                        id="location"
+                        value={formData.location}
+                        onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                        placeholder="Es. Milano, Italia"
+                      />
+                    </div>
                   </div>
 
                   <div className="flex items-center space-x-2">
