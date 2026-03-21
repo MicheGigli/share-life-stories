@@ -301,6 +301,33 @@ const Profile = () => {
                     />
                   </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="website" className="flex items-center gap-2">
+                        <Globe className="h-4 w-4" />
+                        Website
+                      </Label>
+                      <Input
+                        id="website"
+                        value={formData.website}
+                        onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
+                        placeholder="https://miosito.it"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="location" className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        Località
+                      </Label>
+                      <Input
+                        id="location"
+                        value={formData.location}
+                        onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                        placeholder="Es. Milano, Italia"
+                      />
+                    </div>
+                  </div>
+
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="email-notifications"
