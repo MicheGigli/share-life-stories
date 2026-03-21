@@ -20,20 +20,18 @@ const PasswordReset = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Check if this is a password reset callback
+  // Check if this is a password reset callback via onAuthStateChange
   useEffect(() => {
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
-    
-    if (accessToken && refreshToken) {
-      setStep('reset');
-      // Set the session with the tokens from URL
-      supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken
-      });
-    }
-  }, [searchParams]);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event) => {
+        if (event === 'PASSWORD_RECOVERY') {
+          setStep('reset');
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleRequestReset = async (e: React.FormEvent) => {
     e.preventDefault();
