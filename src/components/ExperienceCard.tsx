@@ -28,6 +28,7 @@ interface ExperienceCardProps {
   categoryKey?: string;
   userId?: string;
   compact?: boolean;
+  views?: number;
 }
 
 export const ExperienceCard = ({ 
