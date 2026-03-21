@@ -53,7 +53,7 @@ const ExperienceDetail = () => {
     if (id) {
       fetchExperience();
       // Increment view count
-      supabase.rpc('increment_experience_views', { p_experience_id: id }).catch(console.error);
+      (supabase.rpc as any)('increment_experience_views', { p_experience_id: id }).then(() => {}).catch(console.error);
       if (user) {
         checkIfLiked();
         checkCanDelete();
