@@ -257,6 +257,10 @@ export const ExperienceCard = ({
                   <MessageCircle className={compact ? "h-3 w-3 mr-1" : "h-4 w-4 mr-1"} />
                   {comments}
                 </div>
+                <div className={`flex items-center text-muted-foreground ${compact ? 'text-xs' : 'text-sm'}`}>
+                  <Eye className={compact ? "h-3 w-3 mr-1" : "h-4 w-4 mr-1"} />
+                  {views}
+                </div>
                 {userId && userId !== user?.id && !compact && (
                   <FollowButton userId={userId} size="sm" />
                 )}
