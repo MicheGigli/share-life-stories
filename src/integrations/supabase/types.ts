@@ -10,100 +10,10 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.4"
+    PostgrestVersion: "14.4"
   }
   public: {
     Tables: {
-      affiliate_links: {
-        Row: {
-          affiliate_url: string
-          created_at: string
-          experience_id: string
-          id: string
-          image_url: string | null
-          is_active: boolean | null
-          platform: string
-          price: number | null
-          product_name: string
-          updated_at: string
-        }
-        Insert: {
-          affiliate_url: string
-          created_at?: string
-          experience_id: string
-          id?: string
-          image_url?: string | null
-          is_active?: boolean | null
-          platform?: string
-          price?: number | null
-          product_name: string
-          updated_at?: string
-        }
-        Update: {
-          affiliate_url?: string
-          created_at?: string
-          experience_id?: string
-          id?: string
-          image_url?: string | null
-          is_active?: boolean | null
-          platform?: string
-          price?: number | null
-          product_name?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      ai_recommendations: {
-        Row: {
-          confidence_score: number | null
-          created_at: string
-          experience_id: string
-          id: string
-          recommendation_type: string
-          user_id: string
-        }
-        Insert: {
-          confidence_score?: number | null
-          created_at?: string
-          experience_id: string
-          id?: string
-          recommendation_type: string
-          user_id: string
-        }
-        Update: {
-          confidence_score?: number | null
-          created_at?: string
-          experience_id?: string
-          id?: string
-          recommendation_type?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      analytics_events: {
-        Row: {
-          created_at: string
-          event_data: Json | null
-          event_type: string
-          id: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          event_data?: Json | null
-          event_type: string
-          id?: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          event_data?: Json | null
-          event_type?: string
-          id?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       badges: {
         Row: {
           category: string
@@ -137,27 +47,6 @@ export type Database = {
           image_url?: string | null
           name?: string
           rarity?: string | null
-        }
-        Relationships: []
-      }
-      bookmarks: {
-        Row: {
-          created_at: string
-          experience_id: string
-          id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          experience_id: string
-          id?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          experience_id?: string
-          id?: string
-          user_id?: string
         }
         Relationships: []
       }
@@ -212,39 +101,6 @@ export type Database = {
           },
         ]
       }
-      experience_locations: {
-        Row: {
-          address: string | null
-          city: string | null
-          country: string | null
-          created_at: string
-          experience_id: string
-          id: string
-          latitude: number | null
-          longitude: number | null
-        }
-        Insert: {
-          address?: string | null
-          city?: string | null
-          country?: string | null
-          created_at?: string
-          experience_id: string
-          id?: string
-          latitude?: number | null
-          longitude?: number | null
-        }
-        Update: {
-          address?: string | null
-          city?: string | null
-          country?: string | null
-          created_at?: string
-          experience_id?: string
-          id?: string
-          latitude?: number | null
-          longitude?: number | null
-        }
-        Relationships: []
-      }
       experiences: {
         Row: {
           category: Database["public"]["Enums"]["experience_category"]
@@ -290,57 +146,6 @@ export type Database = {
         }
         Relationships: []
       }
-      export_requests: {
-        Row: {
-          completed_at: string | null
-          created_at: string
-          export_type: string
-          file_url: string | null
-          id: string
-          status: string | null
-          user_id: string
-        }
-        Insert: {
-          completed_at?: string | null
-          created_at?: string
-          export_type: string
-          file_url?: string | null
-          id?: string
-          status?: string | null
-          user_id: string
-        }
-        Update: {
-          completed_at?: string | null
-          created_at?: string
-          export_type?: string
-          file_url?: string | null
-          id?: string
-          status?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      follows: {
-        Row: {
-          created_at: string
-          follower_id: string
-          following_id: string
-          id: string
-        }
-        Insert: {
-          created_at?: string
-          follower_id: string
-          following_id: string
-          id?: string
-        }
-        Update: {
-          created_at?: string
-          follower_id?: string
-          following_id?: string
-          id?: string
-        }
-        Relationships: []
-      }
       likes: {
         Row: {
           comment_id: string | null
@@ -379,39 +184,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      moderation_logs: {
-        Row: {
-          content: string
-          content_id: string | null
-          content_type: string
-          created_at: string
-          id: string
-          is_appropriate: boolean
-          reason: string | null
-          user_id: string | null
-        }
-        Insert: {
-          content: string
-          content_id?: string | null
-          content_type: string
-          created_at?: string
-          id?: string
-          is_appropriate: boolean
-          reason?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          content?: string
-          content_id?: string | null
-          content_type?: string
-          created_at?: string
-          id?: string
-          is_appropriate?: boolean
-          reason?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
       }
       notifications: {
         Row: {
@@ -484,6 +256,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string
+          email_notifications: boolean | null
           id: string
           nickname: string
           updated_at: string
@@ -493,6 +266,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          email_notifications?: boolean | null
           id?: string
           nickname: string
           updated_at?: string
@@ -502,87 +276,10 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          email_notifications?: boolean | null
           id?: string
           nickname?: string
           updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      push_tokens: {
-        Row: {
-          created_at: string
-          id: string
-          is_active: boolean | null
-          platform: string
-          token: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          is_active?: boolean | null
-          platform: string
-          token: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          is_active?: boolean | null
-          platform?: string
-          token?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      qr_codes: {
-        Row: {
-          created_at: string
-          experience_id: string
-          id: string
-          qr_code_url: string
-          scan_count: number | null
-        }
-        Insert: {
-          created_at?: string
-          experience_id: string
-          id?: string
-          qr_code_url: string
-          scan_count?: number | null
-        }
-        Update: {
-          created_at?: string
-          experience_id?: string
-          id?: string
-          qr_code_url?: string
-          scan_count?: number | null
-        }
-        Relationships: []
-      }
-      reactions: {
-        Row: {
-          created_at: string
-          experience_id: string
-          id: string
-          reaction_type: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          experience_id: string
-          id?: string
-          reaction_type: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          experience_id?: string
-          id?: string
-          reaction_type?: string
           user_id?: string
         }
         Relationships: []
@@ -632,45 +329,6 @@ export type Database = {
           },
         ]
       }
-      structured_reviews: {
-        Row: {
-          cons: string[] | null
-          created_at: string
-          criteria_ratings: Json | null
-          experience_id: string
-          id: string
-          overall_rating: number
-          pros: string[] | null
-          updated_at: string
-          user_id: string
-          would_recommend: boolean | null
-        }
-        Insert: {
-          cons?: string[] | null
-          created_at?: string
-          criteria_ratings?: Json | null
-          experience_id: string
-          id?: string
-          overall_rating: number
-          pros?: string[] | null
-          updated_at?: string
-          user_id: string
-          would_recommend?: boolean | null
-        }
-        Update: {
-          cons?: string[] | null
-          created_at?: string
-          criteria_ratings?: Json | null
-          experience_id?: string
-          id?: string
-          overall_rating?: number
-          pros?: string[] | null
-          updated_at?: string
-          user_id?: string
-          would_recommend?: boolean | null
-        }
-        Relationships: []
-      }
       travel_subcategories: {
         Row: {
           category: string
@@ -695,33 +353,6 @@ export type Database = {
         }
         Relationships: []
       }
-      trending_topics: {
-        Row: {
-          category: string | null
-          created_at: string
-          id: string
-          last_used: string
-          topic: string
-          usage_count: number | null
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string
-          id?: string
-          last_used?: string
-          topic: string
-          usage_count?: number | null
-        }
-        Update: {
-          category?: string | null
-          created_at?: string
-          id?: string
-          last_used?: string
-          topic?: string
-          usage_count?: number | null
-        }
-        Relationships: []
-      }
       user_badges: {
         Row: {
           badge_id: string
@@ -741,46 +372,15 @@ export type Database = {
           id?: string
           user_id?: string
         }
-        Relationships: []
-      }
-      user_onboarding: {
-        Row: {
-          created_at: string
-          first_comment_made: boolean | null
-          first_experience_created: boolean | null
-          first_like_given: boolean | null
-          id: string
-          profile_completed: boolean | null
-          tutorial_completed: boolean | null
-          updated_at: string
-          user_id: string
-          welcome_tour_completed: boolean | null
-        }
-        Insert: {
-          created_at?: string
-          first_comment_made?: boolean | null
-          first_experience_created?: boolean | null
-          first_like_given?: boolean | null
-          id?: string
-          profile_completed?: boolean | null
-          tutorial_completed?: boolean | null
-          updated_at?: string
-          user_id: string
-          welcome_tour_completed?: boolean | null
-        }
-        Update: {
-          created_at?: string
-          first_comment_made?: boolean | null
-          first_experience_created?: boolean | null
-          first_like_given?: boolean | null
-          id?: string
-          profile_completed?: boolean | null
-          tutorial_completed?: boolean | null
-          updated_at?: string
-          user_id?: string
-          welcome_tour_completed?: boolean | null
-        }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_points: {
         Row: {
@@ -804,30 +404,6 @@ export type Database = {
           current_level?: number
           id?: string
           total_points?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_preferences: {
-        Row: {
-          created_at: string
-          email_notifications: boolean
-          id: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          email_notifications?: boolean
-          id?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          email_notifications?: boolean
-          id?: string
           updated_at?: string
           user_id?: string
         }
@@ -899,13 +475,8 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: undefined
       }
-      generate_qr_code: { Args: { experience_id: string }; Returns: string }
       get_active_users_count: { Args: never; Returns: number }
-      get_current_user_role: { Args: never; Returns: string }
       get_user_nickname: { Args: { user_id: string }; Returns: string }
-      has_role: { Args: { _role: string; _user_id: string }; Returns: boolean }
-      is_admin: { Args: { _user_id: string }; Returns: boolean }
-      is_moderator: { Args: { _user_id: string }; Returns: boolean }
       points_for_next_level: {
         Args: { current_level: number }
         Returns: number
