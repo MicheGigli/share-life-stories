@@ -15,7 +15,7 @@ export const useAdTracking = () => {
       // Google Analytics 4 setup for ads
       if (!(window as any).gtag) {
         const script = document.createElement('script');
-        script.src = `https://www.googletagmanager.com/gtag/js?id=${process.env.VITE_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX'}`;
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX'}`;
         script.async = true;
         document.head.appendChild(script);
 
