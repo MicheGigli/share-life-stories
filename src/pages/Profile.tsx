@@ -34,6 +34,11 @@ interface Profile {
   nickname: string;
   bio: string | null;
   avatar_url: string | null;
+  website: string | null;
+  location: string | null;
+  experiences_count: number;
+  followers_count: number;
+  following_count: number;
 }
 
 interface UserPreferences {
