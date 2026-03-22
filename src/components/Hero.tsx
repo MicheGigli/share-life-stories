@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Users, Heart, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { CommunityStats } from "./CommunityStats";
 import { useEffect, useState } from "react";
 
 // Mini mockup delle experience card per la preview
@@ -175,10 +174,7 @@ export const Hero = () => {
           </div>
         </div>
 
-        {/* Stats row */}
-        <div className={`mt-16 pt-12 border-t border-border transition-all duration-1000 delay-400 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-          <CommunityStats />
-        </div>
+
       </div>
     </section>
   );
