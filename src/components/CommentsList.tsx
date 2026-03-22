@@ -16,9 +16,7 @@ interface Comment {
   created_at: string;
   user_id: string;
   parent_id: string | null;
-  profiles: {
-    nickname: string;
-  };
+  profiles: { nickname: string };
   level?: number;
   replies?: Comment[];
 }
@@ -49,85 +47,77 @@ export const CommentsList = ({ experienceId, refreshTrigger }: CommentsListProps
 
   const fetchComments = async (pageNum: number = 0) => {
     if (!experienceId) return;
-    
     try {
       setLoading(true);
       const from = pageNum * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
 
-      const { data, error } = await supabase
+      // Query 1: root comments paginati
+      const { data: rootComments, error } = await supabase
         .from('comments')
-        .select('*')
+        .select('id, content, created_at, user_id, parent_id')
         .eq('experience_id', experienceId)
         .is('parent_id', null)
         .order('created_at', { ascending: false })
         .range(from, to);
 
       if (error) throw error;
+      if (!rootComments?.length) {
+        if (pageNum === 0) setComments([]);
+        setHasMore(false);
+        return;
+      }
 
-      // Get nicknames for each comment user
-      const commentsWithProfiles = await Promise.all(
-        (data || []).map(async (comment) => {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('nickname')
-            .eq('user_id', comment.user_id)
-            .single();
+      // Query 2: tutte le replies dei root comments in un colpo solo
+      const rootIds = rootComments.map(c => c.id);
+      const { data: allReplies } = await supabase
+        .from('comments')
+        .select('id, content, created_at, user_id, parent_id')
+        .in('parent_id', rootIds)
+        .order('created_at', { ascending: true });
 
-          const { data: points } = await supabase
-            .from('user_points')
-            .select('current_level')
-            .eq('user_id', comment.user_id)
-            .single();
-          
-          return {
-            ...comment,
-            profiles: { nickname: profile?.nickname || 'Utente' },
-            level: points?.current_level || 1
-          };
-        })
-      );
+      // Raccoglie tutti gli user_id unici (root + replies)
+      const allRows = [...rootComments, ...(allReplies ?? [])];
+      const userIds = [...new Set(allRows.map(c => c.user_id))];
 
-      // Fetch replies for each root comment
-      const commentsWithReplies = await Promise.all(
-        commentsWithProfiles.map(async (comment) => {
-          const { data: replies } = await supabase
-            .from('comments')
-            .select('*')
-            .eq('parent_id', comment.id)
-            .order('created_at', { ascending: true });
+      // Query 3: profili in batch
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, nickname')
+        .in('user_id', userIds);
 
-          const repliesWithProfiles = await Promise.all(
-            (replies || []).map(async (reply) => {
-              const { data: profile } = await supabase
-                .from('profiles')
-                .select('nickname')
-                .eq('user_id', reply.user_id)
-                .single();
+      // Query 4: livelli in batch
+      const { data: pointsData } = await supabase
+        .from('user_points')
+        .select('user_id, current_level')
+        .in('user_id', userIds);
 
-              const { data: points } = await supabase
-                .from('user_points')
-                .select('current_level')
-                .eq('user_id', reply.user_id)
-                .single();
+      // Lookup maps O(1)
+      const profileMap = new Map(profiles?.map(p => [p.user_id, p.nickname]) ?? []);
+      const levelMap = new Map(pointsData?.map(p => [p.user_id, p.current_level]) ?? []);
 
-              return {
-                ...reply,
-                profiles: { nickname: profile?.nickname || 'Utente' },
-                level: points?.current_level || 1
-              };
-            })
-          );
+      // Raggruppa replies per parent
+      const repliesByParent = new Map<string, Comment[]>();
+      for (const reply of allReplies ?? []) {
+        const enriched: Comment = {
+          ...reply,
+          profiles: { nickname: profileMap.get(reply.user_id) ?? 'Utente' },
+          level: levelMap.get(reply.user_id) ?? 1,
+        };
+        if (!repliesByParent.has(reply.parent_id!)) repliesByParent.set(reply.parent_id!, []);
+        repliesByParent.get(reply.parent_id!)!.push(enriched);
+      }
 
-          return {
-            ...comment,
-            replies: repliesWithProfiles
-          };
-        })
-      );
+      // Assembla commenti finali
+      const enriched: Comment[] = rootComments.map(c => ({
+        ...c,
+        profiles: { nickname: profileMap.get(c.user_id) ?? 'Utente' },
+        level: levelMap.get(c.user_id) ?? 1,
+        replies: repliesByParent.get(c.id) ?? [],
+      }));
 
-      setComments(prev => pageNum === 0 ? commentsWithReplies : [...prev, ...commentsWithReplies]);
-      setHasMore(commentsWithProfiles.length === ITEMS_PER_PAGE);
+      setComments(prev => pageNum === 0 ? enriched : [...prev, ...enriched]);
+      setHasMore(rootComments.length === ITEMS_PER_PAGE);
     } catch (error) {
       console.error('Error fetching comments:', error);
     } finally {
@@ -142,44 +132,23 @@ export const CommentsList = ({ experienceId, refreshTrigger }: CommentsListProps
         .delete()
         .eq('id', commentId)
         .eq('user_id', user?.id);
-
       if (error) throw error;
-
       await fetchComments();
-      
-      toast({
-        title: "Commento eliminato",
-        description: "Il commento è stato eliminato con successo.",
-      });
+      toast({ title: "Commento eliminato", description: "Il commento è stato eliminato con successo." });
     } catch (error) {
-      console.error('Error deleting comment:', error);
-      toast({
-        title: "Errore",
-        description: "Si è verificato un errore nell'eliminare il commento.",
-        variant: "destructive",
-      });
+      toast({ title: "Errore", description: "Si è verificato un errore nell'eliminare il commento.", variant: "destructive" });
     }
   };
 
-  const renderCommentContent = (content: string) => {
-    // Replace @username mentions with styled spans
-    return content.replace(/@(\w+)/g, '<span class="text-primary font-semibold">@$1</span>');
-  };
+  const renderCommentContent = (content: string) =>
+    content.replace(/@(\w+)/g, '<span class="text-primary font-semibold">@$1</span>');
 
   const toggleReplies = (commentId: string) => {
     setExpandedReplies(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(commentId)) {
-        newSet.delete(commentId);
-      } else {
-        newSet.add(commentId);
-      }
-      return newSet;
+      const s = new Set(prev);
+      s.has(commentId) ? s.delete(commentId) : s.add(commentId);
+      return s;
     });
-  };
-
-  const handleReplyClick = (commentId: string) => {
-    setReplyingTo(replyingTo === commentId ? null : commentId);
   };
 
   const handleCommentAdded = () => {
@@ -190,66 +159,43 @@ export const CommentsList = ({ experienceId, refreshTrigger }: CommentsListProps
   };
 
   const loadMore = () => {
-    const nextPage = page + 1;
-    setPage(nextPage);
-    fetchComments(nextPage);
+    const next = page + 1;
+    setPage(next);
+    fetchComments(next);
   };
 
-  const renderComment = (comment: Comment, isReply: boolean = false) => (
-    <div key={comment.id} className={`${isReply ? 'ml-6 pl-4 border-l-2 border-muted' : ''}`}>
+  const renderComment = (comment: Comment, isReply = false) => (
+    <div key={comment.id} className={isReply ? 'ml-6 pl-4 border-l-2 border-muted' : ''}>
       <div className="border rounded-lg p-4 bg-muted/30 animate-fade-in">
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-center gap-2">
-            <div 
+            <div
               className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => window.location.href = `/profile/${comment.user_id}`}
             >
-              <span className="font-semibold">
-                {comment.profiles?.nickname || 'Utente'}
-              </span>
+              <span className="font-semibold">{comment.profiles?.nickname || 'Utente'}</span>
               {comment.level && <LevelIndicator level={comment.level} size="sm" showLabel={false} />}
             </div>
             <span className="text-sm text-muted-foreground">
-              {formatDistanceToNow(new Date(comment.created_at), {
-                addSuffix: true,
-                locale: it,
-              })}
+              {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true, locale: it })}
             </span>
           </div>
-          
           <div className="flex items-center gap-1">
             {!isReply && user && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleReplyClick(comment.id)}
-                className="text-muted-foreground hover:text-foreground"
-              >
+              <Button variant="ghost" size="sm" onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)} className="text-muted-foreground hover:text-foreground">
                 <Reply className="h-4 w-4" />
               </Button>
             )}
-            
             {user && user.id === comment.user_id && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleDeleteComment(comment.id)}
-                className="text-destructive hover:text-destructive/90"
-              >
+              <Button variant="ghost" size="sm" onClick={() => handleDeleteComment(comment.id)} className="text-destructive hover:text-destructive/90">
                 <Trash2 className="h-4 w-4" />
               </Button>
             )}
           </div>
         </div>
-        
-        <div 
-          className="text-sm mb-2"
-          dangerouslySetInnerHTML={{ 
-            __html: renderCommentContent(comment.content) 
-          }}
-        />
 
-        {/* Reply form */}
+        <div className="text-sm mb-2" dangerouslySetInnerHTML={{ __html: renderCommentContent(comment.content) }} />
+
         {replyingTo === comment.id && (
           <div className="mt-3 pt-3 border-t">
             <CommentWithMentions
@@ -261,26 +207,15 @@ export const CommentsList = ({ experienceId, refreshTrigger }: CommentsListProps
           </div>
         )}
 
-        {/* Replies section */}
         {comment.replies && comment.replies.length > 0 && (
           <div className="mt-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => toggleReplies(comment.id)}
-              className="text-muted-foreground hover:text-foreground p-0 h-auto"
-            >
-              {expandedReplies.has(comment.id) ? (
-                <ChevronDown className="h-4 w-4 mr-1" />
-              ) : (
-                <ChevronRight className="h-4 w-4 mr-1" />
-              )}
+            <Button variant="ghost" size="sm" onClick={() => toggleReplies(comment.id)} className="text-muted-foreground hover:text-foreground p-0 h-auto">
+              {expandedReplies.has(comment.id) ? <ChevronDown className="h-4 w-4 mr-1" /> : <ChevronRight className="h-4 w-4 mr-1" />}
               {comment.replies.length} {comment.replies.length === 1 ? 'risposta' : 'risposte'}
             </Button>
-            
             {expandedReplies.has(comment.id) && (
               <div className="mt-2 space-y-2 animate-fade-in">
-                {comment.replies.map(reply => renderComment(reply, true))}
+                {comment.replies.map(r => renderComment(r, true))}
               </div>
             )}
           </div>
@@ -289,26 +224,18 @@ export const CommentsList = ({ experienceId, refreshTrigger }: CommentsListProps
     </div>
   );
 
-  if (loading) {
-    return <div className="text-center py-4">Caricamento commenti...</div>;
-  }
+  if (loading) return <div className="text-center py-4">Caricamento commenti...</div>;
 
-  if (comments.length === 0) {
-    return (
-      <div className="text-center py-8 text-muted-foreground">
-        Nessun commento ancora. Sii il primo a commentare!
-      </div>
-    );
-  }
+  if (comments.length === 0) return (
+    <div className="text-center py-8 text-muted-foreground">
+      Nessun commento ancora. Sii il primo a commentare!
+    </div>
+  );
 
   return (
-    <InfiniteScroll
-      hasMore={hasMore}
-      loading={loading}
-      onLoadMore={loadMore}
-    >
+    <InfiniteScroll hasMore={hasMore} loading={loading} onLoadMore={loadMore}>
       <div className="space-y-4">
-        {comments.map((comment) => renderComment(comment))}
+        {comments.map(c => renderComment(c))}
       </div>
     </InfiniteScroll>
   );
