@@ -30,8 +30,6 @@ const ExperiencesByCategory = () => {
   const navigate = useNavigate();
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedVehicleType, setSelectedVehicleType] = useState('all');
-  const [selectedTravelSubcategory, setSelectedTravelSubcategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('recent');
 
@@ -50,83 +48,50 @@ const ExperiencesByCategory = () => {
   };
 
   useEffect(() => {
-    if (category) {
-      fetchExperiences();
-    }
+    if (category) fetchExperiences();
   }, [category, sortBy]);
 
   const fetchExperiences = async () => {
     if (!category) return;
-
     setLoading(true);
 
     let query = supabase
       .from('experiences')
-      .select(`
-        id,
-        title,
-        content,
-        category,
-        tags,
-        likes_count,
-        comments_count,
-        created_at,
-        user_id,
-        image_url
-      `)
+      .select('id, title, content, category, tags, likes_count, comments_count, created_at, user_id, image_url')
       .eq('category', category as any)
       .eq('is_published', true);
 
-    // Ordinamento
     switch (sortBy) {
-      case 'recent':
-        query = query.order('created_at', { ascending: false });
-        break;
-      case 'popular':
-        query = query.order('likes_count', { ascending: false });
-        break;
-      case 'discussed':
-        query = query.order('comments_count', { ascending: false });
-        break;
+      case 'popular':   query = query.order('likes_count', { ascending: false }); break;
+      case 'discussed': query = query.order('comments_count', { ascending: false }); break;
+      default:          query = query.order('created_at', { ascending: false });
     }
 
     const { data, error } = await query;
+    if (error) { console.error(error); setLoading(false); return; }
 
-    if (error) {
-      console.error('Error fetching experiences:', error);
-      setLoading(false);
-      return;
-    }
+    if (!data?.length) { setExperiences([]); setLoading(false); return; }
 
-    // Get author nicknames for each experience
-    const experiencesWithAuthors = await Promise.all(
-      (data || []).map(async (exp) => {
-        const nickname = await getUserNickname(exp.user_id);
-        return {
-          ...exp,
-          author_nickname: nickname
-        };
-      })
-    );
-    
-    setExperiences(experiencesWithAuthors);
+    // Batch fetch dei profili in un'unica query invece di N query separate
+    const userIds = [...new Set(data.map(e => e.user_id))];
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('user_id, nickname')
+      .in('user_id', userIds);
+
+    const profileMap = new Map(profiles?.map(p => [p.user_id, p.nickname]) ?? []);
+
+    setExperiences(data.map(e => ({
+      ...e,
+      author_nickname: profileMap.get(e.user_id) ?? 'Utente',
+    })));
     setLoading(false);
   };
 
-  const getUserNickname = async (userId: string): Promise<string> => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('nickname')
-      .eq('user_id', userId)
-      .single();
-    
-    return data?.nickname || 'Utente';
-  };
-
-  const filteredExperiences = experiences.filter(experience =>
-    experience.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    experience.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    experience.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredExperiences = experiences.filter(e =>
+    e.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    e.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    e.tags.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   if (!category || !categoryLabels[category]) {
@@ -144,18 +109,13 @@ const ExperiencesByCategory = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8 pt-24">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate(-1)} 
-          className="mb-6"
-        >
+        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Indietro
         </Button>
 
-        {/* Header sezione */}
         <div className="text-center mb-8">
           <div className={`inline-flex items-center gap-3 px-6 py-3 rounded-full ${categoryColors[category]} text-white mb-4`}>
             <div className="w-3 h-3 bg-white rounded-full" />
@@ -166,7 +126,6 @@ const ExperiencesByCategory = () => {
           </p>
         </div>
 
-        {/* Filtri e ricerca */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -177,7 +136,7 @@ const ExperiencesByCategory = () => {
               className="pl-10"
             />
           </div>
-          
+
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="w-full md:w-48">
               <Filter className="w-4 h-4 mr-2" />
@@ -191,40 +150,30 @@ const ExperiencesByCategory = () => {
           </Select>
         </div>
 
-        {/* Lista esperienze */}
         {loading ? (
-          <div className="text-center py-12">
-            <div className="text-muted-foreground">Caricamento esperienze...</div>
-          </div>
+          <div className="text-center py-12 text-muted-foreground">Caricamento esperienze...</div>
         ) : filteredExperiences.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-muted-foreground mb-4">
-              {searchTerm 
+              {searchTerm
                 ? `Nessuna esperienza trovata per "${searchTerm}"`
-                : `Nessuna esperienza trovata nella categoria ${categoryLabels[category]}`
-              }
+                : `Nessuna esperienza trovata nella categoria ${categoryLabels[category]}`}
             </div>
-            <Button onClick={() => window.location.href = `/create/${category}`}>
+            <Button onClick={() => navigate(`/create/${category}`)}>
               Condividi la tua esperienza in {categoryLabels[category]}
             </Button>
           </div>
         ) : (
           <>
-            {/* Ad banner prima dei risultati */}
-            <AdBanner 
-              position="horizontal" 
-              category={category}
-              className="mb-6"
-              dismissible
-            />
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+            <AdBanner position="horizontal" category={category} className="mb-6" dismissible />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {filteredExperiences.map((experience, index) => (
                 <div key={experience.id}>
                   <ExperienceCard
                     id={experience.id}
                     title={experience.title}
-                    author={experience.author_nickname || 'Utente'}
+                    author={experience.author_nickname ?? 'Utente'}
                     content={experience.content}
                     category={categoryLabels[experience.category]}
                     likes={experience.likes_count}
@@ -234,15 +183,8 @@ const ExperiencesByCategory = () => {
                     imageUrl={experience.image_url}
                     userId={experience.user_id}
                   />
-                  
-                  {/* Ad after every 4 experiences */}
                   {(index + 1) % 4 === 0 && (
-                    <AdBanner 
-                      position="horizontal" 
-                      category={category}
-                      className="my-6"
-                      dismissible
-                    />
+                    <AdBanner position="horizontal" category={category} className="my-6" dismissible />
                   )}
                 </div>
               ))}
@@ -250,7 +192,6 @@ const ExperiencesByCategory = () => {
           </>
         )}
 
-        {/* Statistiche */}
         {!loading && filteredExperiences.length > 0 && (
           <div className="mt-8 text-center text-sm text-muted-foreground">
             Mostrando {filteredExperiences.length} di {experiences.length} esperienze
